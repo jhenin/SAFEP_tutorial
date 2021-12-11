@@ -156,4 +156,4 @@ alchEquilSteps          500
 set numSteps            50000
 
 set dLambda             0.05
-runFEP  0.0 1.0 $dLambda $numSteps  true ;# "true" as 5th parameter enables IDWS
+runFEP  0.0 1.0 $dLambda $numSteps  true
