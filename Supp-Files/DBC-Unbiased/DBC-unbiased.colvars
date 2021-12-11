@@ -117,3 +117,35 @@ harmonic {
     forceConstant 10000.0
     centers (1.0, 0.0, 0.0, 0.0)
 }
+
+histogram {
+    outputFile DBC-sym.dat
+    histogramGrid {
+    widths          0.1
+    lowerboundaries 0.0
+    upperboundaries 5.0
+    }
+    colvars DBC_sym
+}
+
+
+histogram {
+    outputFile DBC.dat
+    histogramGrid {
+    widths          0.1
+    lowerboundaries 0.0
+    upperboundaries 5.0
+    }
+    colvars DBC
+}
+
+
+histogram {
+    outputFile COM-distance.dat
+    histogramGrid {
+    widths          0.1
+    lowerboundaries 0.0
+    upperboundaries 5.0
+    }
+    colvars distance
+}
