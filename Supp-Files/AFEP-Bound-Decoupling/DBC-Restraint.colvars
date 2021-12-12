@@ -13,7 +13,7 @@ colvar {
     name DBC_sym
 
     rmsd {
-        refPositionsFile ../rest-ref.pdb
+        refPositionsFile  user_dir/../rest-ref.pdb
         atomPermutation 11 7 3 1 5 9 12
 
         atoms {
@@ -28,7 +28,7 @@ colvar {
                 atomNumbers 32 103 1100 1112 1128 1140 1150 1160 1176 1200 1207 1226 1245 1269 1283 1293 1315 1334 1358 1370 1386 1407 1419 1430 1449 1461 1471 1487 1511 1535 1546 1556 1566 1585 1599 1616 1632 1652 1669 1686 1693 1709 1723 1730 1746 1756 1763 1783 1797 1811 1827 1846 1870 1887 1906 1923 1940 1962 1986 2010 2022 2037 2047 2057 2073 2087 2106 2116 2138 2173 2197 2309 2319 2341 2365 2381 2400 2414 2428 2448 2472 2486
             }
 
-            refPositionsFile ../rest-ref.pdb
+            refPositionsFile  user_dir/../rest-ref.pdb
         }
     }
 }
@@ -51,7 +51,7 @@ colvar {
             }
             # Reference coordinates for binding site atoms
             # (can be the same file as ligand coordinates above)
-            refPositionsFile ../rest-ref.pdb # PDB or XYZ file
+            refPositionsFile  user_dir/../rest-ref.pdb # PDB or XYZ file
         }
 
         group2 { # Reference ligand COM position
@@ -67,7 +67,7 @@ colvar {
 
     orientation {
         # Reference coordinates (for protein)
-        refpositionsfile ../prot-ref.pdb # PDB or XYZ file
+        refpositionsfile  user_dir/../prot-ref.pdb # PDB or XYZ file
 
         atoms {
         # Define protein atoms used for optimal rotation
