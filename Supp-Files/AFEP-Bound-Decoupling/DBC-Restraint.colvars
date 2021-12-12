@@ -4,7 +4,7 @@
 # see Salari, Joseph, Lohia, Hénin and Brannigan, J. Chem. Theory Comput. 2018, 14, 12, 6560-6573
 # https://arxiv.org/abs/1801.04901
 
-# Change the user_dir to the directory that you unzipped the Supp_Files
+# Change the user_dir to the directory that you unzipped the Supp_Files in the whole text
  
 colvarsTrajFrequency 1000
 colvarsRestartFrequency 10000
