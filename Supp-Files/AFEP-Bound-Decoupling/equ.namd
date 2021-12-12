@@ -10,8 +10,8 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../solv-prot.psf
-coordinates        ../solv-prot.pdb
+structure          user_dir/../solv-prot.psf
+coordinates        user_dir/../solv-prot.pdb
 outputName         AFEP2-01
 
 set temperature    300
@@ -33,12 +33,12 @@ firsttimestep      0
 
 # Input
 paraTypeCharmm	    on
-parameters         ../Force-field-parameters/par_all36_prot.prm
-parameters         ../Force-field-parameters/par_all36_carb.prm
-parameters         ../Force-field-parameters/par_all36_lipid.prm
-parameters         ../Force-field-parameters/par_all36_na.prm
-parameters         ../Force-field-parameters/par_all36_cgenff.prm
-parameters         ../Force-field-parameters/toppar_water_ions_namd.str
+parameters         user_dir/../Force-field-parameters/par_all36_prot.prm
+parameters         user_dir/../Force-field-parameters/par_all36_carb.prm
+parameters         user_dir/../Force-field-parameters/par_all36_lipid.prm
+parameters         user_dir/../Force-field-parameters/par_all36_na.prm
+parameters         user_dir/../Force-field-parameters/par_all36_cgenff.prm
+parameters         user_dir/../Force-field-parameters/toppar_water_ions_namd.str
 mergeCrossterms    yes
 
 # NOTE: Do not set the initial velocity temperature if you 
