@@ -9,9 +9,8 @@
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
-
-structure          solv-prot.psf
-coordinates        solv-prot.pdb
+structure          ../solv-prot.psf
+coordinates        ../solv-prot.pdb
 outputName         AFEP2-01
 
 set temperature    300
@@ -21,7 +20,7 @@ if {0} {
 set inputname      
 binCoordinates     $inputname.restart.coor
 binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
-extendedSystem	   $inputname.restart.xsc
+extendedSystem	    $inputname.restart.xsc
 } 
 
 firsttimestep      0
@@ -33,12 +32,12 @@ firsttimestep      0
 
 # Input
 paraTypeCharmm	    on
-parameters         par_all36_prot.prm
-parameters         par_all36_carb.prm
-parameters         par_all36_lipid.prm
-parameters         par_all36_na.prm
-parameters         par_all36_cgenff.prm
-parameters         toppar_water_ions_namd.str
+parameters         ../Force-field-parameters/par_all36_prot.prm
+parameters         ../Force-field-parameters/par_all36_carb.prm
+parameters         ../Force-field-parameters/par_all36_lipid.prm
+parameters         ../Force-field-parameters/par_all36_na.prm
+parameters         ../Force-field-parameters/par_all36_cgenff.prm
+parameters         ../Force-field-parameters/toppar_water_ions_namd.str
 mergeCrossterms    yes
 
 # NOTE: Do not set the initial velocity temperature if you 
