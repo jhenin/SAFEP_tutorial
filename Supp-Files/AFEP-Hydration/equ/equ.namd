@@ -1,0 +1,128 @@
+#############################################################
+## JOB DESCRIPTION                                         ##
+#############################################################
+
+# Min. and Eq. of KcsA
+# embedded in POPC membrane, ions and water.
+# Melting lipid tails. PME, Constant Volume.
+
+#############################################################
+## ADJUSTABLE PARAMETERS                                   ##
+#############################################################
+
+structure          PHEN-solv.psf
+coordinates        PHEN-solv.pdb
+outputName         AFEP-Hyd-01
+
+set temperature    300
+
+# Continuing a job from the restart files
+if {0} {
+set inputname      
+binCoordinates     $inputname.restart.coor
+binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
+extendedSystem	    $inputname.restart.xsc
+} 
+
+firsttimestep      0
+
+
+#############################################################
+## SIMULATION PARAMETERS                                   ##
+#############################################################
+
+# Input
+paraTypeCharmm	    on
+parameters         ../Force-field-parameters/par_all36_prot.prm
+parameters         ../Force-field-parameters/par_all36_carb.prm
+parameters         ../Force-field-parameters/par_all36_lipid.prm
+parameters         ../Force-field-parameters/par_all36_na.prm
+parameters         ../Force-field-parameters/par_all36_cgenff.prm
+parameters         ../Force-field-parameters/toppar_water_ions_namd.str
+mergeCrossterms    yes
+
+# NOTE: Do not set the initial velocity temperature if you 
+# have also specified a .vel restart file!
+temperature         $temperature
+ 
+
+# Periodic Boundary Conditions
+# NOTE: Do not set the periodic cell basis if you have also 
+# specified an .xsc restart file!
+if {1} { 
+cellBasisVector1    22.    0.   0.
+cellBasisVector2     0.   22.   0.
+cellBasisVector3     0.    0.  22.
+cellOrigin         -2.056380271911621 5.088560104370117 9.40662670135498
+}
+
+# SPACE PARTITIONING
+splitpatch          hydrogen
+hgroupcutoff        2.8
+stepspercycle       20
+margin              2.0
+
+wrapWater           on
+wrapAll             off
+
+# Force-Field Parameters
+exclude             scaled1-4
+1-4scaling          1.0
+cutoff              12.0
+switching           on
+switchdist          10.0
+vdwForceSwitching   yes
+
+
+# Integrator Parameters
+timestep            1.0  ;# 1fs/step
+rigidbonds          all
+rigidtolerance      0.000001
+rigiditerations     400
+
+
+#PME (for full-system periodic electrostatics)
+if {1} {
+PME                yes
+PMETolerance       10e-6
+PMEInterpOrder     4
+PMEGridSpacing     1.0
+}
+
+
+# Constant Temperature Control
+langevin            on    ;# do langevin dynamics
+langevinDamping     1     ;# damping coefficient (gamma) of 5/ps
+langevinTemp        $temperature
+
+# Constant Pressure Control (variable volume)
+if {1} {
+useGroupPressure      yes ;# needed for 2fs steps
+useFlexibleCell       no  ;# no for water box, yes for membrane
+useConstantArea       no  ;# no for water box, yes for membrane
+
+langevinPiston        on
+langevinPistonTarget  1.01325 ;#  in bar -> 1 atm
+langevinPistonPeriod  75.0
+langevinPistonDecay   25.0
+langevinPistonTemp    $temperature
+}
+
+restartfreq        1000     ;# 1000steps = every 1ps
+dcdfreq            1000
+outputtiming       1000
+xstFreq            1000
+outputEnergies     1000
+outputPressure     1000
+
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
+
+# Minimization
+if {1} {
+minimize            1000
+reinitvels          $temperature
+}
+
+run 1000000 ;# 1 ns
