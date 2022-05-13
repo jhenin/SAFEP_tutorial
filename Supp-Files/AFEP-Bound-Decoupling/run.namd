@@ -137,23 +137,22 @@ colvarsConfig          DBC-Restraint.colvars
 #############################################################
 
 # FEP PARAMETERS
-
 source                  ./fep.tcl
-                        
+
 alch                    on
 alchType                FEP
-alchFile                solv-prot-charmm.fep
-alchCol                 B
-alchOutFreq             2
-alchOutFile             AFEP2-02.fepout
+alchFile                solv-prot-charmm.fep ;#The file which contains the flags for decoupling.
+alchCol                 B                    ;# Decoupling flags are in the beta field
+alchOutFreq             100                  ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
+alchOutFile             AFEP2-02.fepout      ;# File to write the FEP data.
 
-alchElecLambdaStart     0.5
-alchVdwLambdaEnd        1.0
-alchVdwShiftCoeff       5.0
+alchElecLambdaStart     0.5                  ;# See NAMD UG. Rarely changed.
+alchVdwLambdaEnd        1.0                  ;# See NAMD UG
+alchVdwShiftCoeff       5.0                  ;# The softcore potential coefficient. Typically between 5 and 10.
 alchdecouple            on
 
-alchEquilSteps          500
-set numSteps            50000
+alchEquilSteps          500                  ;# Waits N steps before collecting FEP data for each window. Reduces hysteresis at the cost of fewer samples.
+set numSteps            50000                ;# number of steps for each lambda window
 
-set dLambda             0.05
-runFEP  0.0 1.0 $dLambda $numSteps  true
+set dLambda             0.05                 ;# the width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
+runFEP  0.0 1.0 $dLambda $numSteps  true     ;# Invokes the runFEP script. See fep.tcl for more details.
