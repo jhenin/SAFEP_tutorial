@@ -1,0 +1,50 @@
+\subsection{Theoretical background}
+ The alchemical free energy perturbation (AFEP) method can predict ligand-protein binding affinities efficiently thanks to fictitious intermediate states. A thermodynamic cycle is established through a series of nonphysical transformations between initial and final states. The free energy change {$\Delta G$} around the cycle is zero because the free energy is a state function. \cite{Kollman1993, Chodera2011, Deng2018, Bhati2018, Kuhn2020}.
+ Nevertheless, the selection of intermediate states conditions the accuracy and efficiency of the free energy assessment. AFEP with double decoupling is a formally exact approach, but numerical convergence can be difficult to achieve\cite{Pohorille2010}.
+ Although an abundance of comprehensive essays are available about the theory of affinity calculations, we briefly review the methodology background \cite{Bhandarkar2009, VanGunsteren2002, Chipot2006}.
+
+ We describe an alchemical transformation from state $A$ to state $B$ through a different Hamiltonian for each state, $H_A$ and $H_B$, and more precisely, potential energy functions $U_A$ and $U_B$ (the kinetic energy does not change, and cancels out of the free energy calculations).
+
+ The difference of free energy between two arbitrary states (say, a reference $r$ and a target $t$) can be calculated \textit{exactly} by the exponential formula:\cite{Zwanzig1954}
+ \begin{align}\label{eq:exp_formula}
+ \Delta F_{r\rightarrow t} &= -\frac{1}{\beta}\ln{ \left\langle \frac{e^{-\beta U_t(q, p)}} {e^{-\beta U_r(q, p)}}
+ \right\rangle}_r \\
+ &= -\frac{1}{\beta}\ln{ \left\langle e^{-\beta\Delta U_{r\rightarrow t}(q, p)} \right\rangle}_r
+ \end{align}
+ where $\beta$ is the inverse temperature $1/(k_B T)$, and the bracket indicates an average over $(q, p)$ in the canonical ensemble for the potential energy $U_r$, that is, an \textit{average in the reference state}.
+ For any non-trivial perturbation, the exponential average in Eq.~(\ref{eq:exp_formula}) converges excruciatingly slowly, making this expression less than useful.
+ In practice, to improve numerical convergence, the transformation from the reference to the target state is split into smaller steps, connecting a series of nonphysical intermediate states \cite{Beveridge1989}.
+ Thus we can apply Eq.~(\ref{eq:exp_formula}) to many intermediate states between $A$ and $B$.
+
+ The perturbation can be described continuously by a potential energy that depends on a “coupling parameter” $\lambda$ between 0 and 1.
+ In the simplest case, it is a linear combination of the initial and final state potential energies:
+ \begin{equation}\label{eq:U_lambda}
+ U_\lambda(q, p)=(1-\lambda)U_A(q, p)+\lambda U_B(q, p)
+ \end{equation}
+
+ Calculating the difference of a free energy between the states through a series of intermediate transformations makes the exponential formula converge faster.
+ There are also estimators termed \textit{Overlap Sampling} that improve convergence by introducing fictitious intermediate sates with better overlap with the states of interest and using them as target state in the exponential formula.
+ These include simple overlap sampling (SOS) and Bennett's acceptance ratio (BAR). The SOS strategy simulates forward and a reverse sampling to an intermediate halfway between $\lambda_i$ and $\lambda_{i+1}$:\cite{Lu2004}
+ \begin{equation}\label{eq:SOS}
+ \Delta F_{i,i+1}=-\frac{1}{\beta}\ln{\frac
+ {\left\langle e^{-\beta\Delta U_{i,i+1}/2} \right\rangle_{i}}
+ {\left\langle e^{\beta\Delta U_{i,i+1}/2} \right\rangle_{i+1}}
+ }
+ \end{equation}
+ BAR determines the optimal intermediate state by an iterative procedure, minimizing the statistical error\cite{Bennett1976,Lu2004,Lu2004a}.
+
+
+ Thermodynamic integration is an alternative general-purpose method for the calculation of free energies along a continuous parameter, which may be a geometric coordinate or an alchemical coupling parameter. \cite{Mitchell1991,VanGunsteren2002,Jorge2010} 
+ Thermodynamic integration can be written as:
+ \begin{equation}\label{eq:TI}
+ \Delta F=\int_0^1\left\langle\frac{\partial U_\lambda(q,p)}{\partial\lambda}\right\rangle_\lambda d\lambda
+ \end{equation}
+
+ In all alchemical transformations where particles are annihilated or decoupled from the environment, a singularity problem referred to as “end-point catastrophe” can occurred at the end points where repulsive nonbonded interactions disappear.
+ With linear scaling of the repulsive potential, the free energy derivative with respect to $\lambda$ is infinite at the end-points, making the free energy estimation unreliable.
+ To avoid this singularity, the interaction potential energy is transformed as a nonlinear function of $\lambda$, to behave as a so-called “soft-core potential” \cite{Beutler1994,Zacharias1994}.
+
+ In the double decoupling method (DDM), the ligand is decoupled separately from the binding site and from bulk solution, by turning off the ligand's van der Waals and electrostatic interactions \cite{Straatsma1992, Boresch2003, Nishikawa2018}.
+ Restraining potentials are usually applied to the ligand in the binding cavity to prevent it from diffusing away from the site and sampling a large volume of irrelevant configurations when it becomes mostly decoupled\cite{Deng2009}.
+ It is necessary to account for the effect of the restraining potential when computing the standard free energy of binding.
+ This contribution can be estimated numerically by a restraint free-energy perturbation (RFEP) simulation.\cite{Mobley2006, Deng2009, Salari2018, Sakae2020}.

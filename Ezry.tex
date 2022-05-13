@@ -1,0 +1,140 @@
+\documentclass[9pt,tutorial]{Styling/livecoms}
+%\documentclass[10pt,twocolumn]{article}
+
+
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\DeclareSIUnit\Molar{M}
+\usepackage[italic]{mathastext}
+\graphicspath{{Figures/}}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyvrb}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Overleaf Example},
+    }
+
+% \newcommand{\versionnumber}{0.1}  % you should update the minor version number in preprints and major version number of submissions.
+% \newcommand{\githubrepository}{\url{https://github.com/myaccount/homegithubrepository}}  %this should be the main github repository for this article
+
+\newcommand{\jh}[1]{\textcolor{blue}{JH: #1}}
+\newcommand{\grace}[1]{\textcolor{red}{GB: #1}}
+\newcommand{\Mina}[1]{\textcolor{magenta}{Mina: #1}}
+\title{Computing absolute binding affinities by Streamlined Alchemical Free Energy Perturbation}
+\begin{document}
+
+\begin{frontmatter}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\end{frontmatter}
+
+\section{Introduction}
+
+\section{Overview}
+The steps involved in the SAFEP method are summarized below. Basic familiarity with the concept of free energy perturbations can be acquired from [NAMD UG] or [Tuckerman]. Supporting files can be found here: [SAFEP repo].\par
+\subsection{Defining the Occupied State}
+\begin{enumerate}
+    \item \hyperref[sec:unbiased]{Prepare, solvate, equilibrate, and run a preliminary simulation} of at least 50ns. 
+    \item Load the trajectory into VMD and \hyperref[sec:analyzeUnbiased]{analyze it}
+    \item \hyperref[sec:referenceStructure]{Create a reference pdb} 
+    \item \hyperref[sec:defineDBC]{Define the DBC colvar} using the Colvars Dashboard.
+    \item Finally, \hyperref[sec:defineHarmonicWall]{define a harmonic wall bias} on the DBC coordinate at approximately the 95th percentile.
+\end{enumerate}
+
+\section{Detailed Steps}
+\subsection{Unbiased Simulation}
+\label{sec:unbiased}
+In order for the alchemical free energy perturbation calculations to converge in a reasonable amount of time, there must be some degree of similarity between the start state (when $\lambda=0$) and the end state (when $\lambda=1$). To ensure this, we will use a carefully selected RMSD flat-bottom restraint (described in detail below). The size of this restraint is most robustly determined empirically using a minimally biased simulation. Such a simulation has the added benefit of generating a well-equilibrated system that will be the starting point for later simulations.\par
+\subsubsection{System Preparation}
+\begin{enumerate}
+    \item Open CHARMM-GUI's Solution Builder [link].
+    \item Use the pdb id: 4I7L
+    \item Use just residues 1 to 160 (i.e. exclude those residues that are part of flexible 'tails') and the first IPH (phenol) residue.
+\end{enumerate}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+  We're using a reduced set of residues in this case. This is not generally advisable if there is any doubt about which residues contribute to the binding affinity or the protein's structure.
+\end{tcolorbox}
+\begin{enumerate}[resume]
+    \item Proceed through the prompts using default settings. We do recommend including WYF cation-pi interactions.
+    \item Generate simulation files for NAMD.
+    \item Run the CHARMM-GUI recommended equilibration and production runs
+    \item Extend the production run to at least 50ns. Consider increasing the outer timesteps (nonbonded and full-electrostatic calculation frequencies) to improve efficiency.
+\end{enumerate}
+
+\subsubsection{Analysis}
+\label{sec:analyzeUnbiased}
+Before running FEP, the bound conformation must be well-defined. Because SAFEP uses the RMSD of the ligand from its bound pose \textit{relative to the binding site}, we must select an appropriate frame of reference. In well-structured proteins it is sufficient to select about a dozen alpha carbons within an arbitrary cutoff of the bound lipid. We only use a subset of the protein's atoms to define the binding site for two reasons: 1) the binding site may move relative to the rest of the protein and 2) the DBC restraint that we will impose later is more computationally expensive the more atoms involved.
+\begin{enumerate}
+    \item Load the trajectory into VMD
+    \begin{Verbatim}[xleftmargin=-0.25in]
+    mol new step3_input.psf
+    mol addfile step5_production.dcd -waitfor all
+    \end{Verbatim}
+    \item Rewrap the trajectory around the protein
+    \begin{Verbatim}[xleftmargin=-0.25in]
+    pbc unwrap
+    pbc wrap -center com -centersel protein \
+        -compound res
+    \end{Verbatim}
+    \item Align the trajectory to the protein using \href{https://www.ks.uiuc.edu/Research/vmd/plugins/rmsdvt/}{VMD's RMSD Visualizer plugin}
+    \item Watch the trajectory to confirm that the ligand doesn't leave the binding site
+    \item Identify any highly mobile residues either visually or by using the heatmap tool in \href{https://www.ks.uiuc.edu/Research/vmd/plugins/rmsdvt/}{VMD's RMSD Visualizer plugin}. Be sure to exclude these from the binding site definition.
+\end{enumerate}
+  
+
+\subsubsection{Create the reference structure} 
+\label{sec:referenceStructure}
+RMSD calculations rely on a reference structure for comparison. We will create such a file now. 
+\begin{enumerate}
+    \item Create an atomselection of all atoms in the system
+    \item Set their occupancy to 0
+    \item Create another atomselection of the ligand and the alpha carbons that describe the binding site. In this case we'll use the alpha carbons of any residues within 14A of the ligand in the binding site.
+    \item Set their occupancy to 1
+    \item Identify a prototypical bound pose
+    \item Save that frame as a pdb and name it appropriately. This will be the reference file for the DBC collective variable. 
+\end{enumerate}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+Note that it is not essential that the reference structure be some perfectly defined or mean structure. Only that it is well within the ensemble of bound poses. 
+\end{tcolorbox}
+
+\subsubsection{Define the DBC and its Harmonic Wall}
+\label{sec:defineDBC}
+The last step before beginning our FEP calculations is to define the ensemble of bound poses using a DBC collective variable which will be maintained during decoupling using a harmonic wall restraint.
+\begin{enumerate}
+    \item Open the Colvars Dashboard
+    \item Create a new colvar using the button near the center of the windoe
+    \item Insert a DBC colvar using the templates list on the left
+    \item Atom numbers to match those of the ligand's heavy atoms. This can be easily accomplished using one of the tools on the left of the window (e.g. from selection or from representation)
+    \item In the same way, update the fitting group atom numbers to be those of the binding site alpha carbons.
+    \item Update the refPositionsFile parameters to match the name of the reference file created above.
+    \item Save the resulting colvar (ctrl-s)
+    \item Examine the histogram of the resulting colvar and estimate the 95th percentile. This will be the upper wall of the restraint. Again, this needn't be precise.
+\end{enumerate}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+If you happen to observe an unbinding event in your trajectory, you are likely to observe a "valley" in the DBC histogram near the unbinding event due to the free energy barrier. In this case, it is better practice to use either the minimum of the valley or to exclude the unbound state from consideration entirely.
+\end{tcolorbox}
+\label{sec:defineHarmonicWall}
+\begin{enumerate}[resume]
+    \item Open the biases tab in the Colvars Dashboard
+    \item Select "New Bias"
+    \item Replace the default template with a harmonic walls bias
+    \item Remove the lower wall line
+    \item Set the upper wall to the value determined above
+    \item Set the force constant to 4 (kcal/mol). Stronger force constants are typically not needed and may introduce artifacts to the final calculation.
+    \item Confirm that the bias refers to the correct colvar and save the entire configuration file.
+    \item Note: some versions of the Colvars Dashboard will write the line "units real" in the configuration file. Delete these words before running NAMD with the DBC restraint.
+\end{enumerate}
+
+
+\end{document}
+
