@@ -23,12 +23,76 @@ from alchemlyb.visualisation import plot_convergence
 
 import re
 
+
+def plotGeneral(cumulative, perWindow, pdfX, pdfY, width=8, height=4, PDFtype='KDE'):
+    fig, ((cumAx, del1),( eachAx, del2),(hystAx, pdfAx)) = plt.subplots(3,2, sharex='col', sharey='row', gridspec_kw={'width_ratios': [2, 1]})
+
+    fig.delaxes(del1)
+    fig.delaxes(del2)
+
+    # Cumulative change in kcal/mol
+    cumAx.errorbar(cumulative.index, cumulative.BAR.f*RT, yerr=cumulative.BAR.errors, marker=None, linewidth=1)
+    cumAx.set(ylabel=r'Cumulative $\rm\Delta G_{\lambda}$'+'\n(kcal/mol)')
+
+    # Per-window change in kcal/mol
+    eachAx.errorbar(perWindow.index, perWindow.BAR.df*RT, yerr=perWindow.BAR.ddf, marker=None, linewidth=1)
+    eachAx.plot(perWindow.index, perWindow.EXP.dG_f*RT, marker=None, linewidth=1, alpha=0.5)
+    eachAx.errorbar(perWindow.index, -perWindow.EXP.dG_b*RT, marker=None, linewidth=1, alpha=0.5)
+    eachAx.set(ylabel=r'$\rm\Delta G_{\lambda}$'+'\n(kcal/mol)')
+
+    
+    #Hysteresis Plots
+    diff = perWindow.EXP['difference']
+    hystAx.vlines(perWindow.index, np.zeros(len(perWindow)), diff, label="fwd - bwd", linewidth=2)
+    hystAx.set(xlabel=r'$\lambda$', ylabel=r'$\delta_\lambda$ (kcal/mol)', ylim=(-1,1))
+    
+
+    
+    if PDFtype=='KDE':
+        kernel = sp.stats.gaussian_kde(diff)
+        samples = np.linspace(-1, 1, 1000)
+        pdfAx.plot(kernel(samples), samples, label='KDE')
+    elif PDFtype=='PDF':
+        pdfX, pdfY = np.histogram(X, nbins=20)
+        pdfAx.plot(pdfY, pdfX,  label="Estimated Distribution")
+    else:
+        raise(f"Error: PDFtype {PDFtype} not recognized")
+    
+    pdfAx.set(xlabel=PDFtype)
+
+    std = np.std(diff)
+    mean = np.average(diff)
+    temp = pd.Series(pdfY, index=pdfX)
+    mode = temp.idxmax()
+    
+    textstr = r"$\rm{mode_{pdf}=}$"+f"{np.round(mode,2)}"+"\n"+fr"$\mu$={np.round(mean,2)}"+"\n"+fr"$\sigma$={np.round(std,2)}"
+    props = dict(boxstyle='square', facecolor='white', alpha=0.5)
+    pdfAx.text(0.15, 0.95, textstr, transform=pdfAx.transAxes, fontsize=14,
+            verticalalignment='top', bbox=props)
+
+    fig.set_figwidth(width)
+    fig.set_figheight(height*3)
+    fig.tight_layout()
+    
+    return fig, ((cumAx, _),( eachAx, _),(hystAx, pdfAx)) 
+
+
+def saveUNK(u_nk, filepath):
+    u_nk.to_csv(filepath)
+    
+def readUNK(filepath):
+    u_nk = pd.read_csv(filepath)
+    u_nk['fep-lambda'] = u_nk['fep-lambda'].astype(str)
+    u_nk = u_nk.set_index(['time', 'fep-lambda'])
+    
+    return u_nk.copy()
+
 #Guess lambda based on file name (last number in the filename divided by 100)
 def guessLambda(fname):
     L = int(re.findall(r'\d+', fname)[-1])/100
     return L
 
-#redFEPOUT uses reads each file in a single pass: keeping track of lambda values and appending each line to an array. 
+#redFEPOUT reads each file in a single pass: keeping track of lambda values and appending each line to an array. 
 #The array is cast to a dataframe at the end to avoid appending to a dataframe
 def readFEPOUT(fileName, step=1):
     colNames = ["type",'step', 'Elec_l', 'Elec_ldl', 'vdW_l', 'vdW_ldl', 'dE', 'dE_avg', 'Temp', 'dG', 'FromLambda', "ToLambda"]
@@ -169,7 +233,7 @@ def readAndProcess(fepoutFiles, temperature, decorrelate, detectEQ):
         decorr = pd.DataFrame([])
         for key, group in groups:
             test = subsampling.decorrelate_u_nk(group, method)
-            decorr = decorr.append(test)
+            decorr = pd.concat([decorr, test])
         u_nk = decorr
     else:
         affix = f'{affix}_unprocessed'
@@ -182,7 +246,7 @@ def readAndProcess(fepoutFiles, temperature, decorrelate, detectEQ):
         for key, group in groups:
             group = group[~group.index.duplicated(keep='first')]
             test = subsampling.equilibrium_detection(group, group.dropna(axis=1).iloc[:,-1])
-            EQ = EQ.append(test)
+            EQ = pd.concat([EQ, test])
         u_nk = EQ
     else:
         affix=f"{affix}_HardEquilibrium"
@@ -200,49 +264,180 @@ def get_dG(u_nk):
         dG = dG.copy() # this is actually faster than having a fragmented dataframe
         
     return dG
+
+
+def doEstimation(u_nk, method='both'):
+    u_nk = u_nk.sort_index(level=1)
+    cumulative = pd.DataFrame()
+    perWindow = pd.DataFrame()
+    if method=='both' or method=='BAR':
+        bar = BAR()
+        bar.fit(u_nk)
+        ls, l_mids, fs, dfs, ddfs, errors = get_BAR(bar)
+        
+        cumulative[('BAR', 'f')] = fs
+        cumulative[('BAR', 'errors')] = errors
+        cumulative.index = ls
+
+        perWindow[('BAR','df')] = dfs
+        perWindow[('BAR', 'ddf')] = ddfs
+        perWindow.index = l_mids
+        
+    if method=='both' or method=='EXP':
+        expl, expmid, dG_fs, dG_bs = get_EXP(u_nk)
+
+        cumulative[('EXP', 'ff')] = np.insert(np.cumsum(dG_fs),0,0)
+        cumulative[('EXP', 'fb')] = np.insert(-np.cumsum(dG_bs),0,0)
+        cumulative.index = expl 
+        
+        perWindow[('EXP','dG_f')] = dG_fs
+        perWindow[('EXP','dG_b')] = dG_bs
+        perWindow[('EXP', 'difference')] = np.array(dG_fs)+np.array(dG_bs)        
+        perWindow.index = expmid
+        
     
+    perWindow.columns = pd.MultiIndex.from_tuples(perWindow.columns)
+    cumulative.columns = pd.MultiIndex.from_tuples(cumulative.columns)
     
-def plot_cumsum(f, errors, l, units):
-    plt.errorbar(l, f, yerr=errors, marker='.')
-    plt.xlabel('lambda')
-    plt.ylabel(f'DeltaG(lambda) ({units})')
-    return plt.gca()
+    return perWindow.copy(), cumulative.copy()
 
 
-def plot_per_window(df, l_mid, units):
-    plt.errorbar(l_mid, df, yerr=ddf, marker='.')
-    plt.xlabel('lambda')
-    plt.ylabel(f'Delta G per window ({units})')
-    return plt.gca()
 
-def convergence_plot(u_nk, states, tau=1):
-    grouped = u_nk.groupby('fep-lambda')
-    data_list = [grouped.get_group(s) for s in states]
 
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), 'same') / w
+
+
+# Subsamples a u_nk dataframe using percentiles [0-100] of data instead of absolute percents
+def subSample(unkGrps, lowPct, hiPct):
+    partial = []
+    for key, group in unkGrps:
+        idcs = group.index.get_level_values(0)
+        
+        lowBnd = np.percentile(idcs, lowPct, method='closest_observation')
+        hiBnd = np.percentile(idcs, hiPct, method='closest_observation')
+        mask = np.logical_and(idcs<=hiBnd, idcs>=lowBnd) 
+        sample = group.loc[mask]
+        if len(sample)==0:
+            print(f"ERROR: no samples in window {key}")
+            print(f"Upper bound: {hiBnd}\nLower bound: {lowBnd}")
+            raise
+            
+        partial.append(sample)
+
+    partial = pd.concat(partial)
+    
+    return partial
+
+
+# altConvergence splits the data into percentile blocks. Inspired by block averaging
+def altConvergence(u_nk, nbins):
+    groups = u_nk.groupby('fep-lambda')
+
+    #return data_list
+    
     forward = []
     forward_error = []
     backward = []
     backward_error = []
-    num_points = 10
+    num_points = nbins
     for i in range(1, num_points+1):
         # forward
-        partial = pd.concat([data[:int(len(data)/num_points*i)] for data in data_list])
+        partial = subSample(groups, 100*(i-1)/num_points, 100*i/num_points)
         estimate = BAR().fit(partial)
-        forward.append(estimate.delta_f_.iloc[0,-1])
-        # For BAR, the error estimates are off-diagonal
-        ddf = [estimate.d_delta_f_.iloc[i+1,i] * np.sqrt(tau) for i in range(len(states)-1)]
-        error = np.sqrt((np.array(ddf)**2).sum())
-        forward_error.append(error)
+        l, l_mid, f, df, ddf, errors = get_BAR(estimate)
+        
+        forward.append(f.iloc[-1])
+        forward_error.append(errors[-1])
 
-        # backward
-        partial = pd.concat([data[-int(len(data)/num_points*i):] for data in data_list])
+    return np.array(forward), np.array(forward_error)
+
+def doConvergence(u_nk, tau=1, num_points=10):
+    groups = u_nk.groupby('fep-lambda')
+
+    #return data_list
+    
+    forward = []
+    forward_error = []
+    backward = []
+    backward_error = []
+    for i in range(1, num_points+1):
+        # forward
+        partial = subSample(groups, 0, 100*i/num_points)
         estimate = BAR().fit(partial)
-        backward.append(estimate.delta_f_.iloc[0,-1])
-        ddf = [estimate.d_delta_f_.iloc[i+1,i] * np.sqrt(tau) for i in range(len(states)-1)]
-        error = np.sqrt((np.array(ddf)**2).sum())
-        backward_error.append(error)
+        l, l_mid, f, df, ddf, errors = get_BAR(estimate)
+        
+        forward.append(f.iloc[-1])
+        forward_error.append(errors[-1])
+        
+        partial = subSample(groups, 100*(1-i/num_points), 100)
+        estimate = BAR().fit(partial)
+        l, l_mid, f, df, ddf, errors = get_BAR(estimate)
+        
+        backward.append(f.iloc[-1])
+        backward_error.append(errors[-1])
 
+    return np.array(forward), np.array(forward_error), np.array(backward), np.array(backward_error)
+
+
+
+def doConvPlot(ax, X, fs, ferr, fwdColor, label=None):
+    ax.errorbar(X, fs, yerr=ferr, marker=None, linewidth=1, color=fwdColor, markerfacecolor='white', markeredgewidth=1, markeredgecolor=fwdColor, ms=5, label=label)
+    return ax
+
+
+
+def convergencePlot(theax, fs, ferr, bs, berr, fwdColor='#0072B2', bwdColor='#D55E00', lgndF=None, lgndB=None):
+    if not lgndF:
+        lgndF=fwdColor
+        lgndB=bwdColor
+        
+        
+    lower = fs[-1]-ferr[-1]
+    upper = fs[-1]+ferr[-1]
+    theax.fill_between([0,1],[lower, lower], [upper, upper], color=bwdColor, alpha=0.25)
+    theax.errorbar(np.arange(len(fs))/len(fs)+0.1, fs, yerr=ferr, marker='o', linewidth=1, color=fwdColor, markerfacecolor='white', markeredgewidth=1, markeredgecolor=fwdColor, ms=5)
+    theax.errorbar(np.arange(len(bs))/len(fs)+0.1, bs, yerr=berr, marker='o', linewidth=1, color=bwdColor, markerfacecolor='white', markeredgewidth=1, markeredgecolor=bwdColor, ms=5, linestyle='--')
+
+
+    
+    theax.xaxis.set_ticks([0, 0.2, 0.4, 0.6, 0.8, 1])
+    
+    finalMean = fs[-1]
+    theax.axhline(y= finalMean, linestyle='-.', color='gray')
+    theax.plot(0, finalMean, linewidth=1, color=lgndF, label='Forward Time Sampling')
+    theax.plot(0, finalMean, linewidth=1, color=lgndB, linestyle='--', label='Backward Time Sampling')
+    
+    return theax
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Cannonical convergence plot
+def convergence_plot(u_nk, tau=1, units='kT', RT=0.59):
+    forward, forward_error, backward, backward_error = doConvergence(u_nk, num_points=10)
+
+    if units=='kcal/mol':
+        forward = forward*RT
+        forward_error = forward_error*RT
+        backward = backward*RT
+        backward_error = backward_error*RT
+    
     ax = plot_convergence(forward, forward_error, backward, backward_error)
+    
+    if units=='kcal/mol':
+        ax.set(ylabel=r'$\rm\Delta G$'+'\n(kcal/mol)')
 
     return plt.gca()
 
@@ -360,7 +555,7 @@ def bootStrapEstimate(u_nk, estimator='BAR', iterations=100, schedule=[10,20,30,
                     N=1
                 rows = np.random.choice(len(group), size=N)
                 test = group.iloc[rows,:]
-                sampled = sampled.append(test)
+                sampled = pd.concat([sampled, test])
             if estimator == 'EXP':
                 l, l_mid, dG_f, dG_b = get_EXP(pd.DataFrame(sampled))
                 F = np.sum(dG_f)
@@ -496,7 +691,7 @@ if __name__ == '__main__':
     parser.add_argument('--detectEQ', type=bool, help='Flag for automated equilibrium detection.', default=0)
     parser.add_argument('--fittingMethod', type=str, help='Method for fitting the forward-backward discrepancies (hysteresis). LS=least squares, ML=maximum likelihood Default: LS', default='LS')
     parser.add_argument('--maxSize', type=float, help='Maximum total file size in GB. This is MUCH less than the required RAM. Default: 1', default=1)
-    parser.add_argument('--makeFigures', type=bool, help='Run additional diagnostics and save figures to the directory. default: true', default=0)
+    parser.add_argument('--makeFigures', type=bool, help='Run additional diagnostics and save figures to the directory. default: False', default=0)
 
     args = parser.parse_args()
 
