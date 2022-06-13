@@ -15,8 +15,8 @@
 # by adding "histogram" blocks to this input
 # Measuring d"MAX" for wall-Harmonic restraint
 
-colvarsTrajFrequency 10
-colvarsRestartFrequency 1000
+colvarsTrajFrequency 100
+colvarsRestartFrequency 10000
 
 colvar {
     name DBC_sym

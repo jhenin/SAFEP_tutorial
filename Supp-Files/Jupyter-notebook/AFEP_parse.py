@@ -5,6 +5,14 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from numpy.lib.stride_tricks import sliding_window_view
 from scipy.stats import linregress as lr
 from scipy.stats import norm
+from alchemlyb.preprocessing import subsampling
+import os
+from scipy.signal import correlate
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy as sp
+from scipy.optimize import curve_fit, leastsq
+
 
 from glob import glob #file regexes
 import pandas as pd
@@ -24,7 +32,7 @@ from alchemlyb.visualisation import plot_convergence
 import re
 
 
-def plotGeneral(cumulative, perWindow, pdfX, pdfY, width=8, height=4, PDFtype='KDE'):
+def plotGeneral(cumulative, perWindow, RT, width=8, height=4, PDFtype='KDE'):
     fig, ((cumAx, del1),( eachAx, del2),(hystAx, pdfAx)) = plt.subplots(3,2, sharex='col', sharey='row', gridspec_kw={'width_ratios': [2, 1]})
 
     fig.delaxes(del1)
@@ -50,8 +58,9 @@ def plotGeneral(cumulative, perWindow, pdfX, pdfY, width=8, height=4, PDFtype='K
     
     if PDFtype=='KDE':
         kernel = sp.stats.gaussian_kde(diff)
-        samples = np.linspace(-1, 1, 1000)
-        pdfAx.plot(kernel(samples), samples, label='KDE')
+        pdfX = np.linspace(-1, 1, 1000)
+        pdfY = kernel(pdfX)
+        pdfAx.plot(pdfY, pdfX, label='KDE')
     elif PDFtype=='PDF':
         pdfX, pdfY = np.histogram(X, nbins=20)
         pdfAx.plot(pdfY, pdfX,  label="Estimated Distribution")
@@ -74,7 +83,7 @@ def plotGeneral(cumulative, perWindow, pdfX, pdfY, width=8, height=4, PDFtype='K
     fig.set_figheight(height*3)
     fig.tight_layout()
     
-    return fig, ((cumAx, _),( eachAx, _),(hystAx, pdfAx)) 
+    return fig, [cumAx,eachAx,hystAx,pdfAx] 
 
 
 def saveUNK(u_nk, filepath):

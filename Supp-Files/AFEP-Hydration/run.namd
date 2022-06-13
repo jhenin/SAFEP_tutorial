@@ -2,9 +2,6 @@
 ## JOB DESCRIPTION                                         ##
 #############################################################
 
-# Min. and Eq. of KcsA
-# embedded in POPC membrane, ions and water.
-# Melting lipid tails. PME, Constant Volume.
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
@@ -18,7 +15,7 @@ set temperature    300
 
 # Continuing a job from the restart files
 if {1} {
-set inputname      Phenol-Hyd-01
+set inputname      AFEP-Hyd-01
 binCoordinates     $inputname.restart.coor
 binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
 extendedSystem	    $inputname.restart.xsc
@@ -110,11 +107,11 @@ langevinPistonDecay   25.0
 langevinPistonTemp    $temperature
 }
 
-restartfreq           10000    ;# 10000steps = every 2ps
-dcdfreq               10000
-xstFreq               10000
-outputEnergies        10000
-outputPressure        10000
+restartfreq           500000    ;# 500000steps = every 100ps
+dcdfreq               50000 	;# Write coordinates every 10ps
+xstFreq               50000
+outputEnergies        50000
+outputPressure        50000
 
 #############################################################
 ## EXTRA PARAMETERS                                        ##
@@ -128,7 +125,7 @@ alch                    on
 alchType                FEP
 alchFile                PHEN-solv.fep
 alchCol                 B
-alchOutFreq             2
+alchOutFreq             100 	;# Sample every 200fs, typical values are between 50 and 200 steps
 alchOutFile             AFEP-Hyd-02.fepout
 
 alchElecLambdaStart     0.5

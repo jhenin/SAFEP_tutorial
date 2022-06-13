@@ -2,10 +2,6 @@
 ## JOB DESCRIPTION                                         ##
 #############################################################
 
-# Min. and Eq. of KcsA
-# embedded in POPC membrane, ions and water.
-# Melting lipid tails. PME, Constant Volume.
-
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
@@ -58,7 +54,7 @@ cellOrigin         -2.134230852127075 5.374462127685547 9.410693168640137
 wrapWater           off
 wrapAll             off
 COMmotion           no
-zeroMomentum        yes
+zeroMomentum        no
 
 # SPACE PARTITIONING
 splitpatch          hydrogen
@@ -109,11 +105,11 @@ langevinPistonDecay   25.0
 langevinPistonTemp    $temperature
 }
 
-restartfreq        1000     ;# 1000steps = every 2ps
-dcdfreq            1000
-xstFreq            1000
-outputEnergies     1000
-outputPressure     1000
+restartfreq        100000     ;# every 100ps
+dcdfreq            10000 	 ;# every 10ps
+xstFreq            10000
+outputEnergies     10000
+outputPressure     10000
 
 #############################################################
 ## EXTRA PARAMETERS                                        ##
@@ -136,4 +132,4 @@ minimize            1000
 reinitvels          $temperature
 }
 
-run 12320500;# 12 ns
+run 12300000;# 12.3 ns total (41 lambdas, 300ps each)
