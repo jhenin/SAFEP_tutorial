@@ -78,15 +78,6 @@ rigidtolerance      0.000001
 rigiditerations     400
 
 
-#PME (for full-system periodic electrostatics)
-if {1} {
-PME                yes
-PMETolerance       10e-6
-PMEInterpOrder     4
-PMEGridSpacing     1.0
-}
-
-
 # Constant Temperature Control
 langevin            on    ;# do langevin dynamics
 langevinDamping     1     ;# damping coefficient (gamma) of 5/ps
@@ -120,7 +111,7 @@ outputPressure     10000
 # COLVARS SECTION
 
 colvars                 on 
-colvarsConfig          DBC-Restraint-RFEP.in
+colvarsConfig          DBC-Restraint-RFEP.colvars
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
