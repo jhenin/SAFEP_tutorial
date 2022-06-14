@@ -74,7 +74,7 @@ def plotGeneral(cumulative, perWindow, RT, width=8, height=4, PDFtype='KDE'):
     temp = pd.Series(pdfY, index=pdfX)
     mode = temp.idxmax()
     
-    textstr = r"$\rm{mode_{pdf}=}$"+f"{np.round(mode,2)}"+"\n"+fr"$\mu$={np.round(mean,2)}"+"\n"+fr"$\sigma$={np.round(std,2)}"
+    textstr = r"$\rm mode=$"+f"{np.round(mode,2)}"+"\n"+fr"$\mu$={np.round(mean,2)}"+"\n"+fr"$\sigma$={np.round(std,2)}"
     props = dict(boxstyle='square', facecolor='white', alpha=0.5)
     pdfAx.text(0.15, 0.95, textstr, transform=pdfAx.transAxes, fontsize=14,
             verticalalignment='top', bbox=props)

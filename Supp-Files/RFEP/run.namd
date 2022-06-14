@@ -39,17 +39,11 @@ mergeCrossterms    yes
 # NOTE: Do not set the initial velocity temperature if you 
 # have also specified a .vel restart file!
 temperature         $temperature
- 
 
-# Periodic Boundary Conditions
-# NOTE: Do not set the periodic cell basis if you have also 
-# specified an .xsc restart file!
-if {0} { 
-cellBasisVector1    20.0    0.   0.
-cellBasisVector2     0.   25.0   0.
-cellBasisVector3     0.    0.  25.0
-cellOrigin         -2.134230852127075 5.374462127685547 9.410693168640137
-}
+# Periodic boundaries should not be used in this case
+# PME is off by default and should not be used in this case
+# We're in vacuum so there is no pressure coupling
+
 
 wrapWater           off
 wrapAll             off
@@ -60,7 +54,6 @@ zeroMomentum        no
 splitpatch          hydrogen
 hgroupcutoff        2.8
 stepspercycle       20
-
 
 # Force-Field Parameters
 exclude             scaled1-4
@@ -83,18 +76,6 @@ langevin            on    ;# do langevin dynamics
 langevinDamping     1     ;# damping coefficient (gamma) of 5/ps
 langevinTemp        $temperature
 
-# Constant Pressure Control (variable volume)
-if {0} {
-useGroupPressure      yes ;# needed for 2fs steps
-useFlexibleCell       no  ;# no for water box, yes for membrane
-useConstantArea       no  ;# no for water box, yes for membrane
-
-langevinPiston        on
-langevinPistonTarget  1.01325 ;#  in bar -> 1 atm
-langevinPistonPeriod  75.0
-langevinPistonDecay   25.0
-langevinPistonTemp    $temperature
-}
 
 restartfreq        100000     ;# every 100ps
 dcdfreq            10000 	 ;# every 10ps

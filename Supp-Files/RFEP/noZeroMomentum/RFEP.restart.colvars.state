@@ -1,0 +1,32 @@
+configuration {
+  step     12300000
+  dt 1.000000e+00
+  version 2020-07-07
+}
+
+colvar {
+  name DBC_sym
+  x  2.20081768695989e+00
+}
+
+colvar {
+  name distance
+  x  4.57427288757105e-01
+}
+
+restraint {
+  configuration {
+    step 12300000
+    name harmonicwalls1
+  }
+}
+
+restraint {
+  configuration {
+    step 12300000
+    name harmonicwalls2
+    stage           40
+    forceConstant  0.00000000000000e+00
+  }
+}
+
