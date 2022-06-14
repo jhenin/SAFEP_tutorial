@@ -1,32 +1,32 @@
 configuration {
-  step         1000
+  step     12301000
   dt 1.000000e+00
   version 2020-07-07
 }
 
 colvar {
   name DBC_sym
-  x  4.62746407975839e-02
+  x  2.33143567507964e+00
 }
 
 colvar {
   name distance
-  x  1.14396944591387e-01
+  x  8.54130657681514e-01
 }
 
 restraint {
   configuration {
-    step 1000
+    step 12301000
     name distance_rest
   }
 }
 
 restraint {
   configuration {
-    step 1000
+    step 12301000
     name DBC_rest
-    stage            0
-    forceConstant  2.00000000000000e+02
+    stage           40
+    forceConstant  0.00000000000000e+00
   }
 }
 
