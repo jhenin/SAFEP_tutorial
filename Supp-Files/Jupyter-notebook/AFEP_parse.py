@@ -426,13 +426,6 @@ def convergencePlot(theax, fs, ferr, bs, berr, fwdColor='#0072B2', bwdColor='#D5
 
 
 
-
-
-
-
-
-
-
 #Cannonical convergence plot
 def convergence_plot(u_nk, tau=1, units='kT', RT=0.59):
     forward, forward_error, backward, backward_error = doConvergence(u_nk, num_points=10)

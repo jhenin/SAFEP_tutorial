@@ -64,19 +64,23 @@ colvar {
 
 # Flat-bottom harmonic restraint on center-of-mass distance
 harmonicWalls {
-    colvars       distance
-    upperWalls    3 
-    forceConstant 200
+	name		distance_rest
+	colvars       	distance
+	outputEnergy	on
+    	upperWalls    	3 
+    	forceConstant 	200
 }
 
 # Changing flat-bottom harmonic restraint on DBC 
 harmonicWalls {
-    colvars               DBC_sym  
-	targetForceConstant   200.0
-	targetForceExponent   6.0
-    upperWalls            1.5  
-    forceConstant         0.0
-	targetEquilSteps      500
-    lambdaSchedule  1.000 0.975 0.950 0.925 0.900 0.875 0.850 0.825 0.800 0.775 0.750 0.725 0.700 0.675 0.650 0.625 0.600 0.575 0.550 0.525 0.500 0.475 0.450 0.425 0.400 0.375 0.350 0.325 0.300 0.275 0.250 0.225 0.200 0.175 0.150 0.125 0.100 0.075 0.050 0.025 0.00
-	targetNumSteps        300000
+	name			DBC_rest
+	colvars               	DBC_sym  
+	outputEnergy		on
+	targetForceConstant   	200.0
+	targetForceExponent   	6.0
+	upperWalls            	1.5  
+	forceConstant         	0.0
+	targetEquilSteps      	500
+    	lambdaSchedule  	1.000 0.975 0.950 0.925 0.900 0.875 0.850 0.825 0.800 0.775 0.750 0.725 0.700 0.675 0.650 0.625 0.600 0.575 0.550 0.525 0.500 0.475 0.450 0.425 0.400 0.375 0.350 0.325 0.300 0.275 0.250 0.225 0.200 0.175 0.150 0.125 0.100 0.075 0.050 0.025 0.00
+	targetNumSteps        	300000
 }
