@@ -67,7 +67,7 @@ harmonicWalls {
 	name		distance_rest
 	colvars       	distance
 	outputEnergy	on
-    	upperWalls    	12 
+    	upperWalls    	3 
     	forceConstant 	200
 }
 
