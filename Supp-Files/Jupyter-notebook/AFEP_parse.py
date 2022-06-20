@@ -61,8 +61,9 @@ def plotGeneral(cumulative, perWindow, RT, width=8, height=4, PDFtype='KDE'):
         pdfX = np.linspace(-1, 1, 1000)
         pdfY = kernel(pdfX)
         pdfAx.plot(pdfY, pdfX, label='KDE')
-    elif PDFtype=='PDF':
-        pdfX, pdfY = np.histogram(X, nbins=20)
+    elif PDFtype=='Histogram':
+        pdfY, pdfX = np.histogram(diff, density=True)
+        pdfX = pdfX[:-1]+(pdfX[1]-pdfX[0])/2
         pdfAx.plot(pdfY, pdfX,  label="Estimated Distribution")
     else:
         raise(f"Error: PDFtype {PDFtype} not recognized")
