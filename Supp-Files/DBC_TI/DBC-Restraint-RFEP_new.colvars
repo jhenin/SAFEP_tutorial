@@ -58,8 +58,8 @@ harmonicWalls {
     outputEnergy        on
     upperWalls          1.5
     forceConstant       200.0
-    targetForceExponent 6.0
     decoupling          yes
+    lambdaExponent      6.0
     targetEquilSteps    500
     targetNumStages     40
     targetNumSteps      300000
