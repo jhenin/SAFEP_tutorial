@@ -6,7 +6,7 @@ Structure of supplementary files:
 Supplementary_Files
 |---common
 |   |---CHARMM36m_FF
-|   |---Structures
+|   |---structures
 |       | PHEN_lyso_complex.pdb
 |       | PHEN_lyso_complex.psf
 |
