@@ -1,3 +1,7 @@
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 def plotTI(cumulative, perWindow, width=8, height=4, PDFtype='KDE', hystLim=(-1,1), color='#0072B2'):
     fig, (cumAx,eachAx) = plt.subplots(2,1, sharex='col')
 
