@@ -14,7 +14,7 @@ Supplementary_Files
 |   | PHEN_lyso_dry.pdb #or pdbid
 |   | run_unbiased.namd
 |
-|---Step1_DefineTheBoundState
+|---Step1_create_DBC
 |   |---inputs
 |   |   | unbiased_sample.dcd #downsampled trajectory
 |   |    
