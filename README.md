@@ -18,7 +18,7 @@ Supplementary_Files
 |   |---inputs
 |   |   | unbiased_sample.dcd #downsampled trajectory
 |   |    
-|   |---sample_results
+|   |---sample_outputs
 |   |   | DBC_histogram_sample.pdf
 |   |   | DBC_template.colvars
 |   |
