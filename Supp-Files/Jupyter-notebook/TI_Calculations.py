@@ -1,6 +1,31 @@
 
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
+
+
+def processTI(dataTI, restraint, Lsched):
+    '''
+    Arguments: the TI data, restraint, and lambda schedule
+    Function: Calculate the free energy for each lambda value, aggregate the result, and estimate the error
+    Returns: The free energies and associated errors as functions of lambda. Both per window and cumulative.
+    '''
+    dUs = {}
+    for key, group in dataTI.groupby('L'):
+        dUs[key] = [HW_dUdL(restraint, coord, key) for coord in group.DBC]
+
+    Lsched = np.sort(list(dUs.keys()))
+    dL = Lsched[1] - Lsched[0]
+    TIperWindow = pd.DataFrame(index=Lsched)
+    TIperWindow['dGdL'] = [np.mean(dUs[L])*dL for L in Lsched]
+    TIperWindow['error'] = [np.std(dUs[L])*dL for L in Lsched]
+
+    TIcumulative = pd.DataFrame()
+    TIcumulative['dG'] = np.cumsum(TIperWindow.dGdL)
+    TIcumulative['error'] = np.sqrt(np.divide(np.cumsum(TIperWindow.error**2), np.arange(1,len(TIperWindow)+1)))
+    
+    return TIperWindow, TIcumulative
+
 
 def plotTI(cumulative, perWindow, width=8, height=4, PDFtype='KDE', hystLim=(-1,1), color='#0072B2'):
     fig, (cumAx,eachAx) = plt.subplots(2,1, sharex='col')
