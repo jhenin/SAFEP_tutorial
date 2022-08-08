@@ -16,7 +16,7 @@ colvar {
 
     rmsd {
         # Reference coordinates (for ligand RMSD computation)
-        refPositionsFile /u1/home/js2746/SAFEP_tutorial/Supp-Files/common/structures/PHEN_lyso_complex.pdb
+        refPositionsFile [replace with your path!]
         # refPositionsCol O
         # refPositionsColValue 1
 
@@ -43,7 +43,7 @@ colvar {
             }
             # Reference coordinates for binding site atoms
             # (can be the same file as ligand coordinates above)
-        refPositionsFile /u1/home/js2746/SAFEP_tutorial/Supp-Files/common/structures/PHEN_lyso_complex.pdb
+        refPositionsFile [replace with your path!]
         # refPositionsCol O
         # refPositionsColValue 1
 
