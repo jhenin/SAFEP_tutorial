@@ -3,7 +3,7 @@ This repository contains all the files needed to calculate the binding free ener
 
 Structure of supplementary files:
 ```
-Supplementary_Files
+
 |---common
 |   |---CHARMM36m_FF
 |   |---structures
@@ -61,7 +61,14 @@ Supplementary_Files
 |   |---outputs
 |
 |---Jupyter_Notebook
-    | AFEP_parse.py
-    | SAFEP_Analysis.ipynb
-    | TI_Calculations.py
+|    | SAFEP_Analysis.py
+|    | TI_Calculations.py
+|    
+|---Text_Source
+|   |
+|   | .tex files
+|   | figures
+|
+| Tutorial.pdf
+| SAFEP 
 ```
