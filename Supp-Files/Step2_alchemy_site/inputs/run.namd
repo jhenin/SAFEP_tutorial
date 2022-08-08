@@ -134,10 +134,6 @@ colvarsConfig          DBC-Restraint.colvars
 ## EXECUTION SCRIPT                                        ##
 #############################################################
 
-minimize				1000
-run 					250000				 ;# Run relaxation. 0.5ns
-firsttimestep			0  					 ;# Reset time
-
 # FEP PARAMETERS
 source                  ../common/fep.tcl
 
@@ -155,7 +151,19 @@ alchEquilSteps          500                  ;# Waits N steps before collecting 
 
 set lambdaStart 		0.0
 set lambdaEnd 			1.0
-set dLambda             0.05                 ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
-set numSteps            50000                ;# Number of steps for each lambda window
-set IDWS 				true
+set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
+set IDWS 				true 			;# Use interleaved double-wide sampling
+
+alchLambda 				0
+alchLambda2				$dLambda
+alchEquilSteps          5000
+set numSteps            55000           ;# Number of steps for each lambda window
+if {!$continuing} {
+	minimize				1000
+	reinitvels $temperature
+}
+runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
+
+alchEquilSteps          500
+set numSteps            50500           ;# Number of steps for each lambda window including equilibration
 runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
