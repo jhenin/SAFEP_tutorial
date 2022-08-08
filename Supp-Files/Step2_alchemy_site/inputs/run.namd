@@ -14,8 +14,8 @@ outputName         alchemy_site
 set temperature    300
 
 # Continuing a job from the restart files
-if {1} {
-set inputname      AFEP2-01
+if {0} {
+set inputname      [your inputname here]
 binCoordinates     $inputname.restart.coor
 binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
 extendedSystem	    $inputname.restart.xsc
@@ -40,13 +40,13 @@ mergeCrossterms    yes
 
 # NOTE: Do not set the initial velocity temperature if you 
 # have also specified a .vel restart file!
-#temperature         $temperature
+temperature         $temperature
  
 
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
-if {0} { 
+if {1} { 
 cellBasisVector1    50.    0.   0.
 cellBasisVector2     0.   50.   0.
 cellBasisVector3     0.    0.  73.
