@@ -1,0 +1,61 @@
+## Optionally, import GROMACS-style index file here
+# indexFile @.ndx
+
+## Optionally, import GROMACS-style index file here
+# indexFile @.ndx
+
+
+units real
+
+colvar {
+    # A "distance to bound configuration" (DBC) coordinate for ligand binding restraints
+    # see Salari, Joseph, Lohia, Hénin and Brannigan, J. Chem. Theory Comput. 2018, 14, 12, 6560-6573
+    # https://arxiv.org/abs/1801.04901
+
+    name DBC
+
+    rmsd {
+        # Reference coordinates (for ligand RMSD computation)
+        refPositionsFile /u1/home/js2746/SAFEP_tutorial/Supp-Files/common/structures/PHEN_lyso_complex.pdb
+        # refPositionsCol O
+        # refPositionsColValue 1
+
+        # refPositionsCol O
+        # refPositionsColValue 1
+
+
+        atoms {
+            # Define ligand atoms used for RMSD calculation
+            # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            # auto-updating selection: "resname PHEN and noh"
+            atomNumbers 1 3 5 7 9 11 12
+
+
+            # Moving frame of reference is defined below
+            centerToReference yes
+            rotateToReference yes
+            fittingGroup {
+                # Define binding site atoms used for fitting
+            # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            # auto-updating selection: "alpha and same residue as within 6 of resname PHEN"
+            atomNumbers 1150 1207 1293 1315 1334 1358 1370 1386 1407 1430 1546 1556 1566 1585 1599 1616 1693 1730 1811 1827 1887 2087 2365 2428
+
+            }
+            # Reference coordinates for binding site atoms
+            # (can be the same file as ligand coordinates above)
+        refPositionsFile /u1/home/js2746/SAFEP_tutorial/Supp-Files/common/structures/PHEN_lyso_complex.pdb
+        # refPositionsCol O
+        # refPositionsColValue 1
+
+        }
+    }
+}
+
+harmonicwalls {
+    colvars        DBC
+    lowerWalls     0.0
+    upperWalls     2.5
+    forceConstant  200.0
+}
+
+
