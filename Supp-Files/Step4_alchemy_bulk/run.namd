@@ -139,7 +139,7 @@ set IDWS 				true 			;# Use interleaved double-wide sampling
 alchLambda 				0
 alchLambda2				$dLambda
 alchEquilSteps          5000
-set numSteps            55000           ;# Number of steps for each lambda window
+set numSteps            105000           ;# Number of steps for each lambda window
 if {!$continuing} {
 	minimize				1000
 	reinitvels $temperature
@@ -147,5 +147,5 @@ if {!$continuing} {
 runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
 
 alchEquilSteps          500
-set numSteps            50500           ;# Number of steps for each lambda window including equilibration
+set numSteps            100500           ;# Number of steps for each lambda window including equilibration
 runFEP  $dLambda $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [NAMD]/lib/alch/fep.tcl for more details.
