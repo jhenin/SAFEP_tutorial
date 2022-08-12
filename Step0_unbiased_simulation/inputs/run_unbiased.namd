@@ -11,7 +11,7 @@
 
 structure          ../../common/structures/PHEN_lyso_complex.psf
 coordinates        ../../common/structures/PHEN_lyso_complex.pdb
-outputName         ../../Step1_create_DBC/inputs/unbiased-01
+outputName         ../outputs/unbiased-01
 set temperature    300
 firsttimestep      0
 

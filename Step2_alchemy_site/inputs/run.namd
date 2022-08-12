@@ -31,7 +31,7 @@ extendedSystem	    $inputname.restart.xsc
 #############################################################
 
 # Input
-set parpath		   ../common/CHARMM36m_FF
+set parpath		   ../../common/CHARMM36m_FF
 paraTypeCharmm	    on
 parameters         $parpath/par_all36_prot.prm
 parameters         $parpath/par_all36_carb.prm
@@ -136,14 +136,14 @@ colvarsConfig          DBC-restraint.colvars
 #############################################################
 
 # FEP PARAMETERS
-source                  ../common/fep.tcl
+source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
 alchFile                alchemy_site.fep     ;# The file which contains the flags for decoupling.
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             100                  ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
-alchOutFile             ./output/alchemy_site.fepout  ;# File to write the FEP data.
+alchOutFile             ../output/alchemy_site.fepout  ;# File to write the FEP data.
 alchElecLambdaStart     0.5                  ;# Start (de)coupling electrostatics. Rarely changed. See NAMD UG. 
 alchVdwLambdaEnd        1.0                  ;# Stop (de)coupling VdW. See NAMD UG
 alchVdwShiftCoeff       5.0                  ;# The softcore potential coefficient. Typically between 5 and 10.
@@ -168,3 +168,4 @@ runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibratio
 alchEquilSteps          500
 set numSteps            50500           ;# Number of steps for each lambda window including equilibration
 runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
+
