@@ -1,0 +1,151 @@
+#############################################################
+## JOB DESCRIPTION                                         ##
+#############################################################
+
+
+#############################################################
+## ADJUSTABLE PARAMETERS                                   ##
+#############################################################
+
+structure          PHEN-solv.psf
+coordinates        PHEN-solv.pdb
+outputName         ./output/AFEP-Hyd-02
+
+set temperature    300
+
+# Flag for continuing a run
+set continuing		0
+
+if {$continuing} {
+set inputname      AFEP-Hyd-01
+binCoordinates     $inputname.restart.coor
+binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
+extendedSystem	   $inputname.restart.xsc
+} 
+
+if {!$continuing} {
+temperature $temperature
+}
+
+
+
+#############################################################
+## SIMULATION PARAMETERS                                   ##
+#############################################################
+
+# Input
+set parpath		   ../common/CHARMM36m_FF
+paraTypeCharmm	    on
+parameters         $parpath/par_all36_prot.prm
+parameters         $parpath/par_all36_carb.prm
+parameters         $parpath/par_all36_lipid.prm
+parameters         $parpath/par_all36_na.prm
+parameters         $parpath/par_all36_cgenff.prm
+parameters         $parpath/toppar_water_ions_namd.str
+mergeCrossterms    yes
+
+# Periodic Boundary Conditions
+# NOTE: Do not set the periodic cell basis if you have also 
+# specified an .xsc restart file!
+if {!$continuing} { 
+	cellBasisVector1   20.    0.   0.
+	cellBasisVector2    0.   20.   0.
+	cellBasisVector3    0.    0.  20.
+	cellOrigin         	0.	  0.   0.
+}
+
+margin				1
+wrapWater           on
+wrapAll             off
+
+# Force-Field Parameters
+exclude             scaled1-4
+1-4scaling          1.0
+cutoff              12.0
+switching           on
+switchdist          10.0
+vdwForceSwitching   yes
+
+# Integrator Parameters and RESPA 
+timestep            1.0  ;# 1fs/step
+fullElectFrequency  2
+nonbondedFreq       1
+
+rigidbonds          all
+rigidtolerance      0.000001
+rigiditerations     400
+
+# SPACE PARTITIONING
+splitpatch          hydrogen
+hgroupcutoff        2.8
+stepspercycle       20
+
+
+#PME (for full-system periodic electrostatics)
+if {1} {
+PME                yes
+PMETolerance       10e-6
+PMEInterpOrder     4
+PMEGridSpacing     1.0
+}
+
+# Constant Temperature Control
+langevin            on    ;# do langevin dynamics
+langevinDamping     1     ;# damping coefficient (gamma) of 5/ps
+langevinTemp        $temperature
+
+# Constant Pressure Control (variable volume)
+if {1} {
+useGroupPressure      yes 	;# needed for 2fs steps
+
+langevinPiston        on
+langevinPistonTarget  1.01325 	;#  in bar -> 1 atm
+langevinPistonPeriod  100.0
+langevinPistonDecay   50.0
+langevinPistonTemp    $temperature
+}
+
+restartfreq           50000
+dcdfreq               5000 		;# Write coordinates every 5ps
+xstFreq               5000
+outputEnergies        5000
+outputPressure        5000
+
+#############################################################
+## EXTRA PARAMETERS                                        ##
+#############################################################
+
+
+
+# FEP PARAMETERS
+source                  ../common/fep.tcl
+                        
+alch                    on
+alchType                FEP
+alchFile                PHEN-solv.fep
+alchCol                 B
+alchOutFreq             100 			;# Sample every 200fs, typical values are between 50 and 200 steps
+alchOutFile             ./output/AFEP-Hyd-02.fepout
+alchElecLambdaStart     0.5
+alchVdwLambdaEnd        1.0
+alchVdwShiftCoeff       6.8
+alchdecouple            on
+
+set lambdaStart 		0.0
+set lambdaEnd 			1.0
+set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
+set IDWS 				true 			;# Use interleaved double-wide sampling
+
+alchLambda 				0
+alchLambda2				$dLambda
+alchEquilSteps          5000
+set numSteps            105000           ;# Number of steps for each lambda window
+if {!$continuing} {
+	minimize				1000
+	reinitvels $temperature
+}
+runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
+
+alchEquilSteps          500
+set numSteps            100500           ;# Number of steps for each lambda window including equilibration
+runFEP  $dLambda $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [NAMD]/lib/alch/fep.tcl for more details.

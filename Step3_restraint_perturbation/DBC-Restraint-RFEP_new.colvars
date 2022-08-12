@@ -1,0 +1,66 @@
+colvarsTrajFrequency 100
+colvarsRestartFrequency 10000
+
+colvar {
+    name DBC
+    width 1.0
+
+    lowerboundary 0.0
+    upperboundary 1.5
+
+    rmsd {
+        refPositionsFile ligand-ref.pdb
+
+        atoms {
+            atomNumbers 11 9 5 1 3 7 12
+            # Disable the moving frame of reference
+            # (on by default for RMSD)
+            centerReference off
+            rotateReference off
+        }
+    }
+}
+
+colvar {
+    name distance
+    width 1.0
+    
+    lowerboundary 0
+    upperboundary 1.5
+
+    distance {
+
+        group1 { # Ligand positions
+            atomNumbers  {1 3 5 7 9 11 12}
+        }
+
+        group2 { # Reference ligand COM position
+            dummyAtom (-2.168, 5.235, 9.367)
+            # obtained in VMD :
+            # > measure center [atomselect top "serial 1 3 5 7 9 11 12"]
+        }
+    }
+}
+
+# Flat-bottom harmonic restraint on center-of-mass distance
+harmonicWalls {
+    name              distance_rest
+    colvars           distance
+    outputEnergy      on
+    upperWalls        3
+    forceConstant     200
+}
+
+# Changing flat-bottom harmonic restraint on DBC
+harmonicWalls {
+    name                DBC_rest
+    colvars             DBC
+    outputEnergy        on
+    upperWalls          1.5
+    forceConstant       200.0
+    decoupling          yes
+    lambdaExponent      6.0
+    targetEquilSteps    500
+    targetNumStages     40
+    targetNumSteps      300000
+}
