@@ -52,8 +52,8 @@ temperature         $temperature
 if {1} { 
 cellBasisVector1    50.    0.   0.
 cellBasisVector2     0.   50.   0.
-cellBasisVector3     0.    0.  73.
-cellOrigin         -3.2220609188079834 2.1650874614715576 -2.484116792678833
+cellBasisVector3     0.    0.  70.
+cellOrigin         -0.11071417480707169 0.09915768355131149 -0.0028798317071050406
 }
 
 
