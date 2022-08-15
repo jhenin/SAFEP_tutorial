@@ -8,7 +8,7 @@
 #############################################################
 
 structure          ../../common/structures/phenol_lysozyme.psf
-coordinates        ../../common/structures/phenol_lysozyme.pdb
+coordinates        ./alchemy_site.pdb
 outputName         ../outputs/alchemy_site
 
 set temperature    300
