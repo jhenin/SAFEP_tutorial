@@ -9,8 +9,8 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../../common/structures/PHEN_lyso_complex.psf
-coordinates        ../../common/structures/PHEN_lyso_complex.pdb
+structure          ../../common/structures/phenol_lysozyme.psf
+coordinates        ../../common/structures/phenol_lysozyme.pdb
 outputName         ../outputs/unbiased-01
 set temperature    300
 firsttimestep      0
