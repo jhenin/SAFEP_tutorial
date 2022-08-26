@@ -7,9 +7,9 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          PHEN-solv.psf
-coordinates        PHEN-solv.pdb
-outputName         ./output/AFEP-Hyd-02
+structure          ../../common/structures/phenol_water.psf
+coordinates        ./alchemy_bulk.pdb
+outputName         ../outputs/alchemy_bulk
 
 set temperature    300
 
@@ -17,7 +17,7 @@ set temperature    300
 set continuing		0
 
 if {$continuing} {
-set inputname      AFEP-Hyd-01
+set inputname      [your inputname here]
 binCoordinates     $inputname.restart.coor
 binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
 extendedSystem	   $inputname.restart.xsc
@@ -34,7 +34,7 @@ temperature $temperature
 #############################################################
 
 # Input
-set parpath		   ../common/CHARMM36m_FF
+set parpath		   ../../common/CHARMM36m_FF
 paraTypeCharmm	    on
 parameters         $parpath/par_all36_prot.prm
 parameters         $parpath/par_all36_carb.prm
@@ -48,10 +48,10 @@ mergeCrossterms    yes
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
 if {!$continuing} { 
-	cellBasisVector1   20.    0.   0.
-	cellBasisVector2    0.   20.   0.
-	cellBasisVector3    0.    0.  20.
-	cellOrigin         	0.	  0.   0.
+	cellBasisVector1   22.    0.   0.
+	cellBasisVector2    0.   22.   0.
+	cellBasisVector3    0.    0.  22.
+	cellOrigin         -2.056380271911621 5.088560104370117 9.40662670135498
 }
 
 margin				1
@@ -118,14 +118,14 @@ outputPressure        5000
 
 
 # FEP PARAMETERS
-source                  ../common/fep.tcl
+source                  ../../common/fep.tcl
                         
 alch                    on
 alchType                FEP
-alchFile                PHEN-solv.fep
+alchFile                alchemy_bulk.pdb
 alchCol                 B
 alchOutFreq             100 			;# Sample every 200fs, typical values are between 50 and 200 steps
-alchOutFile             ./output/AFEP-Hyd-02.fepout
+alchOutFile             ../outputs/alchemy_bulk.fepout
 alchElecLambdaStart     0.5
 alchVdwLambdaEnd        1.0
 alchVdwShiftCoeff       6.8
