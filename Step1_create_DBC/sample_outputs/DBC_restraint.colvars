@@ -1,11 +1,9 @@
-## Optionally, import GROMACS-style index file here
-# indexFile @.ndx
+#units real
 
 ## Optionally, import GROMACS-style index file here
 # indexFile @.ndx
 
 
-units real
 
 colvar {
     # A "distance to bound configuration" (DBC) coordinate for ligand binding restraints
@@ -16,10 +14,7 @@ colvar {
 
     rmsd {
         # Reference coordinates (for ligand RMSD computation)
-        refPositionsFile [replace with your path!]
-        # refPositionsCol O
-        # refPositionsColValue 1
-
+        refPositionsFile [REPLACE WITH YOUR OWN PATH]
         # refPositionsCol O
         # refPositionsColValue 1
 
@@ -32,21 +27,18 @@ colvar {
 
 
             # Moving frame of reference is defined below
-            centerToReference yes
-            rotateToReference yes
+            centerToReference yes       ;# if you get an error, rename this param to "centerReference"
+            rotateToReference yes       ;# if you get an error, rename this param to "rotateReference"
             fittingGroup {
                 # Define binding site atoms used for fitting
             # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
-            # auto-updating selection: "alpha and same residue as within 6 of resname PHEN"
-            atomNumbers 1150 1207 1293 1315 1334 1358 1370 1386 1407 1430 1546 1556 1566 1585 1599 1616 1693 1730 1811 1827 1887 2087 2365 2428
+            # auto-updating selection: "alpha and within 6 of resname PHEN and noh"
+            atomNumbers 1207 1315 1370 1386 1556 1566 1599 1616 1730 1827
 
             }
             # Reference coordinates for binding site atoms
             # (can be the same file as ligand coordinates above)
-        refPositionsFile [replace with your path!]
-        # refPositionsCol O
-        # refPositionsColValue 1
-
+            refPositionsFile [REPLACE WITH YOUR OWN PATH]
         }
     }
 }

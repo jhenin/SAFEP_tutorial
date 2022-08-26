@@ -143,7 +143,7 @@ alchType                FEP
 alchFile                alchemy_site.pdb  ;# The file which contains the flags for decoupling.
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             100                  ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
-alchOutFile             ../output/alchemy_site.fepout  ;# File to write the FEP data.
+alchOutFile             ../outputs/alchemy_site.fepout  ;# File to write the FEP data.
 alchElecLambdaStart     0.5                  ;# Start (de)coupling electrostatics. Rarely changed. See NAMD UG. 
 alchVdwLambdaEnd        1.0                  ;# Stop (de)coupling VdW. See NAMD UG
 alchVdwShiftCoeff       5.0                  ;# The softcore potential coefficient. Typically between 5 and 10.
