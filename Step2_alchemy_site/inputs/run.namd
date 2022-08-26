@@ -129,7 +129,7 @@ outputPressure        10000
 # COLVARS SECTION
 
 colvars                on 
-colvarsConfig          DBC-restraint.colvars
+colvarsConfig          DBC_restraint.colvars
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
