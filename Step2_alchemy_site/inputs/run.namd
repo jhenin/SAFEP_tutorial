@@ -140,15 +140,14 @@ source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
-alchFile                phenol_lysozyme.pdb  ;# The file which contains the flags for decoupling.
+alchFile                alchemy_site.pdb  ;# The file which contains the flags for decoupling.
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             100                  ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
 alchOutFile             ../output/alchemy_site.fepout  ;# File to write the FEP data.
 alchElecLambdaStart     0.5                  ;# Start (de)coupling electrostatics. Rarely changed. See NAMD UG. 
 alchVdwLambdaEnd        1.0                  ;# Stop (de)coupling VdW. See NAMD UG
 alchVdwShiftCoeff       5.0                  ;# The softcore potential coefficient. Typically between 5 and 10.
-alchdecouple            on
-alchEquilSteps          500                  ;# Waits N steps before collecting FEP data for each window. Reduces hysteresis at the cost of fewer samples.
+alchdecouple            on                
 
 set lambdaStart 		0.0
 set lambdaEnd 			1.0
@@ -157,7 +156,7 @@ set IDWS 				true 			;# Use interleaved double-wide sampling
 
 alchLambda 				0
 alchLambda2				$dLambda
-alchEquilSteps          5000
+alchEquilSteps          5000            ;# Waits N steps before collecting FEP data for each window. Reduces hysteresis at the cost of fewer samples.
 set numSteps            55000           ;# Number of steps for each lambda window
 if {!$continuing} {
 	minimize				1000
