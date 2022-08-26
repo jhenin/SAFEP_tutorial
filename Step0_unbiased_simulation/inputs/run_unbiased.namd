@@ -9,8 +9,8 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../../common/structures/PHEN_lyso_complex.psf
-coordinates        ../../common/structures/PHEN_lyso_complex.pdb
+structure          ../../common/structures/phenol_lysozyme.psf
+coordinates        ../../common/structures/phenol_lysozyme.pdb
 outputName         ../outputs/unbiased-01
 set temperature    300
 firsttimestep      0
@@ -33,7 +33,7 @@ temperature         $temperature
 # Periodic Boundary Conditions
 cellBasisVector1    50.    0.   0.
 cellBasisVector2     0.   50.   0.
-cellBasisVector3     0.    0.  73.
+cellBasisVector3     0.    0.  70.
 
 margin              2.0
 wrapWater           on

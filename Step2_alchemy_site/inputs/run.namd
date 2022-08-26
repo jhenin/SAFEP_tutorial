@@ -7,9 +7,9 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../../common/structures/PHEN_lyso_complex.psf
-coordinates        ../../common/structures/PHEN_lyso_complex.pdb
-outputName         alchemy_site
+structure          ../../common/structures/phenol_lysozyme.psf
+coordinates        ./alchemy_site.pdb
+outputName         ../outputs/alchemy_site
 
 set temperature    300
 set continuing		0
@@ -52,8 +52,8 @@ temperature         $temperature
 if {1} { 
 cellBasisVector1    50.    0.   0.
 cellBasisVector2     0.   50.   0.
-cellBasisVector3     0.    0.  73.
-cellOrigin         -3.2220609188079834 2.1650874614715576 -2.484116792678833
+cellBasisVector3     0.    0.  70.
+cellOrigin         -0.11071417480707169 0.09915768355131149 -0.0028798317071050406
 }
 
 
@@ -140,7 +140,7 @@ source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
-alchFile                alchemy_site.fep     ;# The file which contains the flags for decoupling.
+alchFile                phenol_lysozyme.pdb  ;# The file which contains the flags for decoupling.
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             100                  ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
 alchOutFile             ../output/alchemy_site.fepout  ;# File to write the FEP data.
