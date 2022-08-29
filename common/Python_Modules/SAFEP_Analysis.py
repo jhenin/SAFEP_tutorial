@@ -307,7 +307,9 @@ def doEstimation(u_nk, method='both'):
         
     
     perWindow.columns = pd.MultiIndex.from_tuples(perWindow.columns)
+    perWindow = perWindow.fillna(0)
     cumulative.columns = pd.MultiIndex.from_tuples(cumulative.columns)
+    cumulative = cumulative.fillna(0)
     
     return perWindow.copy(), cumulative.copy()
 
