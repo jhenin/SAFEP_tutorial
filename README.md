@@ -6,30 +6,29 @@ Structure of supplementary files:
 
 |---common
 |   |---CHARMM36m_FF
+|   |---Python_Modules
 |   |---structures
-|       | PHEN_lyso_complex.pdb
-|       | PHEN_lyso_complex.psf
+|       | phenol_lysozyme.psf
+|       | phenol_lysozyme.pdb
+|       | phenol_water.psf
+|       | phenol_water.pdb
+|       | phenol_gas_phase.psf
+|       | phenol_gas_phase.pdb
+|   | fep.tcl
 |
-|---Step0_unbiased_simulations
-|   | PHEN_lyso_dry.pdb #or pdbid
-|   | run_unbiased.namd
-|
-|---Step1_create_DBC
+|---StepA_create_DBC
 |   |---inputs
-|   |   | unbiased_sample.dcd #downsampled trajectory
-|   |    
+|       | unbiased_01.dcd #downsampled trajectory
 |   |---sample_outputs
-|   |   | DBC_histogram_sample.pdf
-|   |   | DBC_template.colvars
-|   |
-|   |---outputs
+|       | DBC_restraint.colvars
+|   |---Step0_unbiased_simulations
+|   |   |---inputs
+|           | run_unbiased.namd
 |
-|---Step2_alchemy_site
+|---StepB_alchemy_site
 |   |---inputs
 |   |   | DBC_template.colvars
 |   |   | run_siteFEP.namd
-|   |   | prot_solv.fep.pdb
-|   |   | prot_solv.ref.pdb
 |   |    
 |   |---sample_outputs
 |   |   | siteFEP.fepout
@@ -37,7 +36,7 @@ Structure of supplementary files:
 |   |---outputs
 |
 |
-|---Step3_restraint_perturbation
+|---StepC_restraint_perturbation
 |   |---inputs
 |   |   | DBC_template.colvars
 |   |   | restraint_perturbation.namd
@@ -48,7 +47,7 @@ Structure of supplementary files:
 |   |
 |   |---outputs
 |
-|---Step4_alchemy_bulk
+|---StepD_alchemy_bulk
 |   |---inputs
 |   |   | DBC_template.colvars
 |   |   | run_siteFEP.namd
