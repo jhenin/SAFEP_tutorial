@@ -9,9 +9,9 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../../common/structures/phenol_lysozyme.psf
-coordinates        ../../common/structures/phenol_lysozyme.pdb
-outputName         ../outputs/unbiased-01
+structure          ../../../common/structures/phenol_lysozyme.psf
+coordinates        ../../../common/structures/phenol_lysozyme.pdb
+outputName         ../../outputs/unbiased-01
 set temperature    300
 firsttimestep      0
 
@@ -20,12 +20,12 @@ firsttimestep      0
 #############################################################
 # Input
 paraTypeCharmm	   on
-parameters         ../../common/CHARMM36m_FF/par_all36_prot.prm
-parameters         ../../common/CHARMM36m_FF/par_all36_carb.prm
-parameters         ../../common/CHARMM36m_FF/par_all36_lipid.prm
-parameters         ../../common/CHARMM36m_FF/par_all36_na.prm
-parameters         ../../common/CHARMM36m_FF/par_all36_cgenff.prm
-parameters         ../../common/CHARMM36m_FF/toppar_water_ions_namd.str
+parameters         ../../../common/CHARMM36m_FF/par_all36_prot.prm
+parameters         ../../../common/CHARMM36m_FF/par_all36_carb.prm
+parameters         ../../../common/CHARMM36m_FF/par_all36_lipid.prm
+parameters         ../../../common/CHARMM36m_FF/par_all36_na.prm
+parameters         ../../../common/CHARMM36m_FF/par_all36_cgenff.prm
+parameters         ../../../common/CHARMM36m_FF/toppar_water_ions_namd.str
 mergeCrossterms    yes
 
 temperature         $temperature
