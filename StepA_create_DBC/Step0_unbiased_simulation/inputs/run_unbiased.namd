@@ -11,7 +11,7 @@
 
 structure          ../../../common/structures/phenol_lysozyme.psf
 coordinates        ../../../common/structures/phenol_lysozyme.pdb
-outputName         ../../outputs/unbiased-01
+outputName         ../../inputs/unbiased
 set temperature    300
 firsttimestep      0
 
