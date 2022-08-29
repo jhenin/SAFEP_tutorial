@@ -27,8 +27,8 @@ colvar {
 
 
             # Moving frame of reference is defined below
-            centerToReference yes       ;# if you get an error, rename this param to "centerReference"
-            rotateToReference yes       ;# if you get an error, rename this param to "rotateReference"
+            centerReference yes       ;# if you get an error, rename this param to "centerToReference"
+            rotateReference yes       ;# if you get an error, rename this param to "rotateToReference"
             fittingGroup {
                 # Define binding site atoms used for fitting
             # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
