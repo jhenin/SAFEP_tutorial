@@ -18,7 +18,7 @@ Structure of supplementary files:
 |
 |---StepA_create_DBC
 |   |---inputs
-|       | unbiased_01.dcd #downsampled trajectory
+|       | unbiased_sample.dcd #downsampled trajectory
 |   |---sample_outputs
 |       | DBC_restraint.colvars
 |   |---Step0_unbiased_simulations
@@ -27,48 +27,47 @@ Structure of supplementary files:
 |
 |---StepB_alchemy_site
 |   |---inputs
-|   |   | DBC_template.colvars
-|   |   | run_siteFEP.namd
+|   |   | run.namd
 |   |    
 |   |---sample_outputs
-|   |   | siteFEP.fepout
+|   |   | alchemy_site.pdb
+|   |   | alchemy_site.fepout
+|   |   | bound_convergence.pdf
+|   |   | bound_generalFigures.pdf
 |   |
 |   |---outputs
 |
 |
 |---StepC_restraint_perturbation
 |   |---inputs
-|   |   | DBC_template.colvars
-|   |   | restraint_perturbation.namd
-|   |   | gas_phase_PHEN.fep.pdb
+|   |   | run.namd
 |   |    
 |   |---sample_outputs
+|   |   | DBC_template.colvars
 |   |   | restraint_perturbation.colvars.traj
 |   |
 |   |---outputs
 |
 |---StepD_alchemy_bulk
 |   |---inputs
-|   |   | DBC_template.colvars
-|   |   | run_siteFEP.namd
-|   |   | prot_solv.fep.pdb
-|   |   | prot_solv.ref.pdb
+|   |   | run.namd
 |   |    
 |   |---sample_outputs
-|   |   | siteFEP.fepout
+|   |   | alchemy_bulk.pdb
+|   |   | alchemy_bulk.fepout
+|   |   | bulk_convergence.pdf
+|   |   | bulk_generalFigures.pdf
 |   |
 |   |---outputs
 |
-|---Jupyter_Notebook
-|    | SAFEP_Analysis.py
-|    | TI_Calculations.py
-|    
-|---Text_Source
+|---Text_src
 |   |
 |   | .tex files
 |   | figures
 |
-| Tutorial.pdf
-| SAFEP 
+| Binding_Tutorial.pdf
+| SAFEP_Tutorial_Notebook.ipynb
+| titration_curve.pdf
+| README.md
 ```
 
