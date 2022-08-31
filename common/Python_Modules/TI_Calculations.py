@@ -27,7 +27,18 @@ def processTI(dataTI, restraint, Lsched):
     return TIperWindow, TIcumulative
 
 
-def plotTI(cumulative, perWindow, width=8, height=4, PDFtype='KDE', hystLim=(-1,1), color='#0072B2'):
+def plotTI(cumulative, perWindow, width=8, height=4, color='#0072B2'):
+    '''
+    Plots TI data with error estimates
+    Arguments:
+        cumulative: dG data (pandas Series)
+        perWindow: dG data (pandas Series)
+        width: of figure (inches)
+        height: of figure (inches)
+        color: of plotted data
+    Returns:
+        fig, [cumAx, eachAx]: the matplotlib figure and two subplot axes
+    '''
     fig, (cumAx,eachAx) = plt.subplots(2,1, sharex='col')
 
     # Cumulative change in kcal/mol
@@ -48,10 +59,34 @@ def plotTI(cumulative, perWindow, width=8, height=4, PDFtype='KDE', hystLim=(-1,
     return fig, [cumAx,eachAx] 
 
 def makeHarmonicWall(FC=10, targetFC=0, targetFE=1, upperWalls=1, schedule=None, numSteps=1000, targetEQ=500, name='HW', lowerWalls=None):
+    '''
+    Makes a "harmonic wall" colvar-like restraint (dict). Includes default values.
+    Arguments:
+        FC: force constant
+        targetFC: target force constant (when lambda=1)
+        targetFE: exponent for varying the FC with respect to lambda
+        upperWalls: position of the upper wall
+        schedule: lambda schedule for a variable FC
+        numSteps: the number of steps for each lambda value
+        targetEQ: the number of steps discarded to equilibration for each lambda
+        name: a name for the harmonic wall (for bookkeeping)
+        lowerWalls: the position of the lower wall
+    Returns:
+        A dict storing all the data
+    '''
     HW = {'name':name, 'targetFC':targetFC, 'targetFE':targetFE, 'FC':FC, 'upperWalls':upperWalls, 'schedule':schedule, 'numSteps':numSteps, 'targetEQ':targetEQ, 'lowerWalls':lowerWalls}
     return HW
 
 def HW_U(HW, coord, L):
+    '''
+    Calculates the potential energy of the harmonic wall.
+    Arguments:
+        HW: a dict created by makeHarmonicWall
+        coord: the value of the colvar
+        L: the current lambda value
+    Resturns:
+        U: the potential energy associated with cv=coord
+    '''
     d=0
     if HW['upperWalls'] and coord>HW['upperWalls']:
         d = coord-HW['upperWalls']
@@ -68,6 +103,15 @@ def HW_U(HW, coord, L):
     return U
 
 def HW_dUdL(HW, coord, L):
+    '''
+    Calculates the potential energy gradient of a harmonic wall.
+    Arguments:
+        HW: a dict created by makeHarmonicWall
+        coord: the value of the colvar
+        L: the current lambda value
+    Resturns:
+        dU: the potential energy gradient associated with cv=coord
+    '''
     d=0
     if HW['upperWalls'] and coord>HW['upperWalls']:
         d = coord-HW['upperWalls']
@@ -82,21 +126,3 @@ def HW_dUdL(HW, coord, L):
     else:
         dU=0
     return dU
-
-
-# Probably not relevant for the tutorial
-
-#if np.isnan(dataTI.E_dist.iloc[0]):
-#    dataTI.loc[:,'E_dist'] = [HW_U(Dist, coord, 0) for coord in dataTI.distance]
-#if np.isnan(dataTI.E_DBC.iloc[0]):
-#    dataTI.loc[:,'E_DBC'] = [HW_U(DBC, coord, L) for coord, L in zip(dataTI.DBC, dataTI.L)]
-
-#plt.plot(dataTI.E_dist, label='spherical restraint', alpha=0.5)
-#plt.plot(dataTI.E_DBC, label='DBC restraint', alpha=0.5)
-#plt.legend()
-#plt.savefig(f'{path}_restraint_overlap.pdf')
-
-#plt.plot(RFEPdat, label='colvars estimate', color='red')
-#plt.errorbar(Lsched, TIperWindow['dGdL'], yerr=TIperWindow['error'], label='Notebook Estimate', linestyle='-.', color='black')
-#plt.savefig(f'{path}_TI_vs_colvarEst.pdf')
-#plt.legend()
