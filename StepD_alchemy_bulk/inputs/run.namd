@@ -124,7 +124,7 @@ alch                    on
 alchType                FEP
 alchFile                alchemy_bulk.pdb
 alchCol                 B
-alchOutFreq             100 			;# Sample every 200fs, typical values are between 50 and 200 steps
+alchOutFreq             50 				;# Sample every 200fs, typical values are between 50 and 200 steps
 alchOutFile             ../outputs/alchemy_bulk.fepout
 alchElecLambdaStart     0.5
 alchVdwLambdaEnd        1.0
