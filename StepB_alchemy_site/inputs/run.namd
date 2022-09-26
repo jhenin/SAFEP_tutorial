@@ -2,6 +2,14 @@
 ## JOB DESCRIPTION                                         ##
 #############################################################
 
+#############################################################
+## GENERAL SETTINGS                                        ##
+#############################################################
+set NPT	1
+set continuing	0 	;# Continuing a job from the restart files
+if {$continuing} {set inputname      [your inputname here]} 
+
+source ../../common/common_config.namd
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
@@ -17,15 +25,6 @@ if {$useSampleFiles} {
 
 outputName         ../outputs/alchemy_site
 
-set continuing		0
-
-# Continuing a job from the restart files
-
-if {$continuing} {
-set inputname      [your inputname here]
-} 
-
-
 #############################################################
 ## SIMULATION PARAMETERS                                   ##
 #############################################################
@@ -34,10 +33,10 @@ set inputname      [your inputname here]
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
 if {!$continuing} { 
-cellBasisVector1    50.    0.   0.
-cellBasisVector2     0.   50.   0.
-cellBasisVector3     0.    0.  70.
-cellOrigin           0     0    0
+	cellBasisVector1    50.    0.   0.
+	cellBasisVector2     0.   50.   0.
+	cellBasisVector3     0.    0.  70.
+	cellOrigin           0     0    0
 }
 
 # Integrator Parameters
@@ -50,26 +49,6 @@ dcdfreq               5000
 xstFreq               5000
 outputEnergies        5000
 outputPressure        5000
-
-
-# Constant Pressure Control
-set NPT	1
-
-useGroupPressure      yes 			;# needed for 2fs steps
-useFlexibleCell       no  			;# no for water box, yes for membrane
-useConstantArea       no  			;# no for water box, yes for membrane
-
-langevinPiston        on
-langevinPistonTarget  1.01325 		;#  in bar -> 1 atm
-langevinPistonPeriod  75.0
-langevinPistonDecay   25.0
-langevinPistonTemp    $temperature
-
-#############################################################
-## GENERAL SETTINGS                                        ##
-#############################################################
-
-source ../../common/common_config.namd
 
 #############################################################
 ## COLVARS                                                 ##
@@ -91,7 +70,13 @@ source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
-alchFile                alchemy_site.pdb  ;# The file which contains the flags for decoupling.
+
+if {$useSampleFiles} {
+	alchFile       ../sample_outputs/alchemy_site.pdb
+} else {
+	alchFile       ../outputs/alchemy_site.pdb
+}
+
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             50                   ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
 alchOutFile             ../outputs/alchemy_site.fepout  ;# File to write the FEP data.
@@ -107,15 +92,15 @@ set IDWS 				true 			;# Use interleaved double-wide sampling
 
 alchLambda 				0
 alchLambda2				$dLambda
-alchEquilSteps          5000            ;# Waits N steps before collecting FEP data for each window. Reduces hysteresis at the cost of fewer samples.
-set numSteps            55000           ;# Number of steps for each lambda window
+alchEquilSteps          1            ;# Waits N steps before collecting FEP data for each window. We'll trim equilibration during analysis.
+
+set numSteps            500000           ;# Run 1ns for the first window
 if {!$continuing} {
 	minimize				1000
 	reinitvels $temperature
 }
 runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
 
-alchEquilSteps          500
-set numSteps            50500           ;# Number of steps for each lambda window including equilibration
+set numSteps            250000           ;# 0.5ns per lambda (0.5 ns * 20 lambdas + 1ns * 1 lambda = 11ns)
 runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
 
