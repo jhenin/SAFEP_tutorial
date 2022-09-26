@@ -6,9 +6,15 @@
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
+set useSampleFiles	1
 
 structure          ../../common/structures/phenol_lysozyme.psf
-coordinates        ./alchemy_site.pdb
+if {$useSampleFiles} {
+	coordinates        ../sample_outputs/alchemy_site.pdb
+} else {
+	coordinates        ../outputs/alchemy_site.pdb
+}
+
 outputName         ../outputs/alchemy_site
 
 set continuing		0
@@ -70,7 +76,11 @@ source ../../common/common_config.namd
 #############################################################
 
 colvars                on 
-colvarsConfig          DBC_restraint.colvars
+if {$useSampleFiles} {
+	colvarsConfig          ../../StepA_create_DBC/sample_outputs/DBC_restraint.colvars
+} else {
+	colvarsConfig          ../../StepA_create_DBC/outputs/DBC_restraint.colvars
+}
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
