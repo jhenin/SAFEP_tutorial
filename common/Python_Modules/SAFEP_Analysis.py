@@ -32,7 +32,7 @@ from alchemlyb.visualisation import plot_convergence
 import re
 
 
-def plotGeneral(cumulative, perWindow, RT, width=8, height=4, PDFtype='KDE'):
+def plotGeneral(cumulative, cumulativeYlim, perWindow, perWindowYlim, RT, width=8, height=4, PDFtype='KDE'):
     fig, ((cumAx, del1),( eachAx, del2),(hystAx, pdfAx)) = plt.subplots(3,2, sharex='col', sharey='row', gridspec_kw={'width_ratios': [2, 1]})
 
     fig.delaxes(del1)
@@ -40,13 +40,13 @@ def plotGeneral(cumulative, perWindow, RT, width=8, height=4, PDFtype='KDE'):
 
     # Cumulative change in kcal/mol
     cumAx.errorbar(cumulative.index, cumulative.BAR.f*RT, yerr=cumulative.BAR.errors, marker=None, linewidth=1)
-    cumAx.set(ylabel=r'Cumulative $\rm\Delta G_{\lambda}$'+'\n(kcal/mol)')
+    cumAx.set(ylabel=r'Cumulative $\rm\Delta G_{\lambda}$'+'\n(kcal/mol)', ylim=cumulativeYlim)
 
     # Per-window change in kcal/mol
     eachAx.errorbar(perWindow.index, perWindow.BAR.df*RT, yerr=perWindow.BAR.ddf, marker=None, linewidth=1)
     eachAx.plot(perWindow.index, perWindow.EXP.dG_f*RT, marker=None, linewidth=1, alpha=0.5)
     eachAx.errorbar(perWindow.index, -perWindow.EXP.dG_b*RT, marker=None, linewidth=1, alpha=0.5)
-    eachAx.set(ylabel=r'$\rm\Delta G_{\lambda}$'+'\n(kcal/mol)')
+    eachAx.set(ylabel=r'$\rm\Delta G_{\lambda}$'+'\n(kcal/mol)', ylim=perWindowYlim)
 
     
     #Hysteresis Plots
@@ -417,6 +417,8 @@ def convergencePlot(theax, fs, ferr, bs, berr, fwdColor='#0072B2', bwdColor='#D5
     
     finalMean = fs[-1]
     theax.axhline(y= finalMean, linestyle='-.', color='gray')
+    theax.set_ylim((finalMean-0.75, finalMean+0.75))
+    
     theax.plot(0, finalMean, linewidth=1, color=lgndF, label='Forward Time Sampling')
     theax.plot(0, finalMean, linewidth=1, color=lgndB, linestyle='--', label='Backward Time Sampling')
     theax.set(xlabel='Fraction of Simulation Time', ylabel=r'Total $\rm\Delta G_{\lambda}$ (kcal/mol)')
