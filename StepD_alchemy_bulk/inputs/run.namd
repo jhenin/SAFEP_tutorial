@@ -6,8 +6,10 @@
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
+set 
 
 structure          ../../common/structures/phenol_water.psf
+
 coordinates        ./alchemy_bulk.pdb
 outputName         ../outputs/alchemy_bulk
 
