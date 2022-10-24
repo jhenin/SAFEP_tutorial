@@ -6,43 +6,23 @@
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
+set 
 
 structure          ../../common/structures/phenol_water.psf
+
 coordinates        ./alchemy_bulk.pdb
 outputName         ../outputs/alchemy_bulk
 
-set temperature    300
-
-# Flag for continuing a run
 set continuing		0
 
 if {$continuing} {
 set inputname      [your inputname here]
-binCoordinates     $inputname.restart.coor
-binVelocities      $inputname.restart.vel  ;# remove the "temperature" entry if you use this!
-extendedSystem	   $inputname.restart.xsc
 } 
-
-if {!$continuing} {
-temperature $temperature
-}
-
 
 
 #############################################################
 ## SIMULATION PARAMETERS                                   ##
 #############################################################
-
-# Input
-set parpath		   ../../common/CHARMM36m_FF
-paraTypeCharmm	    on
-parameters         $parpath/par_all36_prot.prm
-parameters         $parpath/par_all36_carb.prm
-parameters         $parpath/par_all36_lipid.prm
-parameters         $parpath/par_all36_na.prm
-parameters         $parpath/par_all36_cgenff.prm
-parameters         $parpath/toppar_water_ions_namd.str
-mergeCrossterms    yes
 
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
@@ -51,51 +31,21 @@ if {!$continuing} {
 	cellBasisVector1   22.    0.   0.
 	cellBasisVector2    0.   22.   0.
 	cellBasisVector3    0.    0.  22.
-	cellOrigin         -2.056380271911621 5.088560104370117 9.40662670135498
+	cellOrigin          0     0    0
 }
 
-margin				1
 wrapWater           on
 wrapAll             off
-
-# Force-Field Parameters
-exclude             scaled1-4
-1-4scaling          1.0
-cutoff              12.0
-switching           on
-switchdist          10.0
-vdwForceSwitching   yes
 
 # Integrator Parameters and RESPA 
 timestep            1.0  ;# 1fs/step
 fullElectFrequency  2
 nonbondedFreq       1
 
-rigidbonds          all
-rigidtolerance      0.000001
-rigiditerations     400
-
-# SPACE PARTITIONING
-splitpatch          hydrogen
-hgroupcutoff        2.8
-stepspercycle       20
-
-
-#PME (for full-system periodic electrostatics)
-if {1} {
-PME                yes
-PMETolerance       10e-6
-PMEInterpOrder     4
-PMEGridSpacing     1.0
-}
-
-# Constant Temperature Control
-langevin            on    ;# do langevin dynamics
-langevinDamping     1     ;# damping coefficient (gamma) of 5/ps
-langevinTemp        $temperature
+set PMEon	1
 
 # Constant Pressure Control (variable volume)
-if {1} {
+if {PMEon} {
 useGroupPressure      yes 	;# needed for 2fs steps
 
 langevinPiston        on
@@ -105,17 +55,21 @@ langevinPistonDecay   50.0
 langevinPistonTemp    $temperature
 }
 
-restartfreq           50000
-dcdfreq               5000 		;# Write coordinates every 5ps
-xstFreq               5000
-outputEnergies        5000
-outputPressure        5000
+restartfreq           100000
+dcdfreq               10000 		;# Write coordinates every 10ps
+xstFreq               10000
+outputEnergies        10000
+outputPressure        10000
 
 #############################################################
-## EXTRA PARAMETERS                                        ##
+## GENERAL SETTINGS                                        ##
 #############################################################
 
+source ../../common/common_config.namd
 
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
 
 # FEP PARAMETERS
 source                  ../../common/fep.tcl

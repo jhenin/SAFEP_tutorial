@@ -14,7 +14,7 @@ colvar {
 
     rmsd {
         # Reference coordinates (for ligand RMSD computation)
-        refPositionsFile [REPLACE WITH YOUR OWN PATH]
+        refPositionsFile  ../../StepB_alchemy_site/sample_outputs/alchemy_site.pdb
         # refPositionsCol O
         # refPositionsColValue 1
 
@@ -27,8 +27,10 @@ colvar {
 
 
             # Moving frame of reference is defined below
-            centerReference yes       ;# if you get an error, rename this param to "centerToReference"
-            rotateReference yes       ;# if you get an error, rename this param to "rotateToReference"
+            centerReference  yes       
+     		# if you get an error, rename this param to "centerToReference"
+            rotateReference  yes
+            	# if you get an error, rename this param to "rotateToReference"
             fittingGroup {
                 # Define binding site atoms used for fitting
             # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
@@ -38,7 +40,7 @@ colvar {
             }
             # Reference coordinates for binding site atoms
             # (can be the same file as ligand coordinates above)
-            refPositionsFile [REPLACE WITH YOUR OWN PATH]
+            refPositionsFile  ../../StepB_alchemy_site/sample_outputs/alchemy_site.pdb
         }
     }
 }
