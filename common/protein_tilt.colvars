@@ -3,7 +3,7 @@ colvar {
 
     orientation {
         # Reference coordinates (for protein)
-        refpositionsfile  ../prot-ref.pdb # PDB or XYZ file
+        refpositionsfile  ../../common/structures/phenol_lysozyme.pdb # PDB or XYZ file
 
         atoms {
         # Define protein atoms used for optimal rotation
