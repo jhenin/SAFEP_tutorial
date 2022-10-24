@@ -90,7 +90,8 @@ outputPressure     10000
 ## EXTRA PARAMETERS                                        ##
 #############################################################
 # COLVARS
-colvars                 off 
+colvars                 on
+colvarsConfig		../../../common/protein_tilt.colvars
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
