@@ -5,9 +5,14 @@
 #############################################################
 ## GENERAL SETTINGS                                        ##
 #############################################################
+# NPT ensemble (flag for later scripting, not part of vanilla NAMD)
 set NPT	1
-set continuing	0 	;# Continuing a job from the restart files
-if {$continuing} {set inputname      [your inputname here]} 
+
+# Continuing a job from the restart files
+set continuing	0 	;
+if {$continuing} {
+	set inputname      [your inputname here]
+}
 
 source ../../common/common_config.namd
 
@@ -40,7 +45,7 @@ if {!$continuing} {
 }
 
 # Integrator Parameters
-timestep            2.0  ;# 2fs/step
+timestep                2.0  ;# 2fs/step
 fullElectFrequency      2
 nonbondedFreq           1
 
@@ -56,10 +61,11 @@ outputPressure        5000
 
 colvars                on 
 if {$useSampleFiles} {
-	colvarsConfig          ../../StepA_create_DBC/sample_outputs/DBC_restraint.colvars
+	colvarsConfig          ../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
 } else {
-	colvarsConfig          ../../StepA_create_DBC/outputs/DBC_restraint.colvars
+	colvarsConfig          ../../stepA_create_DBC/outputs/DBC_restraint.colvars
 }
+cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
