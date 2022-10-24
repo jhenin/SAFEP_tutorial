@@ -14,7 +14,7 @@ colvar {
 
     rmsd {
         # Reference coordinates (for ligand RMSD computation)
-        refPositionsFile  ../../StepB_alchemy_site/sample_outputs/alchemy_site.pdb
+        refPositionsFile  ../../stepB_alchemy_site/sample_outputs/alchemy_site.pdb
         # refPositionsCol O
         # refPositionsColValue 1
 
@@ -40,7 +40,7 @@ colvar {
             }
             # Reference coordinates for binding site atoms
             # (can be the same file as ligand coordinates above)
-            refPositionsFile  ../../StepB_alchemy_site/sample_outputs/alchemy_site.pdb
+            refPositionsFile  ../../stepB_alchemy_site/sample_outputs/alchemy_site.pdb
         }
     }
 }
