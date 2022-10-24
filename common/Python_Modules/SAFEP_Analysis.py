@@ -33,10 +33,11 @@ import re
 
 
 def plotGeneral(cumulative, cumulativeYlim, perWindow, perWindowYlim, RT, width=8, height=4, PDFtype='KDE'):
-    fig, ((cumAx, del1),( eachAx, del2),(hystAx, pdfAx)) = plt.subplots(3,2, sharex='col', sharey='row', gridspec_kw={'width_ratios': [2, 1]})
+    fig, ((cumAx, del1),( eachAx, del2), (ddGAx, del3), (hystAx, pdfAx)) = plt.subplots(4,2, sharex='col', sharey='row', gridspec_kw={'width_ratios': [2, 1]})
 
     fig.delaxes(del1)
     fig.delaxes(del2)
+    fig.delaxes(del3)
 
     # Cumulative change in kcal/mol
     cumAx.errorbar(cumulative.index, cumulative.BAR.f*RT, yerr=cumulative.BAR.errors, marker=None, linewidth=1)
@@ -46,15 +47,22 @@ def plotGeneral(cumulative, cumulativeYlim, perWindow, perWindowYlim, RT, width=
     eachAx.errorbar(perWindow.index, perWindow.BAR.df*RT, yerr=perWindow.BAR.ddf, marker=None, linewidth=1)
     eachAx.plot(perWindow.index, perWindow.EXP.dG_f*RT, marker=None, linewidth=1, alpha=0.5)
     eachAx.errorbar(perWindow.index, -perWindow.EXP.dG_b*RT, marker=None, linewidth=1, alpha=0.5)
-    eachAx.set(ylabel=r'$\rm\Delta G_{\lambda}$'+'\n(kcal/mol)', ylim=perWindowYlim)
+    eachAx.set(ylabel=r'$\rm\Delta G_{\lambda}$'+'\n'+r'$\left(\frac{kcal/mol}{\lambda}\right)$', ylim=perWindowYlim)
+
+    # Second derivative plot
+    ddG = np.diff(perWindow.BAR.df*RT)
+    ddGAx.errorbar(cumulative.index[1:-1], ddG, marker='.')
+    ddGAx.set_xlabel(r'$\lambda$')
+    ddGAx.set_ylabel(r"$\Delta G'_\lambda$ \left($\frac{kcal/mol}{\lambda^2}$\right)")
+    ddGAx.set(ylim=(-1, 1))
 
     
     #Hysteresis Plots
     diff = perWindow.EXP['difference']
     hystAx.vlines(perWindow.index, np.zeros(len(perWindow)), diff, label="fwd - bwd", linewidth=2)
     hystAx.set(xlabel=r'$\lambda$', ylabel=r'$\delta_\lambda$ (kcal/mol)', ylim=(-1,1))
-    
 
+    
     
     if PDFtype=='KDE':
         kernel = sp.stats.gaussian_kde(diff)
