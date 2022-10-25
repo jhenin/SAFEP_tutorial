@@ -12,6 +12,8 @@ outputName         ../outputs/RFEP
 
 set continuing		0
 
+set useSampleFiles 1
+
 # Continuing a job from the restart files
 if {$continuing} {
 set inputname      [your inputname here]
@@ -48,9 +50,27 @@ source ../../common/common_config.namd
 #############################################################
 ## COLVARS                                                 ##
 #############################################################
+source ../../common/TI.tcl
 
 colvars                 on 
-colvarsConfig          DBC_Restraint_RFEP.colvars
+if { $useSampleFiles } {
+	colvarsConfig           ../sample_outputs/DBC_TI.colvars
+} else {
+	colvarsConfig			../outputs/DBC_TI.colvars
+}
+
+# This block defines the inputs for a TI bias
+set cvName 			DBC
+set biasType 		harmonicWalls 
+set forceConst0 	0 
+set forceConst1 	200 
+set forceExp 		6 
+set upperWalls 		3.5 
+set nWindows 		40 
+set equilSteps 		500 
+set stepsPerWindow 	300000 
+set releaseFlag 	True
+setTI $cvName $biasType $forceConst0 $forceConst1 $forceExp $upperWalls $nWindows $equilSteps $stepsPerWindow $releaseFlag
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
