@@ -2,15 +2,21 @@
 ## JOB DESCRIPTION                                         ##
 #############################################################
 
+#############################################################
+## GENERAL SETTINGS                                        ##
+#############################################################
+
+# NPT ensemble (flag for later scripting, not part of vanilla NAMD)
+
+set NPT 1
+
+# use sample data? 1=yes, 0=no, use my files
+
+set useSampleFiles 1
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
-set NPT 1
-
-# use sample data? 1=yes, 0=no, use my files
-set useSampleFiles 1
-
 
 structure          ../../common/structures/phenol_water.psf
 
@@ -19,15 +25,14 @@ if { $useSampleFiles } {
 } else {
 	coordinates	../outputs/alchemy_bulk.pdb
 }
+
 outputName         ../outputs/alchemy_bulk
 
+# Continuing a job from the restart files
 set continuing		0
-
 if {$continuing} {
-set inputname      [your inputname here]
+    set inputname      [your inputname here]
 } 
-
-
 
 #############################################################
 ## SIMULATION PARAMETERS                                   ##
@@ -36,6 +41,7 @@ set inputname      [your inputname here]
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
+
 if {!$continuing} { 
 	cellBasisVector1   22.    0.   0.
 	cellBasisVector2    0.   22.   0.
@@ -48,6 +54,8 @@ timestep            1.0  ;# 1fs/step
 fullElectFrequency  2
 nonbondedFreq       1
 
+# PMEon is a flag used by the common_config file
+
 set PMEon	1
 
 #############################################################
@@ -57,10 +65,15 @@ set PMEon	1
 source ../../common/common_config.namd
 
 #############################################################
-## EXECUTION SCRIPT                                        ##
+## COLVARS                                                 ##
 #############################################################
 
-# FEP PARAMETERS
+colvars 	off
+
+#############################################################
+## FEP PARAMETERS                                          ##
+#############################################################
+
 source                  ../../common/fep.tcl
                         
 alch                    on
@@ -84,6 +97,10 @@ set lambdaStart 		0.0
 set lambdaEnd 			1.0
 set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
 set IDWS 				true 			;# Use interleaved double-wide sampling
+
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
 
 alchLambda 				0
 alchLambda2				$dLambda

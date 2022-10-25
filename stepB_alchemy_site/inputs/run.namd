@@ -5,23 +5,21 @@
 #############################################################
 ## GENERAL SETTINGS                                        ##
 #############################################################
+
 # NPT ensemble (flag for later scripting, not part of vanilla NAMD)
+
 set NPT	1
 
-# Continuing a job from the restart files
-set continuing	0 	;
-if {$continuing} {
-	set inputname      [your inputname here]
-}
+# use sample data? 1=yes, 0=no, use my files
 
-source ../../common/common_config.namd
+set useSampleFiles	1
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
-set useSampleFiles	1
 
 structure          ../../common/structures/phenol_lysozyme.psf
+
 if {$useSampleFiles} {
 	coordinates        ../sample_outputs/alchemy_site.pdb
 } else {
@@ -30,6 +28,12 @@ if {$useSampleFiles} {
 
 outputName         ../outputs/alchemy_site
 
+# Continuing a job from the restart files
+set continuing	0 
+if {$continuing} {
+	set inputname      [your inputname here]
+}
+
 #############################################################
 ## SIMULATION PARAMETERS                                   ##
 #############################################################
@@ -37,6 +41,7 @@ outputName         ../outputs/alchemy_site
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
+
 if {!$continuing} { 
 	cellBasisVector1    50.    0.   0.
 	cellBasisVector2     0.   50.   0.
@@ -49,11 +54,15 @@ timestep                2.0  ;# 2fs/step
 fullElectFrequency      2
 nonbondedFreq           1
 
-restartfreq           50000
-dcdfreq               5000
-xstFreq               5000
-outputEnergies        5000
-outputPressure        5000
+# PMEon is a flag used by the common_config file
+
+set PMEon	1
+
+#############################################################
+## GENERAL SETTINGS                                        ##
+#############################################################
+
+source ../../common/common_config.namd
 
 #############################################################
 ## COLVARS                                                 ##
@@ -68,10 +77,9 @@ if {$useSampleFiles} {
 cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
-## EXECUTION SCRIPT                                        ##
+## FEP PARAMETERS                                          ##
 #############################################################
 
-# FEP PARAMETERS
 source                  ../../common/fep.tcl
 
 alch                    on
@@ -95,6 +103,10 @@ set lambdaStart 		0.0
 set lambdaEnd 			1.0
 set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
 set IDWS 				true 			;# Use interleaved double-wide sampling
+
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
 
 alchLambda 				0
 alchLambda2				$dLambda
