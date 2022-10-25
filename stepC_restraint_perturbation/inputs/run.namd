@@ -12,7 +12,7 @@ outputName         ../outputs/RFEP
 
 set continuing		0
 
-set useSampleFiles 1
+set useSampleFiles 0
 
 # Continuing a job from the restart files
 if {$continuing} {
