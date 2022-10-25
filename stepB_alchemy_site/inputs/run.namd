@@ -12,7 +12,7 @@ set NPT	1
 
 # use sample data? 1=yes, 0=no, use my files
 
-set useSampleFiles	1
+set useSampleFiles	0
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
