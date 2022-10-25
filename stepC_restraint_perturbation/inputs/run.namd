@@ -54,9 +54,9 @@ source ../../common/TI.tcl
 
 colvars                 on 
 if { $useSampleFiles } {
-	colvarsConfig           ../sample_outputs/DBC_TI.colvars
+	colvarsConfig           ../sample_outputs/DBC_Restraint_RFEP.colvars
 } else {
-	colvarsConfig			../outputs/DBC_TI.colvars
+	colvarsConfig			../outputs/DBC_Restraint_RFEP.colvars
 }
 
 # This block defines the inputs for a TI bias
@@ -65,7 +65,7 @@ set biasType 		harmonicWalls
 set forceConst0 	0 
 set forceConst1 	200 
 set forceExp 		6 
-set upperWalls 		3.5 
+set upperWalls 		2.5 
 set nWindows 		40 
 set equilSteps 		500 
 set stepsPerWindow 	300000 
