@@ -65,12 +65,6 @@ set PMEon	1
 source ../../common/common_config.namd
 
 #############################################################
-## COLVARS                                                 ##
-#############################################################
-
-colvars 	off
-
-#############################################################
 ## FEP PARAMETERS                                          ##
 #############################################################
 
@@ -98,20 +92,25 @@ set lambdaEnd 			1.0
 set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
 set IDWS 				true 			;# Use interleaved double-wide sampling
 
+alchLambda 				0
+alchLambda2				$dLambda
+alchEquilSteps          1
+
+#############################################################
+## COLVARS                                                 ##
+#############################################################
+
+colvars 	off
+
 #############################################################
 ## EXECUTION SCRIPT                                        ##
 #############################################################
 
-alchLambda 				0
-alchLambda2				$dLambda
-alchEquilSteps          5000
-set numSteps            105000           ;# Number of steps for each lambda window
 if {!$continuing} {
 	minimize				1000
 	reinitvels $temperature
 }
-runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
 
-alchEquilSteps          500
-set numSteps            100500           ;# Number of steps for each lambda window including equilibration
-runFEP  $dLambda $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [NAMD]/lib/alch/fep.tcl for more details.
+alchEquilSteps          1
+set numSteps            100000           ;# Number of steps for each lambda window including equilibration
+runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [NAMD]/lib/alch/fep.tcl for more details.

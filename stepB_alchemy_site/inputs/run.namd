@@ -64,17 +64,7 @@ set PMEon	1
 
 source ../../common/common_config.namd
 
-#############################################################
-## COLVARS                                                 ##
-#############################################################
 
-colvars                on 
-if {$useSampleFiles} {
-	colvarsConfig          ../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
-} else {
-	colvarsConfig          ../../stepA_create_DBC/outputs/DBC_restraint.colvars
-}
-cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
 ## FEP PARAMETERS                                          ##
@@ -104,13 +94,25 @@ set lambdaEnd 			1.0
 set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
 set IDWS 				true 			;# Use interleaved double-wide sampling
 
-#############################################################
-## EXECUTION SCRIPT                                        ##
-#############################################################
-
 alchLambda 				0
 alchLambda2				$dLambda
 alchEquilSteps          1            ;# Waits N steps before collecting FEP data for each window. We'll trim equilibration during analysis.
+
+#############################################################
+## COLVARS                                                 ##
+#############################################################
+
+colvars                on 
+if {$useSampleFiles} {
+	colvarsConfig          ../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
+} else {
+	colvarsConfig          ../../stepA_create_DBC/outputs/DBC_restraint.colvars
+}
+cv configfile ../../common/protein_tilt.colvars
+
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
 
 set numSteps            500000           ;# Run 1ns for the first window
 if {!$continuing} {
