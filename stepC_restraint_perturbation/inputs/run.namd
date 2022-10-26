@@ -57,27 +57,27 @@ source ../../common/common_config.namd
 ## COLVARS                                                 ##
 #############################################################
 
-source ../../common/TI.tcl
-
 colvars                 on 
 if { $useSampleFiles } {
-	colvarsConfig           ../sample_outputs/DBC_Restraint_RFEP.colvars
+	colvarsConfig           ../sample_outputs/DBC_restraint_RFEP.colvars
 } else {
-	colvarsConfig			../outputs/DBC_Restraint_RFEP.colvars
+	colvarsConfig			../outputs/DBC_restraint_RFEP.colvars
 }
 
 # This block defines the inputs for a TI bias
 
-set cvName 			DBC
-set biasType 		harmonicWalls 
+source ../../common/TI.tcl
+
+set cvName 					DBC
+set biasType 				harmonicWalls
 set targetForceConstant 	200 
-set forceConstant 	0 
-set forceExponent 		6 
-set upperWalls 		2.5 
-set nWindows 		40 
+set forceConstant 			0 
+set forceExponent 			6 
+set upperWalls 				2.5 
+set nWindows 				40 
 set targetEquilSteps 		500 
-set targetNumSteps 	300000 
-set releaseFlag 	True
+set targetNumSteps 			300000 
+set releaseFlag 			True
 
 setTI $cvName $biasType $forceConstant $targetForceConstant $forceExponent $upperWalls $nWindows $targetEquilSteps $targetNumSteps $releaseFlag
 
