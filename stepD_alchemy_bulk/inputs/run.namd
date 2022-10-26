@@ -54,6 +54,13 @@ timestep            1.0  ;# 1fs/step
 fullElectFrequency  2
 nonbondedFreq       1
 
+# output frequencies in steps
+restartfreq        100000     
+dcdfreq            10000 	 
+xstFreq            10000
+outputEnergies     10000
+outputPressure     10000
+
 # PMEon is a flag used by the common_config file
 
 set PMEon	1
