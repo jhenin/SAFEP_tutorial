@@ -21,7 +21,7 @@ proc genLambdas { num } {
 #    nWindows: the number of lambda windows
 #    equilSteps: the number of steps before computing TI gradients
 #    stepsPerWindow: the number of steps for each lambda value
-#    releaseFlat: a flag that indicates whether the restraint is being imposed 
+#    releaseFlag: a flag that indicates whether the restraint is being imposed 
 #        or released. 0=imposed (force increased over time) 
 #        1=released (force decreases over time)
 # Results:
