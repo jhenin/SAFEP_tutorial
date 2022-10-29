@@ -18,9 +18,7 @@ from glob import glob #file regexes
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from tqdm import tqdm #for progress bars
 import re #regex
-from natsort import natsorted #for sorting "naturally" instead of alphabetically
 
 from alchemlyb.visualisation.dF_state import plot_dF_state
 
