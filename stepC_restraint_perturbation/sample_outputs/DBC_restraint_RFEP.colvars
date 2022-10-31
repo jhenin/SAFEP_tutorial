@@ -40,6 +40,6 @@ colvar {
 # Flat-bottom harmonic restraint on center-of-mass distance
 harmonicWalls {
     	colvars       COM
-    	upperWalls    1.5 
+    	upperWalls    3.5 
 	forceConstant 200
 }
