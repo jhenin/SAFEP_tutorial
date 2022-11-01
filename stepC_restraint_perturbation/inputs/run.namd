@@ -8,7 +8,7 @@
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-set useSampleFiles 0
+set useSampleFiles 1
 
 structure          ../../common/structures/phenol_gas_phase.psf
 coordinates        ../../common/structures/phenol_gas_phase.pdb
@@ -79,7 +79,8 @@ set targetEquilSteps 		500
 set targetNumSteps 			300000 
 set releaseFlag 			True
 
-setTI $cvName $biasType $forceConstant $targetForceConstant $forceExponent $upperWalls $nWindows $targetEquilSteps $targetNumSteps $releaseFlag
+set TIbias [makeTI $cvName $biasType $forceConstant $targetForceConstant $forceExponent $upperWalls $nWindows $targetEquilSteps $targetNumSteps $releaseFlag]
+cv config $TIbias
 
 #############################################################
 ## EXECUTION SCRIPT                                        ##
@@ -88,7 +89,7 @@ setTI $cvName $biasType $forceConstant $targetForceConstant $forceExponent $uppe
 # Minimization
 
 if {!$continuing} {
-	minimize            1000
+	minimize            100
 	reinitvels          $temperature
 }
 

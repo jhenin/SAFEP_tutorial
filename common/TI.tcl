@@ -27,7 +27,7 @@ proc genLambdas { num } {
 # Results:
 #    Creates a new bias based on the inputs and passes it to the Colvars module
 
-proc setTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindows equilSteps stepsPerWindow releaseFlag} {
+proc makeTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindows equilSteps stepsPerWindow releaseFlag} {
 	
     set lambdaSched [genLambdas $nWindows]
     
@@ -46,8 +46,6 @@ proc setTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindow
     	lambdaSchedule        $lambdaSched      \n \
 	targetNumSteps        $stepsPerWindow  \n \
         }"
-        
-    cv config $TIbias
 
-    return
+    return $TIbias
 }
