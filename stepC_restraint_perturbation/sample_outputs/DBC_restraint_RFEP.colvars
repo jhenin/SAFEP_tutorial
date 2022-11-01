@@ -29,7 +29,7 @@ colvar {
 		}
       
         group2 { # Reference ligand COM position
-            dummyAtom (-2.168, 5.235, 9.367)
+            dummyAtom (0, 0, 0)
             # obtained in VMD :
             # > measure center [atomselect top "serial 1 3 5 7 9 11 12"]
         }
