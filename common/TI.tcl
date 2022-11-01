@@ -4,8 +4,8 @@
 # Results: returns a string of the form "0 x1 x2 x3 x4 ... xnum=1"
 proc genLambdas { num } {
     set lambdaSched ""
-    for {set k 0} {$k <= $num} {set k [expr $k+1.0]} {
-      append lambdaSched "[expr $k/$num] "
+    for {set k 0} {$k <= $num} {incr k} {
+      append lambdaSched "[expr ($k*1.0)/$num] "
     }
     return $lambdaSched
 }
@@ -41,7 +41,7 @@ proc makeTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindo
 	targetForceConstant   $forceConst1   \n \
 	targetForceExponent   $forceExp     \n \
     	upperWalls            $upperWalls     \n \
-    	forceConstant         $forceConst1     \n \
+    	forceConstant         $forceConst0     \n \
 	targetEquilSteps      $equilSteps     \n \
     	lambdaSchedule        $lambdaSched      \n \
 	targetNumSteps        $stepsPerWindow  \n \
