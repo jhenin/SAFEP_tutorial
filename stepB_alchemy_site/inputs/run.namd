@@ -129,5 +129,5 @@ if {!$continuing} {
 runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
 
 set numSteps            250000           ;# 0.5ns per lambda (0.5 ns * 20 lambdas + 1ns * 1 lambda = 11ns)
-runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
+runFEP  $dLambda $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
 
