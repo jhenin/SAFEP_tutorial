@@ -1,0 +1,32 @@
+configuration {
+  step          100
+  dt 1.000000e+00
+  version 2020-07-07
+}
+
+colvar {
+  name DBC
+  x  7.31873930605452e-02
+}
+
+colvar {
+  name COM
+  x  2.56497325527416e-01
+}
+
+restraint {
+  configuration {
+    step 100
+    name harmonicwalls1
+  }
+}
+
+restraint {
+  configuration {
+    step 100
+    name harmonicwalls2
+    stage            0
+    forceConstant  2.00000000000000e+02
+  }
+}
+
