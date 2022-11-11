@@ -30,7 +30,7 @@ parameters         $parpath/par_all36_lipid.prm
 parameters         $parpath/par_all36_na.prm
 parameters         $parpath/par_all36_cgenff.prm
 parameters         $parpath/toppar_water_ions_namd.str
-parameters         $parpath/toppar_all36_lipid_cationpi_wyf
+parameters         $parpath/toppar_all36_lipid_cationpi_wyf.str
 mergeCrossterms    yes
 
 
