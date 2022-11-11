@@ -26,6 +26,7 @@ parameters         ../../../common/CHARMM36m_FF/par_all36_lipid.prm
 parameters         ../../../common/CHARMM36m_FF/par_all36_na.prm
 parameters         ../../../common/CHARMM36m_FF/par_all36_cgenff.prm
 parameters         ../../../common/CHARMM36m_FF/toppar_water_ions_namd.str
+parameters         ../../../common/CHARMM36m_FF/toppar_all36_lipid_cationpi_wyf
 mergeCrossterms    yes
 
 temperature         $temperature
