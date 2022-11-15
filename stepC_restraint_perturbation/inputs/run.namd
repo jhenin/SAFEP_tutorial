@@ -73,7 +73,7 @@ set biasType 				harmonicWalls
 set targetForceConstant 	200 
 set forceConstant 			0 
 set forceExponent 			6 
-set upperWalls 				2.5 
+set upperWalls 				1.5 
 set nWindows 				40 
 set targetEquilSteps 		500 
 set targetNumSteps 			300000 
