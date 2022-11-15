@@ -7,6 +7,7 @@ colvar {
     rmsd {
         refPositionsFile ../../common/structures/phenol_gas_phase.pdb
 
+	atomPermutation 11 7 3 1 5 9 12
         atoms {
             atomNumbers 11 9 5 1 3 7 12
 
@@ -40,6 +41,6 @@ colvar {
 # Flat-bottom harmonic restraint on center-of-mass distance
 harmonicWalls {
     	colvars       COM
-    	upperWalls    3.5 
+    	upperWalls    2.5 
 	forceConstant 200
 }
