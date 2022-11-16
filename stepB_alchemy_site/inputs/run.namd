@@ -13,23 +13,27 @@ set NPT	1
 # use sample data? 1=yes, 0=no, use my files
 
 set useSampleFiles	1
+set continuing	0 
+
+if {$useSampleFiles} {
+	set 	coorinput  	../sample_outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
+	set 	alchconfig 	../sample_outputs/alchemy_site.pdb
+} else {
+	set     coorinput  	../outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/outputs/DBC_restraint.colvars
+	set 	alchconfig 	../outputs/alchemy_site.pdb
+}
 
 #############################################################
 ## ADJUSTABLE PARAMETERS                                   ##
 #############################################################
 
-structure          ../../common/structures/phenol_lysozyme.psf
-
-if {$useSampleFiles} {
-	coordinates        ../sample_outputs/alchemy_site.pdb
-} else {
-	coordinates        ../outputs/alchemy_site.pdb
-}
-
-outputName         ../outputs/alchemy_site
+structure          		../../common/structures/phenol_lysozyme.psf
+coordinates				coorinput
+outputName         		../outputs/alchemy_site
 
 # Continuing a job from the restart files
-set continuing	0 
 if {$continuing} {
 	set inputname      [your inputname here]
 }
@@ -71,8 +75,6 @@ set PMEon	1
 
 source ../../common/common_config.namd
 
-
-
 #############################################################
 ## FEP PARAMETERS                                          ##
 #############################################################
@@ -81,12 +83,7 @@ source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
-
-if {$useSampleFiles} {
-	alchFile       ../sample_outputs/alchemy_site.pdb
-} else {
-	alchFile       ../outputs/alchemy_site.pdb
-}
+alchFile       			alchconfig
 
 alchCol                 B                    ;# Decoupling flags are in the beta field
 alchOutFreq             50                   ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
@@ -110,11 +107,9 @@ alchEquilSteps          1            ;# Waits N steps before collecting FEP data
 #############################################################
 
 colvars                on 
-if {$useSampleFiles} {
-	colvarsConfig          ../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
-} else {
-	colvarsConfig          ../../stepA_create_DBC/outputs/DBC_restraint.colvars
-}
+
+colvarsConfig          CVconfig
+
 cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
@@ -123,9 +118,10 @@ cv configfile ../../common/protein_tilt.colvars
 
 set numSteps            500000           ;# Run 1ns for the first window
 if {!$continuing} {
-	minimize				1000
-	reinitvels $temperature
+	minimize			1000
+	reinitvels 			$temperature
 }
+
 runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
 
 set numSteps            250000           ;# 0.5ns per lambda (0.5 ns * 20 lambdas + 1ns * 1 lambda = 11ns)
