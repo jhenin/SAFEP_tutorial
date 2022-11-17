@@ -1,41 +1,45 @@
 #############################################################
-## JOB DESCRIPTION                                         ##
+# JOB DESCRIPTION                                         
 #############################################################
 
 #############################################################
-## GENERAL SETTINGS                                        ##
+# GENERAL SETTINGS                                        
 #############################################################
 
 # NPT ensemble (flag for later scripting, not part of vanilla NAMD)
 
 set NPT	1
 
-# use sample data? 1=yes, 0=no, use my files
+# Use sample data? 1=yes; 0=no, use my files
 
 set useSampleFiles	1
-
-#############################################################
-## ADJUSTABLE PARAMETERS                                   ##
-#############################################################
-
-structure          ../../common/structures/phenol_lysozyme.psf
+set continuing	0 
 
 if {$useSampleFiles} {
-	coordinates        ../sample_outputs/alchemy_site.pdb
+	set 	coorinput  	../sample_outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
+	set 	alchconfig 	../sample_outputs/alchemy_site.pdb
 } else {
-	coordinates        ../outputs/alchemy_site.pdb
+	set     coorinput  	../outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/outputs/DBC_restraint.colvars
+	set 	alchconfig 	../outputs/alchemy_site.pdb
 }
 
-outputName         ../outputs/alchemy_site
+#############################################################
+# ADJUSTABLE PARAMETERS                                   
+#############################################################
+
+structure          		../../common/structures/phenol_lysozyme.psf
+coordinates				coorinput
+outputName         		../outputs/alchemy_site
 
 # Continuing a job from the restart files
-set continuing	0 
 if {$continuing} {
 	set inputname      [your inputname here]
 }
 
 #############################################################
-## SIMULATION PARAMETERS                                   ##
+# SIMULATION PARAMETERS                                   
 #############################################################
 
 # Periodic Boundary Conditions
@@ -49,8 +53,8 @@ if {!$continuing} {
 	cellOrigin           0     0    0
 }
 
-# Integrator Parameters
-timestep                2.0  ;# 2fs/step
+# Integrator Parameters. Timestep is in fs/step, others are in steps
+timestep                2.0
 fullElectFrequency      2
 nonbondedFreq           1
 
@@ -62,72 +66,87 @@ outputEnergies     5000
 outputPressure     5000
 
 # PMEon is a flag used by the common_config file
-
 set PMEon	1
 
 #############################################################
-## GENERAL SETTINGS                                        ##
+# GENERAL SETTINGS                                        
 #############################################################
 
 source ../../common/common_config.namd
 
-
-
 #############################################################
-## FEP PARAMETERS                                          ##
+# FEP PARAMETERS                          
+# See NAMD UG for more details                  
+#	alch: 		initialize the alchemy module
+#	alchType: 	FEP, as opposed to TI
+#	alchFile: 	Indicates which atoms are being perturbed
+#	alchCol: 	B=Perturbation flags are in the beta field
+#	alchOutFreq: Number of steps between writing FEP data. 
+#				Data will be decorrelated by subsampling during analysis.             
+#	alchOutFile: Where to write the data
+#	alchElecLambdaStart: Start (de)coupling electrostatics. Rarely changed.        
+#	alchVdwLambdaEnd: Start (de)coupling VdW interactions. Rarely changed.              
+#	alchVdwShiftCoeff: The softcore potential coefficient. Typically between 5 and 10.   
+#	alchdecouple: We're decoupling, not annihilating.   
+#	alchLambda/alchLambda2: for running individual windows	
+#	alchEquilSteps: the number of steps to skip before collecting FEP data. 
+#		We set this to 1 and detect equilibrium post-hoc using Alchemlyb and PyMBAR.
+
+# Arguments to runFEP:              
+#	lambdaStart
+#	lambdaEnd
+#	dLambda: The width of each lambda window (0.05 will result in 20 lambda 
+#			 windows and (20+1)*nSteps total simulation time)      
+#	IDWS: Use interleaved double-wide sampling
+
 #############################################################
 
 source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
+alchFile       			alchconfig
+alchCol                 B                    
+alchOutFreq             50                   
 
-if {$useSampleFiles} {
-	alchFile       ../sample_outputs/alchemy_site.pdb
-} else {
-	alchFile       ../outputs/alchemy_site.pdb
-}
-
-alchCol                 B                    ;# Decoupling flags are in the beta field
-alchOutFreq             50                   ;# Number of steps between writing FEP data. These will be further downsampled in a later step.
-alchOutFile             ../outputs/alchemy_site.fepout  ;# File to write the FEP data.
-alchElecLambdaStart     0.5                  ;# Start (de)coupling electrostatics. Rarely changed. See NAMD UG. 
-alchVdwLambdaEnd        1.0                  ;# Stop (de)coupling VdW. See NAMD UG
-alchVdwShiftCoeff       5.0                  ;# The softcore potential coefficient. Typically between 5 and 10.
+alchOutFile             ../outputs/alchemy_site.fepout  ;
+alchElecLambdaStart     0.5                  
+alchVdwLambdaEnd        1.0            
+alchVdwShiftCoeff       5.0         
 alchdecouple            on                
 
 set lambdaStart 		0.0
 set lambdaEnd 			1.0
-set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
-set IDWS 				true 			;# Use interleaved double-wide sampling
+set dLambda             0.05            
+set IDWS 				true 		
 
 alchLambda 				0
 alchLambda2				$dLambda
-alchEquilSteps          1            ;# Waits N steps before collecting FEP data for each window. We'll trim equilibration during analysis.
+alchEquilSteps          1            
 
 #############################################################
-## COLVARS                                                 ##
+# COLVARS                                                 
 #############################################################
 
 colvars                on 
-if {$useSampleFiles} {
-	colvarsConfig          ../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
-} else {
-	colvarsConfig          ../../stepA_create_DBC/outputs/DBC_restraint.colvars
-}
+
+colvarsConfig          CVconfig
+
 cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
-## EXECUTION SCRIPT                                        ##
+# EXECUTION SCRIPT                                        
 #############################################################
 
-set numSteps            500000           ;# Run 1ns for the first window
+# Extra long equilibration for the first window (1ns)
+set numSteps            500000          
 if {!$continuing} {
-	minimize				1000
-	reinitvels $temperature
+	minimize			1000
+	reinitvels 			$temperature
 }
-runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;# Extra long equilibration for the first window
+runFEP $lambdaStart $dLambda $dLambda $numSteps $IDWS ;
 
-set numSteps            250000           ;# 0.5ns per lambda (0.5 ns * 20 lambdas + 1ns * 1 lambda = 11ns)
+# 0.5ns per lambda (0.5 ns * 20 lambdas + 1ns * 1 lambda = 11ns total)
+set numSteps            250000     
 runFEP  $dLambda $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [Supp-Files]/common/fep.tcl for more details.
 

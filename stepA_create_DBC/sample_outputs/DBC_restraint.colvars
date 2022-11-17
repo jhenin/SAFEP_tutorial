@@ -18,7 +18,7 @@ colvar {
         # refPositionsCol O
         # refPositionsColValue 1
 
-
+	atomPermutation 1 5 3 9 7 11 12
         atoms {
             # Define ligand atoms used for RMSD calculation
             # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
