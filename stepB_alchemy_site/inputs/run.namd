@@ -1,10 +1,5 @@
 #############################################################
-# JOB DESCRIPTION                                         
-#############################################################
-
-#############################################################
 # GENERAL SETTINGS                                        
-#############################################################
 
 # NPT ensemble (flag for later scripting, not part of vanilla NAMD)
 
@@ -27,10 +22,9 @@ if {$useSampleFiles} {
 
 #############################################################
 # ADJUSTABLE PARAMETERS                                   
-#############################################################
 
 structure          		../../common/structures/phenol_lysozyme.psf
-coordinates				coorinput
+coordinates				$coorinput
 outputName         		../outputs/alchemy_site
 
 # Continuing a job from the restart files
@@ -40,7 +34,6 @@ if {$continuing} {
 
 #############################################################
 # SIMULATION PARAMETERS                                   
-#############################################################
 
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
@@ -70,7 +63,6 @@ set PMEon	1
 
 #############################################################
 # GENERAL SETTINGS                                        
-#############################################################
 
 source ../../common/common_config.namd
 
@@ -99,13 +91,12 @@ source ../../common/common_config.namd
 #			 windows and (20+1)*nSteps total simulation time)      
 #	IDWS: Use interleaved double-wide sampling
 
-#############################################################
 
 source                  ../../common/fep.tcl
 
 alch                    on
 alchType                FEP
-alchFile       			alchconfig
+alchFile       			$alchconfig
 alchCol                 B                    
 alchOutFreq             50                   
 
@@ -126,17 +117,15 @@ alchEquilSteps          1
 
 #############################################################
 # COLVARS                                                 
-#############################################################
 
 colvars                on 
 
-colvarsConfig          CVconfig
+colvarsConfig          $CVconfig
 
 cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
 # EXECUTION SCRIPT                                        
-#############################################################
 
 # Extra long equilibration for the first window (1ns)
 set numSteps            500000          
