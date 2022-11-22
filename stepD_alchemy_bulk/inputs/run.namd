@@ -1,43 +1,39 @@
 #############################################################
-## JOB DESCRIPTION                                         ##
-#############################################################
-
-#############################################################
-## GENERAL SETTINGS                                        ##
-#############################################################
-
+# GENERAL SETTINGS    
+                                    
 # NPT ensemble (flag for later scripting, not part of vanilla NAMD)
 
-set NPT 1
+set NPT	1
 
-# use sample data? 1=yes, 0=no, use my files
+# Use sample data? 1=yes; 0=no, use my files
 
-set useSampleFiles 0
+set useSampleFiles	1
+set continuing	0 
 
-#############################################################
-## ADJUSTABLE PARAMETERS                                   ##
-#############################################################
-
-structure          ../../common/structures/phenol_water.psf
-
-if { $useSampleFiles } {
-	coordinates	../sample_outputs/alchemy_bulk.pdb
+if {$useSampleFiles} {
+	set 	coorinput  	../sample_outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
+	set 	alchconfig 	../sample_outputs/alchemy_site.pdb
 } else {
-	coordinates	../outputs/alchemy_bulk.pdb
+	set     coorinput  	../outputs/alchemy_site.pdb
+	set 	CVconfig 	../../stepA_create_DBC/outputs/DBC_restraint.colvars
+	set 	alchconfig 	../outputs/alchemy_site.pdb
 }
 
-outputName         ../outputs/alchemy_bulk
+#############################################################
+# ADJUSTABLE PARAMETERS                                   
+
+structure          		../../common/structures/phenol_lysozyme.psf
+coordinates				$coorinput
+outputName         		../outputs/alchemy_site
 
 # Continuing a job from the restart files
-set continuing		0
 if {$continuing} {
-    set inputname      [your inputname here]
-} 
+	set inputname      [your inputname here]
+}
 
 #############################################################
-## SIMULATION PARAMETERS                                   ##
-#############################################################
-
+# SIMULATION PARAMETERS                                   
 # Periodic Boundary Conditions
 # NOTE: Do not set the periodic cell basis if you have also 
 # specified an .xsc restart file!
@@ -66,56 +62,66 @@ outputPressure     10000
 set PMEon	1
 
 #############################################################
-## GENERAL SETTINGS                                        ##
-#############################################################
+# GENERAL SETTINGS                                        
 
 source ../../common/common_config.namd
 
 #############################################################
-## FEP PARAMETERS                                          ##
-#############################################################
+# FEP PARAMETERS                          
+# See NAMD UG for more details                  
+#	alch: 		initialize the alchemy module
+#	alchType: 	FEP, as opposed to TI
+#	alchFile: 	Indicates which atoms are being perturbed
+#	alchCol: 	B=Perturbation flags are in the beta field
+#	alchOutFreq:Number of steps between writing FEP data. 
+#				Data will be decorrelated by subsampling during analysis.             
+#	alchOutFile:Where to write the data
+#	alchElecLambdaStart: Start (de)coupling electrostatics. Rarely changed.        
+#	alchVdwLambdaEnd: Start (de)coupling VdW interactions. Rarely changed.              
+#	alchVdwShiftCoeff: The softcore potential coefficient. Typically between 5 and 10.   
+#	alchdecouple: We're decoupling, not annihilating.   
+#	alchLambda/alchLambda2: for running individual windows	
+#	alchEquilSteps: the number of steps to skip before collecting FEP data. 
+#		We set this to 1 and detect equilibrium post-hoc using Alchemlyb and PyMBAR.
+
+# Arguments to runFEP:              
+#	lambdaStart
+#	lambdaEnd
+#	dLambda: The width of each lambda window (0.05 will result in 20 lambda 
+#			 windows and (20+1)*nSteps total simulation time)      
+#	IDWS: Use interleaved double-wide sampling
 
 source                  ../../common/fep.tcl
                         
 alch                    on
 alchType                FEP
-
-if { $useSampleFiles } {
-	alchFile        ../sample_outputs/alchemy_bulk.pdb
-} else {
-	alchFile	../outputs/alchemy_bulk.pdb
-}
-
+alchFile				$alchconfig
 alchCol                 B
-alchOutFreq             50 				;# Sample every 200fs, typical values are between 50 and 200 steps
+alchOutFreq             50 				
 alchOutFile             ../outputs/alchemy_bulk.fepout
 alchElecLambdaStart     0.5
 alchVdwLambdaEnd        1.0
 alchVdwShiftCoeff       6.8
 alchdecouple            on
-
 set lambdaStart 		0.0
 set lambdaEnd 			1.0
-set dLambda             0.05            ;# The width of each lambda window (0.05 will result in 20 lambda windows and (20+1)*nSteps total simulation time)
-set IDWS 				true 			;# Use interleaved double-wide sampling
-
+set dLambda             0.05            
+set IDWS 				true 			
 alchLambda 				0
 alchLambda2				$dLambda
 alchEquilSteps          1
 
 #############################################################
-## COLVARS                                                 ##
-#############################################################
+# COLVARS                                                 
 
 colvars 	off
 
 #############################################################
-## EXECUTION SCRIPT                                        ##
-#############################################################
+# EXECUTION SCRIPT                                        
 
 if {!$continuing} {
-	minimize				1000
-	reinitvels $temperature
+	minimize			1000
+	reinitvels 			$temperature
 }
 
 alchEquilSteps          1
