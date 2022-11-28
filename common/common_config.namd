@@ -39,8 +39,6 @@ mergeCrossterms    yes
 wrapWater           on
 wrapAll             off
 COMmotion           no
-zeroMomentum        yes
-
 
 # Force-Field Parameters
 exclude             scaled1-4
