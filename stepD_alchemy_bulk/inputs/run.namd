@@ -23,7 +23,7 @@ if {$useSampleFiles} {
 #############################################################
 # ADJUSTABLE PARAMETERS                                   
 
-structure          		../../common/structures/phenol_bulk.psf
+structure          		../../common/structures/phenol_water.psf
 coordinates			$coorinput
 outputName         		../outputs/alchemy_bulk
 
