@@ -1,17 +1,25 @@
 #############################################################
-## JOB DESCRIPTION                                         ##
-#############################################################
+## JOB DESCRIPTION                                        
 
 # Run a DBC TI calculation
 
 #############################################################
-## ADJUSTABLE PARAMETERS                                   ##
-#############################################################
+## ADJUSTABLE PARAMETERS                                   
 
-set useSampleFiles 1
+set useSampleFiles 0
 
-structure          ../../common/structures/phenol_gas_phase.psf
-coordinates        ../../common/structures/phenol_gas_phase.pdb
+if {$useSampleFiles} {
+	set struct ../../common/structures/phenol_gas_phase.psf
+	set coords ../../common/structures/phenol_gas_phase.pdb
+	set CVconf ../sample_outputs/DBC_restraint_RFEP.colvars
+} else {
+	set struct ../outputs/phenol_gas_phase.psf
+	set coords ../outputs/phenol_gas_phase.pdb
+	set CVconf ../outputs/DBC_restraint_RFEP.colvars
+}
+
+structure          $struct
+coordinates        $coords
 outputName         ../outputs/RFEP
 
 set continuing		0
@@ -22,8 +30,7 @@ if {$continuing} {
 } 
 
 #############################################################
-## SIMULATION PARAMETERS                                   ##
-#############################################################
+## SIMULATION PARAMETERS                                   
 
 # Periodic boundaries should not be used in this case
 # PME is off by default and should not be used in this case
@@ -48,21 +55,17 @@ outputEnergies     10000
 outputPressure     10000
 
 #############################################################
-## GENERAL SETTINGS                                        ##
-#############################################################
+## GENERAL SETTINGS                                        
 
 source ../../common/common_config.namd
 
 #############################################################
-## COLVARS                                                 ##
-#############################################################
+## COLVARS                                                
 
 colvars                 on 
-if { $useSampleFiles } {
-	colvarsConfig           ../sample_outputs/DBC_restraint_RFEP.colvars
-} else {
-	colvarsConfig			../outputs/DBC_restraint_RFEP.colvars
-}
+
+colvarsConfig           $CVconf
+
 
 # This block defines the inputs for a TI bias
 
@@ -83,8 +86,7 @@ set TIbias [makeTI $cvName $biasType $forceConstant $targetForceConstant $forceE
 cv config $TIbias
 
 #############################################################
-## EXECUTION SCRIPT                                        ##
-#############################################################
+## EXECUTION SCRIPT                                        
 
 # Minimization
 
