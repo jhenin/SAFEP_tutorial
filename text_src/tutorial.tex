@@ -14,21 +14,19 @@
 \usepackage[version=4]{mhchem}
 \usepackage{multicol}
 \usepackage{natbib}
-\usepackage{siunitx}
+%\usepackage{siunitx}
 \usepackage[skins]{tcolorbox}
 \usepackage[normalem]{ulem}
-\usepackage{upgreek}
+%\usepackage{upgreek}
 \usepackage{wrapfig}
 \usepackage{xcolor}
-\usepackage{lineno}
-\linenumbers
 
 \newlist{todolist}{itemize}{2}
 \setlist[todolist]{label=$\square$}
 
 % Special commands and macros
 \graphicspath{{Figures/}}
-\DeclareSIUnit\Molar{M}
+%\DeclareSIUnit\Molar{M}
 
 \setlistdepth{9}
 \newlist{myEnumerate}{enumerate}{9}
@@ -47,17 +45,17 @@
     linkcolor=blue,
     filecolor=magenta,
     urlcolor=cyan,
-    pdftitle={Overleaf Example},
+    pdftitle={SAFEP Tutorial},
     }
 
 \newcommand{\sourcefile}{\path}
 
 %Commenting commands
-\newcommand{\jh}[1]{\textcolor{blue}{JH: #1}}
-\newcommand{\grace}[1]{\textcolor{red}{GB: #1}}
-\newcommand{\Mina}[1]{\textcolor{magenta}{Mina: #1}}
-\newcommand{\jesse}[1]{\textcolor{green}{Jesse: #1}}
-\newcommand{\ezry}[1]{\textcolor{orange}{Ezry: #1}}
+% \newcommand{\jh}[1]{\textcolor{blue}{JH: #1}}
+% \newcommand{\grace}[1]{\textcolor{red}{GB: #1}}
+% \newcommand{\Mina}[1]{\textcolor{magenta}{Mina: #1}}
+% \newcommand{\jesse}[1]{\textcolor{green}{Jesse: #1}}
+%\newcommand{\ezry}[1]{\textcolor{orange}{Ezry: #1}}
 
 %Formatting macros
 \newcommand{\terminal}[1]{\texttt{\$#1}}
@@ -83,17 +81,22 @@
 
 \newcommand{\exponential}[1]{\exp\left[#1\right]}
 
+
+\newcommand{\githubrepository}{\url{https://github.com/jhenin/SAFEP_tutorial}}
+
+
 \title{Computing absolute binding affinities by Streamlined Alchemical Free Energy Perturbation}
 
 \author[1\authfn{1}]{Ezry Santiago-McRae}
-\author[2,3\authfn{1}]{Mina Ebrahimi}
+\author[2,3,4\authfn{1}]{Mina Ebrahimi}
 \author[1]{Jesse W. Sandberg}
-\author[1,4\authfn{2}]{Grace Brannigan}
-\author[2,3\authfn{2}]{Jérôme Hénin}
+\author[1,5\authfn{2}]{Grace Brannigan}
+\author[3,4\authfn{2}]{Jérôme Hénin}
 \affil[1]{Center for Computational and Integrative Biology, Rutgers University, Camden, New Jersey, 08102}
-\affil[2]{CNRS, Université Paris Cité, UPR 9080, Laboratoire de Biochimie Théorique, 75005, Paris, France}
-\affil[3]{Institut de Biologie Physico-Chimique -- Fondation Edmond de Rothschild, PSL Research University, Paris, France}
-\affil[4]{Department of Physics, Rutgers University, Camden, New Jersey, 08102}
+\affil[2]{Department of Physical Chemistry, School of Chemistry, College of Science, University of Tehran, Tehran 1417935840, Iran}
+\affil[3]{Université Paris Cité, Laboratoire de Biochimie Théorique, CNRS UPR 9080, 75005, Paris, France}
+\affil[4]{Institut de Biologie Physico-Chimique -- Fondation Edmond de Rothschild, PSL Research University, Paris, France}
+\affil[5]{Department of Physics, Rutgers University, Camden, New Jersey, 08102}
 
 \corr{grace.brannigan@rutgers.edu}{GB}
 \corr{jerome.henin@cnrs.fr}{JH}
@@ -107,12 +110,12 @@
 \contrib[\authfn{1}]{These authors contributed equally to this work}
 \contrib[\authfn{2}]{These authors played an equal role in supervising this work}
 
-% \blurb{This LiveCoMS document is maintained online on GitHub at \githubrepository; to provide feedback, suggestions, or help improve it, please visit the GitHub repository and participate via the issue tracker.}
+\blurb{This LiveCoMS document is maintained online on GitHub at \githubrepository; to provide feedback, suggestions, or help improve it, please visit the GitHub repository and participate via the issue tracker.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PUBLICATION INFORMATION
 %%% Fill out these parameters when available
-%%% These are used when the "pubversion" option is invoked
+%%% These are used when the "pubversion'' option is invoked
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \pubDOI{10.XXXX/YYYYYYY}
 % \pubvolume{<volume>}
@@ -128,12 +131,12 @@
 \maketitle
 \begin{abstract}
     Free Energy Perturbation (FEP) is a powerful but challenging computational technique for estimating differences in free energy between two or more states.
-    This document is intended both as a tutorial and as an adaptable protocol for computing free energies of binding using free energy perturbations (FEP) in NAMD.
+    This document is intended both as a tutorial and as an adaptable protocol for computing free energies of binding using free energy perturbations in NAMD.
     We present the Streamlined Alchemical Free Energy Perturbation (SAFEP) framework. SAFEP shifts the computational frame of reference from the ligand to the binding site itself. 
     This both simplifies the thermodynamic cycle and makes the approach more broadly applicable to superficial sites and other less common geometries.
     As a practical example, we give instructions for calculating the absolute binding free energy of phenol to lysozyme. 
     We assume familiarity with standard procedures for setting up, running, and analyzing molecular dynamics simulations using NAMD and VMD.
-    While simulation times will vary, the human tasks should take no more than 4 to 5 hours for a reader without previous training in free energy calculations or experience with the Colvars Dashboard.
+    While simulation times will vary, the human tasks should take no more than 3 to 4 hours for a reader without previous training in free energy calculations or experience with the Colvars Dashboard.
     Sample data are provided for all key calculations both for comparison and readers' convenience.
 \end{abstract}
 \end{frontmatter}
@@ -141,7 +144,7 @@
 \section{Introduction}
 In this tutorial we are principally concerned with computing the Absolute Binding Free Energy (ABFE) of a ligand to its receptor. 
 While many methods of measuring free energies exist, alchemical Free Energy Perturbation (FEP) methods make use of the fact that, since the change in free energy is path independent, it can be calculated via an unphysical path. In the case of FEP, that unphysical path is defined by scaling the non-bonded interactions of the ligand.
-In essence, the user can make a bound ligand "disappear" from the binding site, make it re-appear in the bulk solution, and calculate the corresponding free energy difference. 
+In essence, the user can make a bound ligand "disappear'' from the binding site, make it re-appear in the bulk solution, and calculate the corresponding free energy difference. 
 
 While elegant and exact in principle, FEP calculations are often unwieldy in practice.
 One of the most stubborn challenges that most FEP implementations face is that the ligand must maintain the original bound configuration during decoupling, even as the very interactions that stabilize the bound configuration are weakened.
@@ -150,8 +153,8 @@ Such restraints further complicate the thermodynamic cycle, particularly if the 
 Thus, while many FEP schemes accelerate convergence, most do so in ways that require error-prone manual input and many hours of the user's time.
 
 Streamlined Alchemical Free Energy Perturbation (SAFEP) is specifically designed to make FEP calculations faster and easier for the user without sacrificing accuracy of the final free energy estimate.
-SAFEP reduces conceptual and computational complexity by replacing conventional rotational and translational restraints for stabilizing the ligand in the binding site with a single Distance from Bound Configuration (DBC) coordinate.
-SAFEP can also handle superficial binding sites in phase-separated bulk\cite{Salari2018}, which are particularly unwieldy with traditional FEP approaches. 
+SAFEP reduces conceptual and computational complexity by replacing conventional rotational and translational restraints for stabilizing the ligand in the binding site with a single Distance-to-Bound-Configuration (DBC) coordinate as illustrated in Figure \ref{fig:DBC}.
+SAFEP can also handle superficial binding sites in phase-separated bulk \cite{Salari2018}, which are particularly unwieldy with traditional FEP approaches. 
 Statistically optimal FEP estimators require both decoupling and recoupling calculations; SAFEP uses Interleaved Double-Wide Sampling (IDWS) to extract both quantities from the same calculation, roughly halving the required simulation time. 
 SAFEP makes extensive use of the Colvars Dashboard in VMD, allowing the user to easily measure collective variables, impose biases, and generate restraint configuration files from one interface. 
 Finally, analysis tools and data visualizations are included in one Jupyter notebook allowing for comprehensive quality assurance along with the $\Delta G$ calculation.
@@ -169,28 +172,28 @@ The desired quantity $\Delta G^\circ_\mathrm{bind}$ (red, left column) is equal 
     \caption{\textbf{The SAFEP thermodynamic cycle.} 
     Computing the ABFE of a ligand bound to a protein ($\Delta G^\circ_{bind}$) is the ultimate goal. 
     This is found by computing the free energies of several, smaller perturbations: 1) decoupling the unbound ligand from the condensed phase to the gas phase under no restraints ($\Delta G^*_{bulk}$); 2) enforcing a restraint scheme (-$\Delta G^\circ_V$ and $\Delta G_{DBC}$); and 3) coupling the ligand from the gas phase to its bound pose in the condensed phase (-$\Delta G^*_{site}$) under the Distance from Bound Configuration (DBC) restraint.
-    The free energy contribution of the volumetric restraint ($\Delta G^\circ_{V}$) is calculated analytically, while the other three contributions are calculated via simulation.The free energy of the top horizontal leg vanishes in SAFEP due to design of the DBC restraint. See Appendix \ref{app:restraints}} for more details.
+    The free energy contribution of the volumetric restraint ($\Delta G^\circ_{V}$) is calculated analytically, while the other three contributions are calculated via simulation.The free energy of the top horizontal leg vanishes in SAFEP due to design of the DBC restraint. See \ref{app:restraints} for more details.}
     \label{fig:cycle}
 \end{figure}
 
 \subsection{Scope}
 The following steps will walk the user through the calculation of an Absolute Binding Free Energy (ABFE) using a computationally affordable example (phenol bound to a mutant lysozyme), but we have written these steps to be straightforward to generalize to other systems.
-These exact steps have been tested thoroughly for this particular system. To facilitate generalization of the method to other systems, we have provided some additional troubleshooting advice in \ref{app:troubleshooting}.
+These exact steps have been tested thoroughly for this particular system. To facilitate generalization of the method to other systems, we have provided additional troubleshooting advice in \ref{app:troubleshooting}.
 
 More detailed descriptions and justifications for each step are provided in the appendices. These appendix entries are also hyperlinked and referenced throughout the body of the tutorial.
 
 \subsection{Prerequisites}
     \subsubsection{Background knowledge}\label{sec:prerequisites}
     
-    We assume familiarity with running classical MD with NAMD 2.14 or later. If this is not the case, please see the NAMD Tutorial. \cite{phillips2003} The latter portions that involve analysis are less important for this tutorial. Useful, but not required, material on alchemical free energy perturbations can be found in “\textit{In-silico} alchemy: A tutorial for alchemical free-energy perturbation calculations with NAMD.” \cite{Henin2017} Finally, basic knowledge of VMD and Python will be required for data analysis and visualization.  
+    We assume familiarity with running classical MD with NAMD 2.14 or later. If this is not the case, please see the NAMD Tutorial \cite{phillips2003}. The latter portions that involve analysis are less important for this tutorial. Useful, but not required, material on alchemical free energy perturbations can be found in “\textit{In-silico} alchemy: A tutorial for alchemical free-energy perturbation calculations with NAMD” \cite{Henin2017}. Finally, basic knowledge of VMD and Python will be required for data analysis and visualization.  
 
 \subsubsection{Software requirements}\label{sec:7.2}
     \begin{enumerate}
-        \item NAMD 2.14 or later
-        \item \textbf{VMD 1.9.4.a57} or later. See the Colvars Dashboard \href{https://github.com/Colvars/colvars/tree/master/vmd/cv_dashboard}{README} for more information on getting the latest version. Older versions may be used, but some functionality featured in this tutorial will be unavailable.
+        \item NAMD 2.14 or later. Support for GPU-accelerated alchemy with IDWS is expected to be available in NAMD 3a14, pending fixes.
+        \item \textbf{VMD 1.9.4.a57} or later. Slightly older versions of VMD may be used, but will require manual update of the Colvars Dashboard. See the Colvars Dashboard \href{https://github.com/Colvars/colvars/tree/master/vmd/cv_dashboard}{README} for more information on getting the latest version. 
         \item Python 3.9.12 or later
         \item Jupyter
-        \item Python Packages:
+        \item safep Python package and its dependencies:
         \begin{enumerate}
         \item Alchemlyb
         \item Glob
@@ -198,75 +201,71 @@ More detailed descriptions and justifications for each step are provided in the 
         \item Numpy 1.22 or later
         \item Pandas
         \item PyMBAR
-        \item safep
         \end{enumerate}
     \end{enumerate}
 
-NAMD will be used to perform simulations. GPU acceleration of restrained free energy perturbations are planned and partially functional in NAMD3 alpha, but we cannot yet recommend its use. \cite{Chen2020, Phillips2020} System setup, trajectory visualization, and restraint definition will be carried out in VMD.\cite{Humphrey1996} Data analysis and visualization will be handled by a Jupyter notebook with the above dependencies.
+NAMD will be used to perform simulations. GPU acceleration of restrained free energy perturbations are expected in NAMD3 alpha 14 (with \textInput{CUDASOAintegrate off}) \cite{Chen2020, Phillips2020}. System setup, trajectory visualization, and restraint definition will be carried out in VMD \cite{Humphrey1996}. Data analysis and visualization will be handled by a Jupyter notebook with the above dependencies.
 
 High-performance computing resources are recommended, but not required. Sample outputs are provided for each step for users with limited compute resources or time.
 
 \subsection{Process Overview} \label{sec:processOverview}
 
-Within the scope of free energy perturbations, absolute free energies of binding are typically calculated by the double-decoupling method (DDM).\cite{Gilson1997, Hamelberg2004, Woo2005} 
+Within the scope of free energy perturbations, absolute free energies of binding are typically calculated by the double-decoupling method (DDM) \cite{Gilson1997, Hamelberg2004, Woo2005}. 
 In this method, pair interactions (non-bonded terms) between the ligand and the rest of the simulation box are gradually scaled to zero (decoupled) from both a bound state and an unbound, solvated state.
 
 In order to maintain the ligand in its bound state, most current approaches introduce a series of rotational and translational restraints on the ligand, each of which requires calibration and an additional $\Delta G$ correction.
-SAFEP, in contrast, uses just one restraint, a flat well on the "Distance-to-Bound Configuration" (DBC). This minimizes both the number of parameters to be optimized and the number of simulations to be performed (See Appendix\ref{app:restraints} for details).
+In contrast, SAFEP uses just one restraint: a flat well on the "Distance-to-Bound Configuration'' (DBC). This minimizes both the number of parameters to be optimized and the number of simulations to be performed (See \ref{app:restraints} for details).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\linewidth]{CoarseGrainedWorkflow.pdf}
+    \caption[test]{\textbf{The overall SAFEP workflow.} The dependencies in this flowchart can be used to decide in what order steps can be performed, and which simulations can be run simultaneously. From top to bottom and left to right: 1) the ligand must be setup (as for classical MD) in each of the three states (bound, solvated, gas phase) and minimally relaxed (white boxes); 2) a longer, unbiased simulation of the ligand-protein complex is necessary to sample the bound state (green box) which is used to determine the distribution of the DBC (orange box, \ref{step:equilibrium}); 3) two FEP calculations and a TI calculation are carried out (blue boxes, \ref{step:proteinDecouple}, \ref{step:restraintPerturbation}, and \ref{step:bulkDecoupling}); and 4) the resulting values are combined to get the standard free energy of binding (gray box; \ref{step:combinequantities}).}
+    \label{fig:workflow}
+\end{figure}
 
 The thermodynamic cycle used for absolute binding free energies in SAFEP is seen in Figure \ref{fig:cycle} while the unknown values (black arrows) can be calculated by the simulations outlined in Figure \ref{fig:workflow}.
 More precisely, the thermodynamic cycle (Fig \ref{fig:cycle}) and the corresponding simulations (Fig \ref{fig:workflow}) are broken into three main steps involving three simulation systems: 1) the ligand bound to the protein, 2) the ligand in the gas phase, and 3) the ligand in the bulk. 
 The order of computations is unimportant so long as the end-points are defined consistently (e.g. the same temperature is used throughout and restraints are used consistently). 
-For the sake of clarity, we have arranged the process linearly: Steps A and B are concerned with calculating $\Delta G^*_\mathrm{site}$; step C addresses the free energy of the DBC ($\Delta G_\mathrm{DBC}$); step D measures $\Delta G^*_\mathrm{bulk}$; and step E calculates an analytical correction ($\Delta G^\circ_V$) and combines all the preceding terms into the overall $\Delta G^\circ_\mathrm{bind}$ using Equation \ref{eq:overalldG}.
- 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=.5\textwidth]{CoarseGrainedWorkflow.pdf}
-    \caption[test]{\textbf{The overall SAFEP workflow.} The dependencies in this flowchart can be used to decide in what order steps can be performed, and which simulations can be run simultaneously. From top to bottom and left to right: 1) the ligand must be setup (as for classical MD) in each of the three states (bound, solvated, gas phase); 2) each system must be minimally relaxed and a longer simulation run of the ligand-protein complex to sample the bound state; 3) two FEP calculations and a TI calculation are carried out; and, finally, 4) the resulting values are combined to get the standard free energy of binding.}
-    \label{fig:workflow}
-    
-\end{figure}
+For the sake of clarity, we have arranged the process linearly: Steps A and B are concerned with calculating $\Delta G^*_\mathrm{site}$; step C addresses the free energy of the DBC ($\Delta G_\mathrm{DBC}$); step D measures $\Delta G^*_\mathrm{bulk}$; and step E calculates an analytical correction ($\Delta G^\circ_V$) and combines all the preceding terms into the overall $\Delta G^\circ_\mathrm{bind}$ using Equation~\ref{eq:overalldG}.
 
 
-\begin{table}[ht]
-    \centering
-    \caption{Variable and Acronym Definitions}
-    \label{tab:variables}
-    \begin{tabular}{  p{.2\linewidth} | p{.7\linewidth}  }
-        Variable & Definition\\
-        \hline
-        DBC & Distance-to-Bound-Configuration \\
-        \hline
-        COM & Center Of Mass \\
-        \hline
-        [A]FEP & [Alchemical] Free Energy Perturbation \\
-        \hline
-        $\Delta G^\circ_\mathrm{bind}$ & The free energy of transferring the ligand from the bulk solution to the binding site in a hypothetical standard state\\
-        \hline 
-        $\Delta G^*_\mathrm{site}$ & The free energy of decoupling the ligand from the binding site \\
-        \hline 
-        $\Delta G^*_\mathrm{bulk}$ & The free energy of decoupling the ligand from the bulk solution \\
-        \hline 
-        $\Delta G^\circ_\mathrm{V}$ & The free energy of releasing a center of mass (COM) restraint on the ligand to a standard state\\
-        \hline 
-        $\Delta G_\mathrm{DBC}$ & The free energy of imposing the DBC restraint on the ligand from a COM restraint \\
-        \hline
-        $V_\mathrm{R}$ & The volume approximated by the harmonic walls restraint on the ligand center of mass\\
-        \hline
-        $r_\mathrm{R}$ & The position of the upper wall restraint on the ligand center of mass.
-    \end{tabular}
-\end{table}
-
-
+% \begin{table}[H]
+%     \centering
+%     \caption{Acronym Definitions}
+%     \label{tab:variables}
+%     \begin{tabular}{  p{.2\linewidth} | p{.7\linewidth}  }
+%         Variable & Definition\\
+%         \hline
+%         SAFEP & Streamlined Alchemical Free Energy Perturbations\\
+%         \hline
+%         DBC & Distance-to-Bound-Configuration \\
+%         \hline
+%         COM & Center Of Mass (displacement)\\
+%         \hline
+%         [A]FEP & [Alchemical] Free Energy Perturbation \\
+%         \hline
+%         TI & Thermodynamic Integration\\
+%     \end{tabular}
+% \end{table}
 
 \onecolumn
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{DBCfigfinal.pdf}
+    \caption{\textbf{The Distance-to-Bound-Configuration (DBC) coordinate.} The DBC coordinate is used as a bias to prevent ligand dissociation during uncoupling. The user specifies a subset of protein atoms as the fitting group (teal) and a subset of ligand atoms (red); also shown are the protein surface (gray) and remaining ligand atoms (black). A) User-specified reference coordinates for both protein and ligand.    %and User-specified fitting group atoms (teal), restrained ligand atoms (red), and other ligand atoms (black) reference coordinates. 
+    B) During simulation, both protein and ligand will drift from the reference coordinates (black dashed outline).   
+    C) In order to remove rotational and translational diffusion of the protein from calculation of the DBC, Colvars aligns the system to the reference coordinates using only the protein fitting group atoms. 
+    D) The DBC is the RMSD of the user-specified ligand atoms (solid) with respect to the reference coordinates (dashed).}
+    \label{fig:DBC}
+\end{figure}
+
 \section{Protocol} \label{sec:protocol}
 %\hline
 \vspace{0.5em}
 
 %\hline\\
-The following steps demonstrate the SAFEP protocol applied to a computationally affordable example - calculating the binding affinity of phenol to a lysozyme mutant.
-For more details on the rationale behind this choice, see appendix \ref{app:motivation}.
+The following steps demonstrate the SAFEP protocol applied to a computationally affordable example: calculating the binding affinity of phenol to a lysozyme mutant.
+For more details on the rationale behind this choice, see \ref{app:motivation}.
 
 \textbf{Procedure:}
 \begin{enumerate}
@@ -280,18 +279,24 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
     \item \textbf{Tips:} 
     \begin{itemize}
     \item All run.namd files contain a line that reads \textInput{set useSampleFiles 0}. To use the sample data provided, set the value to 1. Otherwise, NAMD will use your inputs (provided they are named exactly as described in this document).
-    \item If you run your simulations on a different workstation than the one you are running VMD on, you will need to manually edit these paths later to reflect their path on the other workstation.
+    \item If you run VMD and your simulations on different computers, then you will need to manually edit paths later when you are running simulations. 
     \item Some simulations will take several days on a single core. To use 4 cores in parallel we have included the \textInput{+p4} argument in the commands for the longer NAMD runs. This number may need to optimized for your particular compute resources.
-    \item Insofar as the simulations use common settings, those have been separated to \filepath{common/common\_config.namd}. This simplifies the individual configuration files and ensures consistency between calculations; a critical part of any free energy method.
+    \item Common settings used by multiple simulations are in \filepath{common/common\_config.namd}, which is sourced by the individual configuration files. This simplifies the individual configuration files and ensures consistency between calculations, which is a critical part of any free energy method.
     \end{itemize}
     \item \textbf{Move on to \hyperref[step:equilibrium]{Step A}}
 \end{enumerate}
 
-\renewcommand\thesubsection{Step \Alph{subsection}:}
-\subsection{Sample the bound state and define the binding restraint}\label{step:equilibrium}
+\renewcommand\thesubsection{Step \Alph{subsection}}
+\subsection{\hspace{-1em}: Sample the bound state and define the binding restraint}\label{step:equilibrium}
     \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black] 
-    Alchemical decoupling removes the interactions that stabilize the occupied ensemble. Consequently, during decoupling the ligand may spontaneously diffuse into the bulk. 
-    Therefore, we need to impose an external restraint to force the ligand to occupy the bound state throughout decoupling. With SAFEP, we apply a single Distance-to-Bound Configuration (DBC) restraint, which is straightforward to define and relatively insensitive to small differences in parameters. \cite{Salari2018} Its sole correction factor is calculated via Thermodynamic Integration later in this tutorial. For more details about the DBC restraint see appendix \ref{app:restraints} and \cite{Salari2018}. For a discussion of the merits in accounting for symmetry when computing the DBC of a small, symmetric ligand see \ref{app:Symmetry} and \cite{Ebrahimi2022}.
+    Alchemical decoupling removes the interactions that stabilize the occupied ensemble. 
+    Consequently, during decoupling the ligand may spontaneously diffuse into the bulk. 
+    Therefore, we need to impose an external restraint to force the ligand to occupy the bound state throughout decoupling. 
+    With SAFEP we apply a single restraint on the Distance-to-Bound Configuration (DBC) collective variable as illustrated in Fig. \ref{fig:DBC}. 
+    This restraint which is straightforward to define and relatively insensitive to small differences in parameters \cite{Salari2018}.
+    Its sole correction factor is calculated via Thermodynamic Integration later in this tutorial. 
+    For more details about the DBC restraint see \ref{app:restraints} and \cite{Salari2018}. 
+    For a discussion of the merits in accounting for symmetry when computing the DBC of a small, symmetric ligand see \ref{app:Symmetry} and \cite{Ebrahimi2022}.
     \end{tcolorbox}
     
     \noindent{\textbf{Required Input:}}  
@@ -307,7 +312,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
     \begin{enumerate}
     \setcounter{enumi}{-1}
     \item \textbf{Run standard MD of the occupied state.}\label{step:unbiased}\\
-    This simulation should be long enough ($\sim$50 ns) for the ligand to explore the configuration space of the bound state. See Appendix \ref{app:equilibration} for more details.
+    This simulation should be long enough ($\sim$50 ns) for the ligand to explore the configuration space of the bound state. See \ref{app:equilibration} for more details.
     \textbf{Note: For this tutorial, we have done this step for you and you may skip to the next step using the trajectory provided.}
     
     \item \textbf{Define the Distance-to-Bound Configuration (DBC) Coordinate}
@@ -322,21 +327,21 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
              \begin{itemize}
                  \item Click \button{New [Ctrl-n]} to start editing a new collective variable.
                 \item Delete all sample text shown in the editor on the right-hand side.
-                \item Open \menu{Templates$\rightarrow$colvar templates} drop-down list and select \option{DBC (ligand RMSD)} to populate the editor with a template that we now need to edit.
+                \item Open the \menu{Templates$\rightarrow$colvar templates} drop-down list and select \option{DBC (ligand RMSD)} to populate the editor with a template that now needs to be edited.
             \end{itemize}
-             \item \label{step:ligNumbers}\textbf{Define the atom selection for the ligand atoms:} 
+             \item \label{step:ligNumbers}\textbf{Define the atom selection for the ligand atoms: (Fig. \ref{fig:DBC}, red)} 
              \begin{itemize}
                  \item Delete  \textInput{atomNumbers 1 2 3 4} from the \textInput{atoms} block and leave your cursor on the now-empty line.
                  \item Select the left panel text box \menu{Editing helpers$\rightarrow$Atoms from selection text} and enter \textInput{resname PHEN and noh}.
                  \item Press Enter or click \button{Insert [Enter]} to insert the new selection into the configuration text at your cursor.
             \end{itemize}
-            \item \label{step:symmetry}\textbf{Identify equivalent atoms:} %\jh{shorten this}
+            \item \label{step:symmetry}\textbf{Identify equivalent, symmetric atoms:}
              \begin{itemize}
                  \item In the rmsd block, add \textInput{atomPermutation 1 5 3 9 7 11 12}. 
                  This indicates equivalence between ligand atoms listed in \textInput{atomNumbers}. That is, (5 and 3) and (9 and 7) are interchangeable. See the \href{https://colvars.github.io/colvars-refman-vmd/colvars-refman-vmd.html#sec:cvc_rmsd}{Colvars User Guide} and \ref{app:Symmetry} for more details on symmetric DBC and \textInput{atomPermutation}.
             \end{itemize}
 
-            \item \label{step:siteNumbers}\textbf{Define the atom selection for the binding site atoms:} 
+            \item \label{step:siteNumbers}\textbf{Define the atom selection for the binding site atoms: (Fig. \ref{fig:DBC}, teal)} 
              \begin{itemize}
                  \item Delete \textInput{atomNumbers 6 7 8 9} within the \textInput{fittingGroup} block and leave your cursor on the now-empty line.
                  \item Select the left panel text box \menu{Editing helpers$\rightarrow$Atoms from selection text} and enter \textInput{alpha and same residue as within 6 of resname PHEN}.
@@ -349,9 +354,9 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item In the left panel under \menu{Editing helpers}, select the radio button \option{$\circ$  refPositionsFile} and click \button{Pick File}. 
                 \item Select the \filepath{phenol\_lysozyme.pdb} file you used as input for this section. This will insert a line in the dashboard text editor that indicates the file that will be used for the DBC reference coordinates.
                 \item Copy the line just inserted and replace the \textInput{refpositionsfile} line at the bottom of the \textInput{atoms} block (the second highlighted line in the figure below). This sets the same PDB file to be used for aligning to the protein frame-of-reference.
-                \item For NAMD builds older than October 31, 2022: change "centerToReference" and "rotateToReference" to "centerReference" and "rotateReference" respectively.
+                \item For NAMD builds older than October 31, 2022: change "centerToReference'' and "rotateToReference'' to "centerReference'' and "rotateReference'' respectively.
                 \item The colvar config editor should now look like the screenshot below with your file's path in place of the two highlighted lines.\\
-                \includegraphics[width=0.75\linewidth ]{Figures/CV_dashboard_StepA.png} \label{fig:refposfiles}
+                \includegraphics[width=0.75\linewidth ]{CV_dashboard_StepA.png} \label{fig:refposfiles}
             \end{itemize}
             \item \textbf{Save your edits:}\\
             Click the \button{Apply [Ctrl-s]} button.
@@ -393,7 +398,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
         \end{enumerate}
     \end{enumerate}
 
-\subsection{Decouple phenol from the protein via FEP}\label{step:proteinDecouple}
+\subsection{\hspace{-1em}: Decouple phenol from the protein via FEP}\label{step:proteinDecouple}
     \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
     In this section we will calculate $\Delta G_{site}^*$ by decoupling the ligand from the protein binding site (and all other contents of the simulation box) using alchemical FEP. This FEP calculation is often the slowest to converge due to the relative rarity of the bound state compared to the unbound states. Throughout the simulation, we will maintain the ligand in the bound configuration relative to the protein by restraining the DBC coordinate as defined in the previous subsection.
     \end{tcolorbox}
@@ -412,7 +417,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
         \item FEP output file: \filepath{stepB\_alchemy\_site/outputs/alchemy\_site.fepout}
     \end{itemize}
     
-\textbf{Procedure:}
+\noindent\textbf{Procedure:}
 \begin{enumerate}
     \item \textbf{Specify which atoms will be decoupled using the pdb beta field}\label{step:makeFEPpdbSite} 
         \begin{enumerate}[label=\alph*., ref=\theenumi.\alph*]
@@ -457,25 +462,23 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
             \item Open the Colvars Dashboard.
             \item Click \button{Load} and import your DBC restraint file (\filepath{DBC\_restraint.colvars}).
             \item Open the \menu{biases} tab, select the DBC restraint, and click \button{Energy Timeline}.
-            \item The energy of the restraint should remain near zero for several nanoseconds, then increase and reach a maximum in the second half of the simulation (when the ligand is fully decoupled). If this is not the case, see \ref{app:troubleshooting}.
+            \item The restraint energy should remain near zero for several nanoseconds, then increase and reach a maximum in the second half of the simulation (when the ligand is fully decoupled). If this is not the case, see \ref{app:troubleshooting}.
         \end{itemize}
         \item \textbf{Calculate $\Delta G^*_{site}$ in the Jupyter Notebook:} \label{step:opennotebook}
         \begin{itemize}
             \item Navigate back to the tutorial root directory.
             \item Begin a Jupyter session and open the notebook titled \filepath{SAFEP\_Tutorial\_Notebook.ipynb}.
-            \item Follow the in-notebook prompts to parse your new fepout file  (\filepath{stepB\_alchemy\_site/output/AFEP2-02.fepout}). By default, the notebook will read and analyze the sample output - be sure to update the paths as indicated in the notebook:\\ \includegraphics[width=0.75\textwidth, trim={0 0 0 2cm},clip]{update_paths.png}
+            \item Follow the in-notebook prompts to parse your new fepout file  (\filepath{stepB\_alchemy\_site/output/AFEP2-02.fepout}). By default, we use the sample output. Be sure to update the paths as indicated in the notebook:\\ \includegraphics[width=0.75\textwidth, trim={0 0 0 2cm},clip]{update_paths.png}
             \label{fig:updatePaths}
-
             \item Compare your outputs to the sample outputs found in \ref{app:InterpretingFEP}.
         \end{itemize}
     \end{enumerate}
 \end{enumerate}
 
-    
-\subsection{Compute the DBC restraint free energy correction}
+\subsection{\hspace{-1em}: Compute the DBC restraint free energy correction}
 \label{step:restraintPerturbation}
     \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
-    We designed the DBC restraint so that it doesn't do any significant work in the fully coupled system. However, it does reduce the entropy of the fully decoupled ligand, which would otherwise be exploring an ``empty'' simulation box. We need to calculate the corresponding free energy cost so we can correct for it. In this section we will use Thermodynamic Integration (TI) to calculate $\Delta \rm G_{\rm{DBC}}$; the free energy difference between a gas-phase ligand under DBC restraints {\textit vs} a (spherical) volumetric restraint. For more details see appendix \ref{app:RFEP}.
+    We designed the DBC restraint so that it doesn't do any significant work in the fully coupled system. However, it does reduce the entropy of the fully decoupled ligand, which would otherwise be exploring an ``empty'' simulation box. We need to calculate the corresponding free energy cost so we can correct for it. In this section we will use Thermodynamic Integration (TI) to calculate $\Delta \rm G_{\rm{DBC}}$; the free energy difference between a gas-phase ligand under DBC restraints {\textit vs} a (spherical) volumetric restraint. For more details see \ref{app:RFEP}.
     \end{tcolorbox}
 
  \noindent{\textbf{Required Input:}}  
@@ -502,7 +505,8 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item Open the Tk Console.
                 \item Open the Colvars Dashboard.
                 
-            \item \textbf{[Optional]} Extract the phenol from the phenol-lysozyme complex by running the following in the tkConsole:
+                \item \textbf{[Optional]} Extract the phenol from the phenol-lysozyme complex by running the following in the tkConsole. \textbf{Note: We have completed this step for you. The sample files can be found in \filepath{common/structures}.}
+            
                 \tkconsole{cd common/structures}
                 
                 \tkconsole{mol load psf phenol\_lysozyme.psf pdb phenol\_lysozyme.pdb}
@@ -510,14 +514,13 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \tkconsole{set ligand [atomselect top "resname PHEN"]}
                 
                 \tkconsole{cd ../stepC\_restraint\_perturbation/outputs}
+                
                 \tkconsole{\$ligand writepsf phenol\_gas\_phase.psf}
                 
                 \tkconsole{\$ligand writepdb phenol\_gas\_phase.pdb}
 
                 \item Load \filepath{phenol\_gas\_phase.psf} and \filepath{phenol\_gas\_phase.pdb}
-                
-                \textbf{Note:} the sample files can be found in \filepath{common/structures}
-                
+
                 \end{itemize}
 
             \item \textbf{Define the gas-phase spherical coordinate:} \label{step:defineGasRestraints}
@@ -530,7 +533,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 
                 \textInput{measure center [atomselect top "resname PHEN and noh"]}
                 
-                \item Set the atoms of group 2 to \textInput{dummyAtom (x0, y0, z0)} where x0, y0, and z0 are the coordinates of the geometric center of the ligand. Your editor should look like the figure below. Note the inclusion of commas in the \textInput{dummyAtom} statement.\\  \includegraphics[width=0.8\textwidth]{Figures/CVDBscreenshots/COM_restraint.png} \label{fig:COMtext}
+                \item Set the atoms of group 2 to \textInput{dummyAtom (x0, y0, z0)} where x0, y0, and z0 are the coordinates of the geometric center of the ligand you just retrieved in the previous step. Your editor should look similar to the figure below. Note the inclusion of commas in the \textInput{dummyAtom} statement.\\  \includegraphics[trim={14cm 4cm 0 0}, clip, width=0.8\textwidth]{COM_restraint.png} \label{fig:COMtext}
                 \item Save and close the colvar editor by clicking \button{Apply [Ctrl-s]}.
             \end{itemize}
             \item \textbf{Define the gas-phase DBC coordinate:} 
@@ -541,7 +544,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item As before, add \textInput{atomPermutation 1 5 3 9 7 11 12} to the rmsd block to define the ligand symmetry.
                 \item From the \menu{component templates} dropdown menu select \option{rmsd} and click \button{Insert [Enter]}.
                 \item Delete \textInput{atomNumbers 1 2 3} and leave your cursor on that line.
-                \item Using the \menu{Atoms from selection text:} tool in the left panel, enter \textInput{resname PHEN and noh} and click \button{Insert [Enter]}. \label{step:setAtoms}
+                \item In the field labeled \menu{Atoms from selection text:} enter \textInput{resname PHEN and noh} and click \button{Insert [Enter]}. \label{step:setAtoms}
                 \item Add \textInput{rotateReference off} and \textInput{centerReference off} to the \textInput{atoms} block.
                 \item Replace the default \textInput{refPositionsFile @} line using the \option{$\circ$ refPositionsFile} radio button and the \button{Pick file} button to select \filepath{phenol\_gas\_phase.pdb}.
                 \item Save and close the colvar editor by clicking \button{Apply [Ctrl-s]}.
@@ -555,7 +558,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item In the \menu{biases} tab of the Colvars Dashboard, click \button{New bias (Ctrl-n)} and delete the default text.
                 \item From the \menu{bias templates} dropdown menu, select \option{harmonic walls} and press \button{Insert [Enter]}.
                 \item Recall the upperWalls value you used for the DBC restraint in subsection \ref{step:createDBC} from Step A. You will need this value in this and the next step.
-                \item Modify the bias to match the following parameters (see Appendix~\ref{app:RFEP}):\\
+                \item Modify the bias to match the following parameters (see \ref{app:RFEP}):\\
                 { \ttfamily
                 \begin{tabular}{l l}
                     name & distance\_restraint\\
@@ -622,21 +625,21 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item Click \button{Timeline plot}
                 \item Both coordinates should start low and gradually increase. The COM restraint should level out near its \textInput{upperWalls} restraint as shown: 
                 
-                \includegraphics[width=0.5\linewidth]{Figures/sample_TI_traj.png}
+                \center{\includegraphics[width=0.5\linewidth]{sample_TI_traj.png}}
             \end{itemize}
             \item \textbf{Calculate the $\Delta G_{DBC}$ in the Jupyter Notebook:}
             \begin{itemize}
                 \item Open the Jupyter Notebook as in subsection \ref{step:opennotebook} from step B.
                 \item Ensure that the \textInput{DBCwidth} and \textInput{COMradius} variables are set to the exact values used in your simulations.
                 \item Run the first several cells at least until the first FEP analysis section. 
-                \item Update the path in the section titled "Process the DBC TI calculation" to point to the directory containing your colvars.traj file.
-                \item Run all the cells in that section. Sample outputs and details regarding interpretation can be found in Appendix~\ref{app:RFEP}
+                \item Update the path in the section titled "Process the DBC TI calculation'' to point to the directory containing your colvars.traj file.
+                \item Run all the cells in that section. Sample outputs and more details can be found in \ref{app:RFEP}
                 \item The output will include the $\Delta G_{DBC}$ in kcal/mol as well as an error estimate based on the analytical derivative of the free energy with respect to lambda. See the colvars documentation for more details.
             \end{itemize}
         \end{enumerate}
     \end{enumerate}
     
-\subsection{Decoupling from solvent}
+\subsection{\hspace{-1em}: Decouple phenol from bulk solvent}
 
 \label{step:bulkDecoupling}
     \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
@@ -685,7 +688,7 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
                 \item Load the .psf, .pdb, and .dcd files associated with your simulation.
                 \item The ligand should diffuse normally at the start of the simulation but behave more and more like a gas-phase molecule.
             \end{itemize}
-            \item \textbf{Calculate $\Delta G_{bulk}$ in the Jupyter Notebook}
+            \item \textbf{Calculate $\Delta G^*_\mathrm{bulk}$ in the Jupyter Notebook}
             \begin{itemize}
                 \item Open the Jupyter Notebook as in subsection \ref{step:opennotebook} from Step B.
                 \item Confirm that \textInput{bulk\_fep\_path} points to your files
@@ -696,9 +699,9 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
 
     \end{enumerate}
 
-\subsection{Calculate corrections and combine quantities}
+\subsection{\hspace{-1em}: Calculate corrections and combine quantities}\label{step:combinequantities}
     \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
-    We will now calculate $\Delta G_\mathrm{V}$ analytically. With this final piece of information, we can calculate the dissociation constant and estimate a titration curve based on the probability of occupancy assuming a two-state system: $P_\mathrm{bind}=\frac{[PHEN]}{K_\mathrm{d}+[PHEN]}$ where the dissociation constant, ${K_\mathrm{d}}=e^{\left(\beta \Delta \rm{G^\circ_{bind}}\right)}$. For additional information see \ref{app:bindingProbability}.
+    We will now calculate $\Delta G^\circ_\mathrm{V}$ analytically. With this final piece of information, we can calculate the dissociation constant and estimate a titration curve based on the probability of occupancy assuming a two-state system: $P_\mathrm{bind}=\frac{[PHEN]}{K_\mathrm{d}+[PHEN]}$ where the dissociation constant, ${K_\mathrm{d}}=e^{\left(\beta \Delta \rm{G^\circ_{bind}}\right)}$. For additional information see \ref{app:bindingProbability}.
     \end{tcolorbox}
 \noindent{\textbf{Required Input:}}  
     \begin{itemize}
@@ -709,31 +712,86 @@ For more details on the rationale behind this choice, see appendix \ref{app:moti
     \textbf{Essential Output:}
     \begin{itemize}
         \item $\Delta G^\circ_{bind}$
-        \item $\Delta G_\mathrm{V}$
         \item \filepath{titration\_curve.pdf}
     \end{itemize}
     \textbf{Procedure:}
     \begin{enumerate}
     \item Complete any unfinished analyses in previous steps (i.e. steps \hyperref[step:analyzeSite]{B.\ref{step:analyzeSite}}, \hyperref[step:analyzeRFEP]{C.\ref{step:analyzeRFEP}}, and \hyperref[step:analyzeBulk]{D.\ref{step:analyzeBulk}}).
     It is especially important to examine the trajectories since numerically subtle biases are more obvious from the trajectory.
-    \item Open the Jupyter notebook and find the section labeled "Volumetric Restraint Contribution" or use the table of contents at the start of the notebook.
-    \item Calculate the volumetric free energy contribution, by running those cells.\label{step:dGV}
+    \item Open the Jupyter notebook and navigate to the section labeled "Volumetric Restraint Contribution''
+    \item Run the section to calculate the volumetric free energy contribution.\label{step:dGV}
     See \ref{app:COMCorrection} for a more detailed explanation.\\
     \textbf{Note:} At this point you will either need to have completed all simulations or use the sample data provided. To use the sample data, change the path variables (\textInput{bound\_fep\_path},\textInput{ restraint\_perturbation\_path}, and \textInput{bulk\_fep\_path\textrm{)}} to use the files in their respective \filepath{./sample\_outputs} directories. 
-    %\ezry{revisit phrasing}
     \item Calculate the overall $\Delta \rm G_{bind}^\circ$ and compute a titration curve by running the cells in the section "Binding Free Energy".
-    \item Compare your final $\Delta \rm G_{bind}^\circ$ to the literature value of -5.44 kJ/mol.\cite{Merski2013}
+    \item Compare your final $\Delta \rm G_{bind}^\circ$ to the literature value of -5.44 kJ/mol\cite{Merski2013}.
     \item Compare your titration curve to Figure~\ref{fig:titrationCurve} below in \ref{app:bindingProbability}.
+\end{enumerate}
 
-    \end{enumerate}
-
-\newpage
 \twocolumn
-%\appendix 
+\begin{table}[H]
+    \centering
+    \caption{Symbols used in this tutorial.}
+    \label{tab:variables}
+    \begin{tabular}{  p{.26\linewidth} | p{.7\linewidth}  }
+        \textbf{Symbol} & \textbf{Definition}\\
+        \hline
+        $d$ & Distance-to-Bound-Configuration (DBC) \\
+        \hline
+        $\Delta G^\circ_\mathrm{bind}$ & Standard free energy of binding\\
+        \hline 
+        $\Delta G^*_\mathrm{bulk}$ & Free energy of decoupling the ligand from the bulk solution \\
+        \hline 
+        $\Delta G_\mathrm{DBC}$ & Free energy of imposing the DBC restraint on the ligand from a COM restraint \\
+        \hline
+        $\Delta G^*_\mathrm{site}$ & Free energy of decoupling the ligand from the binding site \\
+        \hline 
+        $\Delta G^\circ_\mathrm{V}$ & Free energy of releasing the ligand to the standard state from the Center of Mass restraint\\
+        \hline 
+        $k$ & A force constant for a restraint\\
+        \hline
+        $k_\lambda$ & A force constant that is a function of $\lambda$\\
+        \hline
+        $k_0$ and $k_1$ & Force constants when $\lambda=0$ and $\lambda=1$, respectively\\
+        \hline
+        $L$ and $L^\prime$ & Arbitrary ligand concentrations\\
+        \hline
+        $m$ & Number of non-decoupled ligands in the bulk system\\
+        \hline
+        $p_\mathrm{occ}$ and $p_\mathrm{unocc}$ & The probability of a site being occupied or unoccupied, respectively\\
+        \hline
+        $r$ & Center Of Mass (COM) displacement\\
+        \hline
+        $r_R$ & Upper wall of a COM restraint\\
+        \hline
+        $U_\mathrm{FW}$ & Energy function of a flat-well potential\\
+        \hline
+        $V$ & Volume of the bulk system\\
+        \hline
+        $V_R$ & Volume of a sphere with radius $r_R$\\
+        \hline
+        $Z_\mathrm{occ}$ and $Z_\mathrm{unocc}$ & Partition functions for the occupied state and unoccupied state, respectively\\
+        \hline
+        $\alpha$ & An exponential smoothing parameter\\
+        \hline
+        $\beta$ & Thermodynamic beta with units of $\frac{kcal}{mol}$\\
+        \hline
+        $\Theta_i$ & DBC test function for a single ligand\\
+        \hline
+        $\Theta_\mathrm{occ}$ & Occupancy test function for a single binding site\\
+        \hline
+        $\lambda$ & A coupling parameter $\lambda\in\{0,1\}$\\
+        \hline
+        $\xi$ & An arbitrary collective variable\\
+        \hline
+        $\xi_\mathrm{max}$ & Upper wall of a flat-well restraint on $\xi$\\
+    \end{tabular}
+\end{table}
+
+%\appendix
 \label{appendices}
 \counterwithout{figure}{section}
 \setcounter{section}{0}
-\renewcommand\thesection{Appendix \Alph{section}}
+\renewcommand\thesection{Appendix~\Alph{section}}
 \renewcommand\thesubsection{\thesection.\arabic{subsection}}
 \section{System Selection and Setup}\label{app:motivation}
 Lysozyme L99A/M102H (PDBid 4I7L) was chosen for several reasons. Lysozyme L99A/M102H is a small protein that binds a small, rigid molecule with reasonably high affinity which has already been measured experimentally. These properties make it well-suited as a model for prototyping and validating free energy calculation methods generally. 
@@ -749,24 +807,24 @@ In addition to the configuration, forcefield, and structural files, running FEP 
 
 The configuration file also contains some additional options that are detailed in the NAMD user guide \cite{Bernardi2020} and described briefly in the provided configuration files. While most of the settings should remain unchanged in a wide range of settings, there are a few exceptions.
 
-\textbf{\textInput{alchOutFreq}} determines the number of steps between collecting FEP samples. It should be set to a multiple of the \textInput{fullElectFreq} to ensure accurate energy estimates. Later versions of NAMD should resolve this issue automatically, see \href{https://www.ks.uiuc.edu/Research/namd/mailing_list/namd-l.2020-2021/1487.html}{Bug advisory and Workaround}. Additionally the sampling frequency should be between 50 and 200 steps; sampling too frequently will result in bloated data sets of highly autocorrelated samples while sampling infrequently will result in too few samples to get a well-converged estimate of the change in free energy.
+\textbf{\textInput{alchOutFreq}} determines the number of steps between collecting FEP samples. It should be set to a multiple of \textInput{fullElectFreq} to ensure accurate energy estimates. Later versions of NAMD should resolve this issue automatically, see \href{https://www.ks.uiuc.edu/Research/namd/mailing_list/namd-l.2020-2021/1487.html}{Bug advisory and Workaround}. Additionally the sampling frequency should be between 50 and 200 steps; sampling too frequently will result in bloated data sets of highly autocorrelated samples while sampling infrequently will result in too few samples to get a well-converged estimate of the change in free energy.
 
-\textbf{\textInput{alchVdwShiftCoeff}} controls the strength of the soft-core potential which is essential to prevent “end-point catastrophes” in which one or more Lennard-Jones potentials diverge to infinity near lambda=0 or lambda=1. Higher values result in "softer" potentials but can introduce artifacts. For this reason, the \textInput{alchVdwShiftCoeff} should be kept between 5 and 8.
+\textbf{\textInput{alchVdwShiftCoeff}} controls the strength of the soft-core potential which is essential to prevent “end-point catastrophes” in which one or more Lennard-Jones potentials diverge to infinity near lambda=0 or lambda=1. Higher values result in "softer'' potentials but can introduce artifacts. For this reason, the \textInput{alchVdwShiftCoeff} should be kept between 5 and 8.
 
 \textbf{\textInput{alchEquilSteps}} hard-codes the time between starting a new lambda value and beginning to sample the ensemble. Alchemlyb and PymBAR provide functions that will down-sample the data set using automated equilibration and autocorrelation detection schemes. We have found that automated equilibrium detection performs about as well as manually setting \textInput{alchEquilSteps} and autocorrelation is the bigger problem when trying to assess convergence. See \cite{shirts2008statistically} for a more detailed discussion of equilibrium detection, autocorrelation, and their effects on free energy estimation. See \ref{app:InterpretingFEP} or the provided Jupyter notebook for more information on how these are applied to analysis.
 
 \textbf{\textInput{deltaLambda}} is passed as a parameter to the runFEP function and determines the width of the lambda windows. Narrower windows will converge faster but will increase the total number of windows required to span $\lambda=0$ to $\lambda=1$. 
 As a result, we need to empirically optimize the number and length of windows. 
 See \ref{app:InterpretingFEP} and \ref{app:troubleshooting} for more details on assessing and optimizing these parameters. 
-The number and length of windows used here ($\sim$ 40~ns total simulation time) are a good starting point, but we have used as much as 400~ns for very flexible ligands in superficial binding sites.\cite{Petroff2022} 
+The number and length of windows used here ($\sim$ 40~ns total simulation time) are a good starting point, but we have used as much as 400~ns for very flexible ligands in superficial binding sites\cite{Petroff2022}.
 
-\textbf{\textInput{IDWS}} (interleaved double-wide sampling) %\grace{specify literal parameter} 
-tells NAMD to alternate between sampling the forward and reverse lambda directions. This should be set to "on" thus removing the need for independent forward and backward runs. Note that this may cause some correlation between forward and backward samples depending on the value of \textInput{alchOutFreq}.
+\textbf{\textInput{IDWS}} (interleaved double-wide sampling) 
+tells NAMD to alternate between sampling the forward and reverse lambda directions (via the runFEP function, which sets the \textInput{alchLambdaIDWS} parameter). This should be set to ``true'' thus removing the need for independent forward and backward runs. Note that this may cause some correlation between forward and backward samples depending on the value of \textInput{alchOutFreq}.
 
 \subsection{Parsing and Data Analysis}\label{app:Analysis}
 In this tutorial we have recommended using a Jupyter notebook for analysis. The first decision is whether or not to use Alchemlyb's equilibrium detection. In our experience it has made very little difference, but if you suspect poor equilibration it may be helpful. In the provided notebook, simply set \textInput{detectEQ} to \textInput{True} before reading in any data.
 
-After initial reading and parsing, you will see the estimated $\Delta \rm{G}_{\rm{site}}^*$ with standard error in the section labeled "Get $\Delta \rm G$." We provide conservative settings which (though not the most efficient) should result in good convergence for this system. As noted in the previous section, more complicated systems with more internal degrees of freedom may require much longer sampling and narrower lambda windows. In such systems, it is not uncommon for errors to be as high as 0.5 or 1kcal/mol. Errors larger than 1kcal/mol often indicate poor convergence and are likely to suffer from other issues (e.g. hysteresis). See \ref{app:troubleshooting} for more information on how to identify and resolve the underlying causes.
+After initial reading and parsing, you will see the estimated $\Delta \rm{G}_{\rm{site}}^*$ with standard error in the section labeled "Get $\Delta \rm G$.'' We provide conservative settings which (though not the most efficient) should result in good convergence for this system. As noted in the previous section, more complicated systems with more internal degrees of freedom may require much longer sampling and narrower lambda windows. In such systems, it is not uncommon for errors to be as high as 0.5 or 1kcal/mol. Errors larger than 1kcal/mol often indicate poor convergence and are likely to suffer from other issues (e.g. hysteresis). See \ref{app:troubleshooting} for more information on how to identify and resolve the underlying causes.
 
 \subsection{Interpreting the Figures}\label{app:InterpretingFEP}
 In this section we describe the contents and meaning of each of the figures generated by the provided Jupyter notebook. See \ref{app:troubleshooting} for strategies to address discrepancies between your own results and those described here. An example of a well-converged calculation is shown in Figure ~\ref{fig:FEPexample}.
@@ -775,8 +833,8 @@ Cumulative and per-window $\Delta G$ curves (first and second panels of Figure~\
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{"bound_generalFigures"}
-    \caption{\textbf{Example results from protein-phenol $\Delta G$ calculation.} The first panel shows the cumulative change in free energy with accumulated error. The second panel shows per-window difference in free energy ($\Delta G_\lambda$) calculated by the BAR estimator (blue), and exponential estimators for forward (orange) and backward (green) samples. The third and fourth panels show the hysteresis ($\delta_\lambda$) and its estimated probability density function, respectively.
+    \includegraphics[width=0.9\linewidth]{bound_generalFigures}
+    \caption{\textbf{Example results from protein-phenol decoupling calculation.} The first panel shows the cumulative change in free energy with accumulated error. The second panel shows per-window difference in free energy ($\Delta G_\lambda$) calculated by the BAR estimator (blue), and exponential estimators for forward (orange) and backward (green) samples. The third and fourth panels show the hysteresis ($\delta_\lambda$) and its estimated probability density function, respectively.
     }\label{fig:FEPexample}
 \end{figure}
 
@@ -784,9 +842,9 @@ The $\delta_\lambda$ plots (third and fourth panels of Figure~\ref{fig:FEPexampl
 
 Finally, the convergence plot should display two curves that meet quickly (before 0.5), and both curves should level out well before 1 like the example shown in Figure~\ref{fig:convergenceExample}. If they are still changing at 1 or have gotten within 0.5~kcal/mol by $\lambda=0.5$, the system is unlikely to be converged at one or more lambda values and the final $\Delta G$ estimate is likely to be inaccurate.
 
-\begin{figure}[hb]
+\begin{figure}[htb]
     \centering
-    \includegraphics[width=250pt]{"good_convergence"}
+    \includegraphics[width=250pt]{good_convergence}
     \caption{\textbf{Example convergence data.} We believe this calculation is well-converged due to the overlap near the half-way point and the leveling out of both curves well before the end. 
     }\label{fig:convergenceExample}
 \end{figure}
@@ -794,15 +852,15 @@ Finally, the convergence plot should display two curves that meet quickly (befor
 \section{Restraints}\label{app:restraints}
 In the simulation where the ligand is decoupled from the site, restraints that keep the ligand from diffusing away must be applied. This serves two purposes:\cite{Hermans1986} first, it ensures that the long-time results of the free energy computation describe what we want, which is decoupling from the bound state; second, it accelerates convergence of the computation by limiting the space to be sampled.
 Thus binding restraints are essential both for estimating a well-defined free energy of binding, and for minimizing the statistical noise on that estimate.
-This is often achieved by layering several rotational and translational restraints on the ligand, which each must be accounted for by additional simulations.\cite{Hermans1997, Gilson1997, Boresch2003, Hamelberg2004, Woo2005, Deng2006}
-SAFEP, in contrast, uses just one restraint, the distance-to-bound-configuration (DBC), that can be corrected for with a single TI calculation and a little analytical geometry.\cite{Salari2018}
+This is often achieved by layering several rotational and translational restraints on the ligand, which each must be accounted for by additional simulations\cite{Hermans1997, Gilson1997, Boresch2003, Hamelberg2004, Woo2005, Deng2006}.
+SAFEP, in contrast, uses just one restraint, the distance-to-bound-configuration (DBC), that can be corrected for with a single TI calculation and a little analytical geometry\cite{Salari2018}.
 
 \subsection{Flat-well Restraints}
 
 An ideal restraint for decoupling simulations would precisely separate the bound and unbound ensembles without modifying either. That is, it would be of the form:
 \begin{equation} \label{eq:squareWell}
     U(\xi) = \begin{cases}
-        0 &, \; \xi \text{in the bound state}\\
+        0 &, \; \xi\; \text{in the bound state}\\
         \infty &, \; \text{otherwise}
     \end{cases}
 \end{equation}
@@ -814,32 +872,35 @@ An ideal restraint for decoupling simulations would precisely separate the bound
     \end{cases}
 \end{equation}
 
-
 \subsection{The Distance-to-Bound Configuration (DBC) Coordinate}
-\ezry{Add an image/cartoon to illustrate DBC vs symmetric DBC}
-
-The DBC is the root-mean-square deviation (RMSD) of ligand coordinates from a typical bound pose \textit{in the frame of reference of the binding site}. 
+\subsubsection{Definition of DBC}
+The DBC is the root-mean-square deviation (RMSD) of a subset of ligand coordinates from a typical bound pose \textit{in the frame of reference of the binding site}.
+In general, all heavy atoms can be included in the DBC, but larger, more flexible ligands may be better restrained using a narrower subset of atoms. 
 This single, scalar coordinate captures any relative motion of the ligand with respect to the binding site as well as any conformational change of the ligand. 
 To obtain a DBC restraint, we apply a flat-well potential defined by Equation~\ref{eq:harmonicWall} to a DBC coordinate.
 See Ref.~\citenum{Salari2018} for details.
-\begin{figure}[!hb]
+\begin{figure}[!htb]
     \centering
-\includegraphics[width=0.4\textwidth]{CVDBscreenshots/histogram.png} 
+\includegraphics[width=0.4\textwidth]{histogram.png} 
     \caption{Screenshot from the Colvars Dashboard showing an example asymmetric DBC distribution from an unbiased simulation. If the phenol had flipped about the symmetric axis, there would be a second peak about 1.8~\AA{}}
 \label{step:DBCwidth}
 \end{figure}
 
-
 \subsubsection{Symmetric DBC}
 \label{app:Symmetry}
 
-One peculiarity of the model system used here is that the ligand, phenol, is symmetric. Although this isn't strictly problematic, it does require a little extra accounting. Although this case lends itself well to an analytical solution (an extra term of $kT\ln 2$), a symmetric DBC is much more general and robust.\cite{Ebrahimi2022} This is especially the case for very flexible ligands that would require much more complicated analytical corrections. The Colvars keyword \texttt{atomPermutation} can be used to define these symmetries:
+One peculiarity of the model system used here is that the ligand, phenol, is symmetric. 
+Although this isn't strictly problematic, it does require a little extra accounting. 
+Although this case lends itself well to an analytical solution (an extra term of $kT\ln 2$), a symmetric DBC is much more general and robust\cite{Ebrahimi2022}.
+This is especially the case for very flexible ligands that would require much more complicated analytical corrections. The Colvars keyword \texttt{atomPermutation} can be used to define these symmetries:
+
 \begin{enumerate}
      \item The easiest way to identify equivalent atoms is to label them.
      \item Use the \menu{Graphics$\rightarrow$Representations} interface to hide all atoms except the ligand.
-     \item Use the labeling tool to label the four symmetric carbons as shown.
-     
-     \includegraphics[width=0.2\linewidth]{example_symmetry_labels.png}
+     \item Use the labeling tool to label the four symmetric carbons as shown:
+     \begin{center}
+        \includegraphics[width=0.2\linewidth]{example_symmetry_labels.png}
+     \end{center}
      \item Open \menu{Graphics$\rightarrow$Labels...}.
      \item Select all four labels from the list by clicking and dragging
      \item Open the tab titled \menu{Properties} and change the format string to \textInput{\%1i}
@@ -861,40 +922,44 @@ One peculiarity of the model system used here is that the ligand, phenol, is sym
 These changes make atoms 7\&9 and 3\&5 equivalent for purposes of RMSD calculation.
 
 \subsection{Isotropic center-of-mass restraint} \label{app:COMCorrection}
-The center-of-mass (COM) restraint is used as the container into which the ligand is released during RFEP (Step \ref{step:restraintPerturbation}). It is created by using a flat-well restraint: Equation \ref{eq:harmonicWall} where $\xi$ is the displacement of the ligand's center of mass.
-The free energy cost of imposing the COM restraint can be calculated analytically because we treat the ligand as a point particle in a well-defined volume (i.e. as an ideal gas). 
-To get the free energy difference between the simulated volume and some arbitrary concentration, we can use Equation~\ref{eq:dGV}.
+The center-of-mass (COM) restraint is used as the container into which the ligand is released during RFEP (\ref{step:restraintPerturbation}). It is created by using a flat-well restraint: Equation \ref{eq:harmonicWall} where $\xi$ is the displacement of the ligand's center of mass.
+The free energy cost of imposing the COM restraint can be calculated analytically because we treat the ligand as a point particle in a well-defined volume (i.e. as an ideal gas).
+To get the free energy difference between the simulated volume and some arbitrary concentration $L$, we can use:
  \begin{equation}\label{eq:dGV}
-     \Delta G_V(L)=-RT \ln [L \times V_\mathrm{R}]
+     \Delta G_V(L)=-\frac{1}{\beta} \ln [L \times V_\mathrm{R}]
  \end{equation}
-Where $V_\mathrm{R}=\frac{4}{3}\pi r_R^{3}$ is the volume of a sphere of radius $r_R$ (the upper boundary of the COM restraint). \cite{Salari2018} 
-Recall that the width of the restraint is slightly (1~\AA{}) larger than the width of the DBC restraint to avoid any edge cases in which the DBC may be larger than the COM displacement.
+Where $V_\mathrm{R}=\frac{4}{3}\pi r_\mathrm{R}^{3}$ is the volume of a sphere of radius $r_R$ (the upper boundary of the COM restraint). \cite{Salari2018} 
+Recall that the width of the restraint is slightly (1~\AA{}) larger than the width of the DBC restraint to avoid any edge cases in which the DBC may be larger than the COM displacement. For the standard state, $L=1M$ and the effective radius, $r_R\approx7.3$~\AA{}.
 
 \section{Restraint free energy calculation}\label{app:RFEP}
 
+\subsection{Restraint perturbation simulation}
+
 Although the DBC restraint, by design, does not affect the coupled state, it does modify the decoupled state, and this contribution must be accounted for in the overall free energy estimation. To that end, we use the Colvars Module to run a simulation where the DBC restraint is removed progressively, and compute the free energy for that process.
-To make this computation more efficient, the ligand is not released into the whole simulation box, but it is kept confined in spherical volume. Be advised, MD simulation algorithms can prevent center-of-mass diffusion for the whole system (in NAMD, \textInput{zeroMomentum}). In RFEP, the ligand must be allowed to diffuse, so this option must be disabled.
+To make this computation more efficient, the ligand is not released into the whole simulation box, but it is kept confined in spherical volume $V_\mathrm{R}$. Be advised, MD simulation algorithms can prevent center-of-mass diffusion for the whole system (in NAMD, \textInput{zeroMomentum}). In RFEP, the ligand must be allowed to diffuse, so this option must be disabled.
 
 \subsection{Thermodynamic Integration and Analysis}
-As in FEP, restraint free energy perturbation (RFEP) scales certain forces using a perturbation parameter, $\lambda\in \{0,1\}$.
-The main difference between FEP and thermodynamic integration (TI), is that FEP estimates the slope of the energy function with respect to $\lambda$ while TI calculates it directly. This is possible because the force constant, $k$, depends directly on lambda:
+\begin{figure}[!htb]
+    \includegraphics[width=0.95\linewidth]{RFEP}
+    \caption{Restraint free energy ($\Delta G_\lambda)$, top) and its derivative with respect to the coupling parameter ($\partial G/\partial\lambda$, bottom), as a function of $\lambda$.}\label{fig:RFEP2}
+\end{figure}
+As in FEP, restraint free energy perturbation (RFEP) scales certain energy terms and the associated forces using a perturbation parameter, $\lambda\in \{0,1\}$.
+The main difference between FEP and thermodynamic integration (TI), is that FEP estimates finite free energy differences between $\lambda$ values while TI calculates the derivatives. This is possible because the force constant, $k$, depends directly on lambda:
  \begin{equation}\label{eq:kl}
      k_\lambda = k_0 + \lambda^\alpha (k_1-k_0)
  \end{equation}
-Where $k_0 = 0$ is the minimum forceconstant (\texttt{forceConstant}), $k_1$ is the maximum force constant constant (\texttt{targetForceConstant}), and $\alpha$ (\texttt{targetForceExponent}) is a tuning parameter that improves simulation stability near $\lambda=0$.
+Where $k_0 = 0$ is the force constant (\texttt{forceConstant}) when $\lambda=0$, $k_1$ is the  force constant constant when $\lambda=1$ (\texttt{targetForceConstant}), and $\alpha$ (\texttt{targetForceExponent}) is a tuning parameter that improves convergence of TI by making the energy a smoother function of $\lambda$ near $\lambda=0$.
 
 Combining Equations~\ref{eq:harmonicWall} and \ref{eq:kl} and taking the partial derivative with respect to $\lambda$ yields:
 \begin{equation}\label{eq:dUwalldlambda}
-    \frac{\partial}{\partial \lambda} U_\mathrm{FW}(\xi) =\begin{cases}
-        \frac{1}{2}a\lambda^{a-1}(k_1 - k_0)(\xi-\xi_\mathrm{max})^2&, \xi>\xi_\mathrm{max}\\
+    \frac{\partial}{\partial \lambda} U_\mathrm{FW}(d) =\begin{cases}
+        \frac{1}{2}\alpha\lambda^{\alpha-1}(k_1 - k_0)(\xi-\xi_\mathrm{max})^2&, \xi>\xi_\mathrm{max}\\
         0 &, \text{otherwise}
     \end{cases} 
 \end{equation}
-% To improve numerical behavior near $\lambda = 0$ (when the force is completely released), we use a non-linear dependence:
-
-% where the exponent $\alpha$ is defined by the Colvars parameter \texttt{targetForceExponent}, and set to 6 in this tutorial.
-
-where $\xi$ is the DBC and $\xi_\mathrm{max}$ is the upper wall of the DBC restraint.
+Where $k$ in Equation \ref{eq:harmonicWall} is replaced by $k_\lambda$ in Equation~\ref{eq:kl}.
+In \ref{step:restraintPerturbation}, $\xi$ is replaced by $d$, the DBC, and $\xi_\mathrm{max}$ is replaced by the upper wall of the DBC restraint, $d_\mathrm{max}$.
+%where $\xi$ in Equation \ref{eq:harmonicWall} is replaced by the DBC, and $d_\mathrm{max}$ is the upper wall of the DBC restraint.
 This is applied to the colvars trajectory data in the Jupyter notebook section associated with Step C. 
 
 Next, we estimate the free energy difference between the endpoints by summing over $\lambda\in\{0,1\}$:
@@ -906,15 +971,11 @@ Next, we estimate the free energy difference between the endpoints by summing ov
 Finally, the error in the final estimate is estimated using the standard deviation of each mean (as seen in Figure \ref{fig:RFEP2}). A tighter estimate of the error can be obtained by running replicas for the TI calculation. 
 Further details can be found in the provided configuration files and in \ref{step:restraintPerturbation} of the protocol.
 
-\begin{figure}[ht]
-\includegraphics[width=0.99\linewidth]{RFEP}
-\caption{Restraint free energy ($\Delta G_\lambda)$, top) and its derivative with respect to the coupling parameter ($\partial G/\partial\lambda$, bottom), as a function of $\lambda$.}\label{fig:RFEP2}
-\end{figure}
-
 \section{Concentration Dependence and Non-Ideality} \label{app:bindingProbability}
+
 While in this tutorial we have only used a single, infinitely dilute, concentration to calculate  $\Delta G_\mathrm{bind}$, SAFEP can also be used to predict concentration dependence in non-ideal and non-dilute solutions.  Here we consider the underlying theory for interpreting such a calculation, and provide general suggestions for implementation.
 
-We consider a ``unitary" (single protein, single site\cite{Salari2018}) system with $m$ ligands in a volume $V$. The ligand concentration in this system is $L=m/V$. A DBC coordinate $d_i$ can be defined for each of the $m$ ligands, indexed by $i$.  
+We consider a ``unitary'' (single protein, single site\cite{Salari2018}) system with $m$ ligands in a volume $V$. The ligand concentration in this system is $L=m/V$. A DBC coordinate $d_i$ can be defined for each of the $m$ ligands, indexed by $i$.  
 
 The threshold on the DBC coordinate meaningfully divides the ensemble into two possible macrostates: occupied (one ligand occupies the site and $m-1$ ligands are in solution) and unoccupied (no ligands occupy the site and $m$ ligands are in solution.)  We formalize this here through the DBC ``test function,'' which for an individual ligand $i$ is a Heaviside step function  of the form 
 \begin{align} 
@@ -923,7 +984,7 @@ The threshold on the DBC coordinate meaningfully divides the ensemble into two p
         0 &, \; \text{otherwise}
     \end{cases}
 \end{align}
-\grace{have d and dmax been defined previously?}\ezry{no, we use $\xi$ in equation \ref{eq:dUwalldlambda}} The instantaneous site occupancy $\Theta_\mathrm{occ}$ is determined by whether any of the $m$ ligands occupy the site, given by the sum of all the individual test functions:
+The instantaneous site occupancy $\Theta_\mathrm{occ}$ is determined by whether any of the $m$ ligands occupy the site, given by the sum of all the individual test functions:
 \begin{equation}
    \Theta_\mathrm{occ}=\sum_{i=1}^m\Theta_i. 
 \end{equation}
@@ -952,7 +1013,7 @@ where $G_\mathrm{occ}$ and $G_\mathrm{unocc}$ are the free energies of the occup
     P_\mathrm{occ}(L)=\frac{e^{-\beta G_\mathrm{occ}}} {e^{-\beta G_\mathrm{occ}} + e^{-\beta G_\mathrm{unocc}}}.\label{eq:ApE:probability2}
 \end{align}
 
-We turn now to connecting these quantities to a SAFEP calculation.  In step D of the protocol, we decoupled one ligand from a bulk that contained $m=0$ fully coupled ligands, for an infinitely dilute concentration of $L=0/V$. \grace{Changes to text start here - please review from here to end of section} We then extrapolated to the standard concentration using an ideal gas correction that assumes ideality.
+We turn now to connecting these quantities to a SAFEP calculation.  In step D of the protocol, we decoupled one ligand from a bulk that contained $m=0$ fully coupled ligands, for an infinitely dilute concentration of $L=0/V$. We then extrapolated to the standard concentration using an ideal gas correction that assumes ideality.
 
 For a ligand at finite concentration in a non-ideal bulk, it is not useful or necessary to standardize the free energy. Instead, we would carry out Step D at the finite ligand concentrations of interest ($L=m/V>0$), and adjust Step E to calculate the unstandardized free energy $\Delta G_\mathrm{bind}(L)$ as follows: 
 \begin{equation}
@@ -960,19 +1021,16 @@ For a ligand at finite concentration in a non-ideal bulk, it is not useful or ne
 \end{equation} 
 where the volume per molecule in the bulk is $V/m$ and thus \begin{equation}
 \label{eq:idealGas}
-    \Delta G_V= -\frac{1}{\beta} \ln \frac{m V_R}{V}. 
+    \Delta G_V= -\frac{1}{\beta} \ln \frac{m V_\mathrm{R}}{V}. 
 \end{equation}
 Since
-    $\Delta G_\mathrm{bind}(L)\approx G_\mathrm{occ}(L)~-~G_\mathrm{unocc}(L)$
-\grace{Can we just change this to an equal sign?}
-\ezry{$=$ is only true when transition states are included or excluded in every term, right? In the context of SAFEP maybe we need the $\approx$ to remind the reader that we're neglecting the contributions of the binding path (especially in $\Delta G_\mathrm{bulk}$). On the other hand, the formalism in this section DOES include the entire binding path, splitting it at about the transition state. AND we don't use $\approx$ in the other equations where we would "need" it for the above reason.
-}
-%The relationship is not strictly equivalent, because the unoccupied ensemble may include configurations in which the ligand is interacting with the protein but not occupying the site. However, the discrepancy is expected to vanish for small $m$ (when the ligand is very dilute and will rarely collide with the protein) and for large $m$ (when many non-decoupled ligands will be available for interact with the protein surface). Thus we assume here that such configurations make a negligible contribution to the difference in free energy between the occupied and the unoccupied states. 
-Eq. \ref{eq:ApE:probability2} can be rewritten in terms of $\Delta G_\mathrm{bind}(L)$:  
+    $\Delta G_\mathrm{bind}(L) = G_\mathrm{occ}(L) - G_\mathrm{unocc}(L)$
+
+Equation \ref{eq:ApE:probability2} can be rewritten in terms of $\Delta G_\mathrm{bind}(L)$:  
 \begin{align}
- P_\mathrm{occ}(L)\approx\frac{1}{1+e^{\beta \Delta G_\mathrm{bind}(L)}} \label{eq:ApE:probability3}
+ P_\mathrm{occ}(L) = \frac{1}{1+e^{\beta \Delta G_\mathrm{bind}(L)}} \label{eq:ApE:probability3}
 \end{align}
-Even for a non-ideal bulk, we may assume the excess chemical potential is unchanging for small changes in concentration. Thus we may run Step D at finite concentration $L$, and use the ideal gas correction to predict occupancy for nearby concentrations $L^\prime$, as long as $|L-L^\prime|$ is small.
+Even for a non-ideal bulk, we may assume the excess chemical potential is unchanging for small changes in concentration. Thus we may perform ligand decoupling (step D) at finite concentration $L$, and use the ideal gas correction to predict occupancy for nearby concentrations $L^\prime$, as long as $|L-L^\prime|$ is small.
 \begin{equation}
 \label{eq:concentrationShift}
     \Delta G_\mathrm{bind}(L^\prime)= \Delta G_\mathrm{bind}(L)-\frac{1}{\beta} \ln \frac{L^\prime}{L}
@@ -982,22 +1040,18 @@ Substitution of Equation \ref{eq:concentrationShift} in Equation \ref{eq:ApE:pro
     P_\mathrm{occ}(L^\prime)\sim\frac{L^\prime}{L^\prime+{L}e^{\beta \Delta G_\mathrm{bind}(L)}}
     \end{equation} 
 Incidentally, for dilute $L$, ${L}e^{\beta \Delta G_\mathrm{bind}(L)}={L^\circ}e^{\beta \Delta G^\circ_\mathrm{bind}}=K_d$,
-and Eq.~\ref{eq:bindingStatmech} reduces to  a form familiar to biochemists 
+and Equation~\ref{eq:bindingStatmech} reduces to  a form familiar to biochemists 
 $
     P_\mathrm{occ}(L^\prime)~=~\rm\frac{L^\prime}{L^\prime+K_d}.
 $
-
-For general, non-dilute concentrations $L^\prime$ however, Equation \ref{eq:concentrationShift} only holds  if the excess chemical potential is unchanging between $L^\prime$ and the simulation concentration $L$. 
-\ezry{This is odd phrasing to me. Would this appreciably change the meaning? "In general, Equation \ref{eq:concentrationShift} only holds if the change in excess chemical potential is negligible between $L^\prime$ and the simulation concentration $L$."} 
-This assumption can be tested by running Step D at both $L^\prime$ and $L$ and checking that the resulting change in $\Delta G_\mathrm{bulk}$ is much smaller than the overall error. If we wish to calculate $P_\mathrm{occ}$ over a wider concentration range where this assumption does not hold, we would need to explicitly calculate $\Delta G^*_\mathrm{bulk}(L)$ for multiple simulation concentrations $L$ and extrapolate to the intermediate concentrations, as in Ref. \cite{Salari2018}.
-\begin{figure}
+In general, Equation \ref{eq:concentrationShift} only holds if the change in excess chemical potential is negligible between $L^\prime$ and the simulation concentration $L$.
+This assumption can be tested by running bulk decoupling (Step D) at both $L^\prime$ and $L$ and checking that the resulting change in $\Delta G_\mathrm{bulk}$ is much smaller than the overall error. If we wish to calculate $P_\mathrm{occ}$ over a wider concentration range where this assumption does not hold, we would need to explicitly calculate $\Delta G^*_\mathrm{bulk}(L)$ for multiple simulation concentrations $L$ and extrapolate to the intermediate concentrations, as in Ref. \cite{Salari2018}.
+\begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.5\textwidth]{"titration_curve"}
+    \includegraphics[width=0.5\textwidth]{titration_curve}
     \caption{\textbf{An example titration curve} generated using Equation \ref{eq:bindingStatmech}. The 95\% confidence interval is generated by $\pm 1.96*\rm SEM$ of the $\Delta G_\mathrm{bind}$}
     \label{fig:titrationCurve}  
 \end{figure}
-
-
 
 \section{Troubleshooting}\label{app:troubleshooting}
 We have written this tutorial to be as robust as possible but also generalizable to other systems. 
@@ -1008,7 +1062,6 @@ If you encounter a problem with running the tutorial as written and do not see y
 
 \subsection{Problems with Running; NAMD crashes}
 Alchemical FEP will make any instabilities in a system more apparent as well as introduce a few more possible sources of instability. The most common problems are RATTLE errors and box size instability
-
 
 \subsubsection{RATTLE Errors}
 \begin{quote}
@@ -1024,7 +1077,7 @@ If the usual culprits (poor equilibration, long time steps, and over-aggressive 
 Lambda windows can easily be narrowed by reducing \textInput{dLambda}. Values between 0.05 and 0.005 give a good balance between efficiency and accuracy.
 Note, the shorter the windows, the more windows that will be run and the more CPU time required to complete the calculation.
 
-The soft-core potential (\textInput{alchVdwShiftCoeff}) should be between 5 and 10. Although higher values are "softer" and so avoid end-point "catastrophes," they are also prone to under-estimate energy differences.
+The soft-core potential (\textInput{alchVdwShiftCoeff}) should be between 5 and 10. Although higher values are "softer'' and so avoid end-point "catastrophes,'' they are also prone to under-estimate energy differences.
 
 \subsubsection{Box Size Instability}
 \begin{quote}
@@ -1036,7 +1089,7 @@ increase margin, or disable useFlexibleCell for liquid simulation.}
 
 \noindent\textbf{Causes:}
 
-While classical MD is "tolerant" to small periodic boxes and aggressive barostats, combining these with FEP is particularly unstable.
+While classical MD is "tolerant'' to small periodic boxes and aggressive barostats, combining these with FEP is particularly unstable.
 
 \noindent\textbf{Solutions:}
 
@@ -1053,27 +1106,26 @@ Convergence within each step is a prerequisite to a good final estimate of $\Del
 In general, convergence may be improved by increasing the simulation time for each lambda value.
 
 \subsubsection{Local and Misleading Convergence}
-In the case of very slow fluctuations or in the presence of metastable states, a FEP calculation may be more biased than usual.
-There are two main ways to assess bias in a given sample. 
-The first is to simply run multiple replicas as uncorrelated from one another as possible. 
-The second is to run unbiased simulations of each of the intermediate states and compare those ensembles to the ensembles obtained during FEP or TI calculation. 
-
-In this tutorial, we include analysis of the unbiased protein-ligand ensemble because it directly affects the definition of the DBC.
-Simulation of the apo protein (without ligand in the binding pocket), however, can provide useful information about the decoupled end-point.
-In the case of lysozyme, for example, the binding pocket is frequently occupied by one or two water molecules. 
-If the lysozyme binding pocket does not recover hydration once the ligand is fully decoupled during FEP, the calculation overestimates the strength of binding by up to 0.5~kcal/mol. This is a small error compared to the overall precision of the technique, but users should be aware that assessing endpoint hydration is particularly important for larger or more hydrated binding pockets. 
-%This degree of precision is not merited in this toy example because it would require either much longer simulations or contrived start conditions; either of which would increase the computation time considerably without improving user competence in the technique.
-
-\subsubsection{Step A: Define the DBC}
-\noindent\textbf{Symptom:}  Multimodal DBC Distribution
-
-\begin{figure}[!ht]
+In the case of very slow fluctuations or in the presence of metastable states, a FEP calculation may be converge locally and give a biased outcome.
+The best way to detect this is to run multiple replicas as uncorrelated from one another as possible. 
+% There are two main ways to assess bias in a given sample. 
+% The first is to simply run multiple replicas as uncorrelated from one another as possible. 
+% The second is to run unbiased simulations of each of the intermediate states and compare those ensembles to the ensembles obtained during FEP or TI calculation. \jh{I don't get this}
+% \jh{the use of biased / unbiased above is unclear}
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\linewidth]{bimodal_distribution.png}
     \caption{Screenshot from the Colvars Dashboard showing a bimodal distribution that resulted from using an asymmetric DBC for phenol. The second peak corresponds to a 180~degree rotation about the C-O axis.}
     \label{fig:bimodalDBC}
 \end{figure}
-%Multimodal DBC Distributions may lead the user to set a DBC restraint that is much too wide. This will cause convergence issues later on.\\
+In this tutorial, we include analysis of the protein-ligand bound state ensemble because it directly affects the definition of the DBC.
+Simulation of the apo protein (without ligand in the binding pocket), however, can provide useful information about the decoupled end-point.
+In the case of lysozyme, for example, the binding pocket is frequently occupied by one or two water molecules.
+If the lysozyme binding pocket does not recover hydration once the ligand is fully decoupled during FEP, the calculation overestimates the strength of binding by up to 0.5~kcal/mol. This is a small error compared to the overall precision of the technique, but users should be aware that assessing endpoint hydration is particularly important for larger or more hydrated binding pockets. 
+
+\subsubsection{Step A: Define the DBC}
+\noindent\textbf{Symptom:}  Multimodal DBC Distribution
+
 \textbf{Causes:}\\
 There are three main causes of multimodal DBC distributions: 1) ligand unbinding, 2) multiple binding modes, and 3) multiple, nearby binding sites.\\ 
 \textbf{Solutions:}\\
@@ -1082,7 +1134,7 @@ Use the Colvars Dashboard histogram tool to probe the conformations associated w
     \hline
     \center Bound and Unbound modes & If all but one mode may be described as unbound, place the DBC restraint between the bound mode and the least unbound mode. Proceed with FEP. \\\hline
     \center Multiple, indistinguishable bound modes & Such modes are a result of symmetric ligands and are best addressed using a symmetric DBC. See \ref{app:Symmetry} for more details.\\\hline
-    \center Multiple, distinguishable bound modes & If one or more bound mode(s) is meaningfully distinct from some other mode(s), select a representative frame for each class. These frames become reference poses for each binding "site" from which you must calculate $\Delta G_\mathrm{site}$, $\Delta G_\mathrm{DBC}$, and $\Delta G_\mathrm{V}$ separately. \\\hline
+    \center Multiple, distinguishable bound modes & If one or more bound mode(s) is meaningfully distinct from some other mode(s), select a representative frame for each class. These frames become reference poses for each binding "site'' from which you must calculate $\Delta G_\mathrm{site}$, $\Delta G_\mathrm{DBC}$, and $\Delta G_\mathrm{V}$ separately. \\\hline
 \end{tabular}
 
 
@@ -1091,28 +1143,28 @@ Use the Colvars Dashboard histogram tool to probe the conformations associated w
 \textbf{Causes:}\\
 the DBC may be too wide/soft. The lambda windows may be too short to properly sample the decoupled ensemble.\\
 \textbf{Solutions:}\\
-First, watch the trajectory for any abnormal behavior; wide DBCs will often be obvious from the last several nanoseconds of a FEP run because the ligand will move quickly around the box. Then see the DBC debugging list. (\ref{list:DBCdebug}) If the system passes all checks, try running $\lambda=1$ for longer to make sure the DBC restraint is functioning.\\
+First, watch the trajectory for any abnormal behavior; wide DBCs will often be obvious from the last several nanoseconds of a FEP run because the ligand will move quickly around the box. Then see the DBC debugging list below. If the system passes all checks, try running $\lambda=1$ for longer to make sure the DBC restraint is functioning.\\
 
-\noindent\textbf{Symptom:} DBC energy starts high and stays high\\
+\noindent\textbf{Symptom:} DBC energy is consistently greater than 0\\
+\includegraphics[width=0.9\linewidth]{tightDBC_alchsite.png}
 \textbf{Causes:}\\
 This issue is most often due to too-narrow DBC restraints or mistakes in the Colvar definition.\\
 \textbf{Solutions:}\\
-This problem is harder to diagnose from the trajectory alone unless there are obviously over-restrained degrees of freedom in the ligand. Consult the DBC debugging checklist. (\ref{list:DBCdebug})
-\ezry{add aberrant DBC energy profiles}\\
+This problem is harder to diagnose from the trajectory alone unless there are obviously over-restrained degrees of freedom in the ligand. Consult the DBC debugging checklist below.
 
 \noindent\textbf{Symptom:} Ligand Unbinding during FEP\\
 \textbf{Cause:}\\
 The most likely cause of unbinding during FEP is a DBC restraint that is too broad or too weak.\\
 \textbf{Solutions:}\\
- Consult the DBC debugging checklist: (\ref{list:DBCdebug})\\
+ Consult the DBC debugging checklist:\\
 
-\textbf{DBC Debugging Checklist:}%\ezry{point the user back to the relevant steps. Or maybe this should be part of the "define the DBC" step above.}
+\textbf{DBC Debugging Checklist:}
 \begin{todolist} \label{list:DBCdebug}
     \item Only the DBC restraint should be active during FEP (\ref{step:proteinDecouple})
     \item DBC restraint upper walls have the right value. (\ref{step:createDBC})
     \item DBC restraint force constant is appropriate (100 or 200). (\ref{step:createDBC})
     \item NO lower walls (\ref{step:createDBC})
-    \item If the Colvars configuration file contains a "width" keyword, it should be 1. See \cite{Fiorin2013} and the \href{http://colvars.github.io/colvars-refman-vmd/colvars-refman-vmd.html#sec:colvar_grid_params}{Colvars user guide} for more details. (\ref{step:createDBC})
+    \item If the Colvars configuration file contains a "width'' keyword, it should be 1. See \cite{Fiorin2013} and the \href{http://colvars.github.io/colvars-refman-vmd/colvars-refman-vmd.html#sec:colvar_grid_params}{Colvars user guide} for more details. (\ref{step:createDBC})
 \end{todolist}
 
 
@@ -1125,7 +1177,7 @@ If the system is well-relaxed and equilibrated by the usual metrics (box size, p
 
 \noindent\textbf{Symptom:}  Very Large Hysteresis near $\lambda=0$ or $\lambda=1$\\
 \textbf{Causes:}\\
-Large hysteresis near the end-points of the FEP calculation are most commonly caused by so-called ``end-point catastrophes." See \href{https://www.ks.uiuc.edu/Research/namd/2.14/ug/node63.html}{The NAMD UG} for more details. \cite{Bernardi2020}\\  
+Large hysteresis near the end-points of the FEP calculation are most commonly caused by so-called ``end-point catastrophes.'' See \href{https://www.ks.uiuc.edu/Research/namd/2.14/ug/node63.html}{The NAMD UG} for more details. \cite{Bernardi2020}\\  
 \textbf{Solutions:}\\
 The first parameter to check is \textInput{alchVdwShiftCoeff}. As noted above, it should be between 5 and 8. If this is already the case, and no other part of the calculation is problematic, try doubling the number of windows between the window with large hysteresis and the nearest end-point.\\
 
@@ -1140,13 +1192,13 @@ Manually ensure that \textInput{alchOutFreq} is a multiple of both \textInput{fu
 \subsubsection{Step C: TI Calculation}
 The DBC restraint should do the most work early in the TI calculation then, as the force constant is scaled out, the COM restraint should take over and keep the center of mass in a well-defined volume. TI convergence issues are most easily diagnosed by watching the MD trajectory and examining the colvar trajectories.
 
-\includegraphics[width=0.9\linewidth]{Figures/CV_COM_mismatchedRefs.png}
+\includegraphics[width=0.9\linewidth]{CV_COM_mismatchedRefs.png}
 
 \noindent\textbf{Symptom:} The collective variable trajectory is abnormal\\
 \textbf{Causes:}\\
 Strange behavior is expected if you over-write the sample outputs and attempt to run with \textInput{useSampleFiles} set to 1. The example above is the result of a mismatch between the coordinates used to determine the center of the COM restraint and the reference coordinates used for the DBC restraint.\\
 \textbf{Solutions:}\\
-Update the reference coordinates to match those used for determining the center of the COM restraint. That is, revisit Step \ref{step:defineGasRestraints} \ezry{why is this rendering like this???} paying special attention to the coordinates used. Make sure you save your files in the correct directories. \\
+Update the reference coordinates to match those used for determining the center of the COM restraint. That is, revisit Step C\hyperref[step:defineGasRestraints]{1.b} paying special attention to the coordinates used. Make sure you save your files in the correct directories. \\
 
 \noindent\textbf{Symptom:} Restraint energies during TI are very high or very low and don't change much\\
 \textbf{Causes:}\\
@@ -1164,87 +1216,34 @@ Double check the choice of wall position and ensure that it is correct in all Co
 \textbf{Causes:}\\
 The restraints are probably too wide.\\
 \textbf{Solutions:}\\
-Double check the choice of wall position and ensure that it is correct in all Colvar config files.\\
+Double check the choice of wall position and ensure that it is correct in all Colvars config files.\\
 
 
-        %% Move to Appendix?
-        % Please see the comments in the provided NAMD FEP configuration file , the appendix on FEP parameters \ref{app:FEPparameters}, or the \href{https://www.ks.uiuc.edu/Research/namd/2.14/ug/node62.html}{NAMD User's Guide} for more detailed explanations. The important settings for this tutorial are:
-        %     \begin{itemize}
-        %         \item \textInput{wrapAll off} is a precaution against miscalculation of collective variable parameters due to over-small periodic cells.
-        %         \item Colvars settings - these induce the DBC restraint to prevent unbinding.
-        %         \item Alchemy settings - the lambda schedule, the length of each lambda window, and relevant input and output files.
-        %         \item \textInput{runFEP  0.0 1.0 \$dLambda \$numSteps  true}
-        %         - this is what does the actual FEP calculations. The final 'true' turns on IDWS (Interleaved Double-Wide Sampling) which effectively halves the amount of compute time required to complete a FEP cycle as described in \ref{app:IDWS}. %\jesse{link to appendix; need to explain/boast about IDWS as it is one of the components that makes SAFEP so great?}
-        %     \end{itemize}
-
-
-
-
-% \section{HOLDING AREA FOR UNUSED TEXT}
-% \subsection{}
-% A longer simulation of the ligand-protein system serves two purposes: 1) it gives us the opportunity to validate the parameters and initial conditions of the system and 2) it allows us to sample the bound ensemble in the absence of external restraints which is necessary for parameterizing the restraint we will use during FEP. Three numerical computations are then carried out on the ligand: FEP from bound to gas-phase, FEP from bulk to gas-phase, and thermodynamic integration from the DBC-restrained to center-of-mass-restrained ensembles. Lastly, the center-of-mass restraint is addressed analytically and the parts are summed to get the overall free energy of binding as shown in Equation \ref{eq:overalldG}.
-
-% \subsection{DBC/restraint problems}
-% Issues with the system's restraints can cause convergence issues without interfering with the sensibility of the trajectory itself. It is difficult, for example, to discern a restraint issue during the site decoupling by examining the trajectory alone. For this reason, we recommend both examining the trajectory \textit{and} using the diagnostic tools built into the Colvars Dashboard. Specifically, the timeline tools available for both the colvar itself and the energy of any bias. \ezry{add screenshot showing sample timelines}
-
-
-% \subsection{Why Phenol/Lysozyme}
-% \label{app:motivation}
-% In this tutorial we will study binding to lysozyme, which has a buried hydrophobic cavity that can trap various small molecules without large conformational changes \cite{Mannhold2012}. To be precise, we will quantify binding of phenol to the L99A/M102H mutated site introduced by Merski et. al. \cite{Merski2013}.
-% While phenol does not bind significantly to the apolar cavity in wild-type or L99 mutant T4 lysozyme\cite{Deng2006,Wei2002,Morton1995,Graves2005}, it does bind the site created by the L99A/M102H double mutation, with an experimental binding affinity $ \Delta G_{bind}^{o, exp}$ of -5.44~kcal/mol \cite{Merski2013}, to be compared with the result we find for Eq.~(\ref{eq:overalldG}).
-
-% \subsection{Ligand binding free energy: Alchemlyb library}
-%  An alternative to the FEP calculation is the alchemlyb library that recently supports the NAMD's IDWS feature \cite{chodera2016simple, shirts2008statistically}, providing the BAR and the MBAR estimators. A jupyter notebook documented by \href{https://github.com/BranniganLab/safep}{Dr. Grace Brannigan's Lab}, /[path]/Jupyter-notebook/BAR\_NAMD\_alchemlyb.ipynb, conveniently sets up a broad series of built-in functions and tools of the alchemlyb library in a straightforward framework, including parsing the fepout file, FEP calculation, as well as qualitatively comparing the free energy results in different plot types. Launch a jupyter notebook in the directory of \texttt{BAR\_NAMD\_alchemlyb.ipynb} file:
-
-%  For the forward and reverse sampling, the alchemlyb library uses the Bennett acceptance ratio (BAR) estimator to calculate the difference free energy for each window and estimate the overall free energy at $\lambda$=1 by ensemble averaging over all $\lambda$-windows. Correspondingly, the evolution of the phenol binding free energy relative to $\lambda$ is obtained from parsing the \texttt{AFEP2-02.fepout} with the jupyter notebook and illustrated in Figure %(\ref{fig:AFEP-decoupling1}).
-%  According to Figure %(\ref{fig:AFEP-decoupling1})
-%  and the screenshot of the printed data in the notebook represented in Figure %(\ref{fig:ipynb-cell4}),
-%  the phenol decoupling affinity from the binding site is estimated at about (14.65$\pm$0.38) kcal/mol.
-
-
-
-% \subsection{Extracting the ligand pdb file}
-% \label{app:extractpdb}
- 
-%     \begin{enumerate}[label*=\arabic*.]
-%         \item Load your reference pdb. 
-%         \item Then, in the tkconsole run:
-%         \begin{lstlisting}[language=tcl]
-% set ligand [atomselect top "resname PHEN"]
-% ::TopoTools::selections2mol $ligand
-% animate write pdb PHEN.pdb
-% animate write psf PHEN.psf
-%         \end{lstlisting}
-
-%     \end{enumerate}
-
-
-
-
-
-\section{Author contributions}
+\setcounter{section}{3}
+\renewcommand\thesection{\arabic{section}}
+\section{Author Contributions}
+ESM, ME and JWS ran, tested and refined the protocol.
+ESM wrote the notebook and analysis scripts.
+GB and JH designed and supervised the work.
+All authors wrote the document.
 
 \section{Other Contributions}
-The authors would like to thank the tutorial's testers: 
-Noureen Abdelrahman, 
-Mariadelia Arg\"uello-Acu\~na,
-Jahmal Ennis, 
+The authors are grateful to 
+Ms. Noureen Abdelrahman, 
+Ms. Mariadelia Arg\"uello-Acu\~na,
+Mr. Jahmal Ennis, 
 and
-Connor Pitman
+Mr. Connor Pitman for providing feedback and initial testing of this tutorial. The authors acknowledge the Office of Advanced Research Computing (OARC) at Rutgers, The State University of New Jersey for providing access to the Amarel cluster and associated research computing resources. 
 
-Compute resources used in the development of this tutorial provided by the Office of Advanced Research Computing, Rutgers University.
+\section{Potentially Conflicting Interests}
+The authors declare no potential conflict of interests.
 
 
+\section{Funding Information}
+We acknowledge financial support from the National Science Foundation DGE 2152059 (to ESM, JWS, and GB), the Ministry of Science, Research, and Technology of the Islamic Republic of Iran for a Ph.D. candidate research grant to ME, and the French Agence Nationale de la Recherche (ANR) for grant LABEX DYNAMO (ANR-11-LABX-0011-01, to JH).
 
-
+\section*{Author Information}
 \makeorcid
-
-\section{Funding information}
-
-LABEX, Iranian travel grant, NSF NRT
-
-
-
 
 % \bibliographystyle{plain}
 \bibliography{Ref}
