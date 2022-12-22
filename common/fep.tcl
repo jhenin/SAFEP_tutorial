@@ -3,6 +3,7 @@
 # Jerome Henin <henin@ibpc.fr>
 #
 # Changes:
+# 2020-05-03: added prev_lambda option to runFEP, improved doc
 # 2018-04-18: added interleaved double-wide sampling (IDWS)
 # 2010-04-24: added runFEPmin
 # 2009-11-17: changed for NAMD 2.7 keywords
@@ -12,7 +13,8 @@
 ##############################################################
 
 ##############################################################
-# Example NAMD input:
+## Example NAMD input: calculation with smaller windows at
+## the ends
 #
 # source fep.tcl
 #
@@ -24,7 +26,23 @@
 # alchEquilSteps        500
 #
 # set nSteps      5000
-# set init {0 0.05 0.1}
+#
+## A) Simple schedule: 20 windows from 0 to 1, in a single run
+#
+# runFEP 0.0 1.0 0.05 $nSteps
+#
+## B) Same thing, in two NAMD separate runs with a restart
+#
+## First run
+# runFEP 0.0 0.5 0.05 $nSteps
+#
+## Restart
+# runFEP 0.5 1.0 0.05 $nSteps
+#
+## C) Lambda schedule with narrower windows at the end points
+## Using two explicit lists of lambda points
+#
+# set init {0.0 0.05 0.1}
 # set end {0.9 0.95 1.0}
 #
 # runFEPlist $init $nSteps
@@ -38,14 +56,25 @@
 ##############################################################
 
 ##############################################################
-# Special usage for Interleaved Double-Wide sampling
+## Special usage for Interleaved Double-Wide sampling
+## A) Simple schedule: 20 windows from 0 to 1, in a single run
 #
-# Example of a piecewise calculation with restarts
+# runFEP 0.0 1.0 0.05 $nSteps true
+#
+## B) Same thing, in two NAMD separate runs with a restart
+#
+## First run
+# runFEP 0.0 0.5 0.05 $nSteps true
+#
+## Restart - need to tell the script the previous lambda point: 0.45
+# runFEP 0.5 1.0 0.05 $nSteps true 0.45
+#
+## C) Example of a piecewise calculation with restarts
 # and a nonlinear lambda schedule
 #
-## Run individual points 0, 0.05 then the series from 0.1 to 0.4
+## Run individual points 0, 0.05 then the series from 0.1 to 0.5
 #
-# runFEPlist [concat {0. 0.05} [FEPlist 0.1 0.4 0.1]] $numSteps true
+# runFEPlist [concat {0. 0.05} [FEPlist 0.1 0.5 0.1]] $numSteps true
 #
 ## Continue series from 0.5 to 0.9, sampling backward dE from 0.4
 #
@@ -82,7 +111,7 @@ proc runFEPlist { lambdaList nSteps { IDWS false } { prev_lambda -1 } } {
       firsttimestep 0
       alchLambda       $l1
       alchLambda2      $l2
-      
+
       if { $IDWS && ($prev_lambda >= 0.) } {
         alchLambdaIDWS $prev_lambda
       }
@@ -110,14 +139,14 @@ proc runFEPlist { lambdaList nSteps { IDWS false } { prev_lambda -1 } } {
 
 
 ##############################################################
-# proc runFEP { start stop dLambda nSteps {IDWS} }
+# proc runFEP { start stop dLambda nSteps {IDWS} {prev_lambda} }
 #
 # run FEP windows of width dLambda between values start and stop
 ##############################################################
 
-proc runFEP { start stop dLambda nSteps { IDWS false }} {
+proc runFEP { start stop dLambda nSteps { IDWS false } { prev_lambda -1 } } {
 
-    runFEPlist [FEPlist $start $stop $dLambda] $nSteps $IDWS 
+    runFEPlist [FEPlist $start $stop $dLambda] $nSteps $IDWS $prev_lambda
 }
 
 
@@ -188,7 +217,7 @@ proc runFEPmin { start stop dLambda nSteps nMinSteps temp} {
       }
     }
 
-    if { $nMinSteps > 0 } { 
+    if { $nMinSteps > 0 } {
       alchLambda       $start
       alchLambda2      $start
       minimize $nMinSteps
