@@ -44,7 +44,7 @@ colvar {
 harmonicwalls {
     colvars        DBC
     lowerWalls     0.0
-    upperWalls     2.5
+    upperWalls     1.5
     forceConstant  200.0
 }
 
