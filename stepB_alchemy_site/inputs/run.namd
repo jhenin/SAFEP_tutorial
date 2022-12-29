@@ -7,7 +7,7 @@ set NPT	1
 
 # Use sample data? 1=yes; 0=no, use my files
 
-set useSampleFiles	1
+set useSampleFiles	0
 set continuing	0 
 
 if {$useSampleFiles} {
