@@ -2,6 +2,8 @@
 This repository contains all the files needed to calculate the binding free energy of phenol to lysozyme following the SAFEP Tutorial.
 Available here: https://www.biorxiv.org/content/10.1101/2022.12.09.519809v1
 
+Related tools can be found in the SAFEP repository: https://github.com/BranniganLab/safep
+
 Structure of supplementary files:
 ```
 ├── Binding_Tutorial.pdf
