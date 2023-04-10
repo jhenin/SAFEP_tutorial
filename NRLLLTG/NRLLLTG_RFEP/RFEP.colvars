@@ -1,0 +1,43 @@
+colvar {
+       name COM
+       distance {
+       		group1 {
+              	# auto-updating selection: "segname PROB and noh"
+              	atomNumbers 1 5 7 10 11 12 15 16 17 19 21 24 27 30 32 33 36 39 40 41 43 45 48 50 54 58 59 60 62 64 67 69 73 77 78 79 81 83 86 88 92 96 97 98 100 102 104 106 110 111 112 114 117 118 119
+       		}
+       		group2 {
+       	      	dummyAtom (-17.51,-21.42,-30.09)
+        	}
+    	}
+}
+
+colvar {
+
+    # A "distance to bound configuration" (DBC) coordinate for ligand binding restraints
+    # see Salari, Joseph, Lohia, Hénin and Brannigan, J. Chem. Theory Comput. 2018, 14, 12, 6560-6573
+    # https://arxiv.org/abs/1801.04901
+    name DBC
+
+    rmsd {
+        # Reference coordinates (for ligand RMSD computation)
+        refpositionsfile NRLLLTG.pdb # PDB or XYZ file
+
+        atoms {
+
+            # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            # auto-updating selection: "segname PROB and noh"
+            atomNumbers 1 5 7 10 11 12 15 16 17 19 21 24 27 30 32 33 36 39 40 41 43 45 48 50 54 58 59 60 62 64 67 69 73 77 78 79 81 83 86 88 92 96 97 98 100 102 104 106 110 111 112 114 117 118 119
+}
+}
+}
+
+
+harmonicwalls {
+    colvars        COM
+    lowerWalls     0
+    upperWalls     4
+    forceConstant  200
+}
+
+
+
