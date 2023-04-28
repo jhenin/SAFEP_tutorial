@@ -45,8 +45,7 @@ proc makeTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindo
 	targetEquilSteps      $equilSteps     \n \
     	lambdaSchedule        $lambdaSched      \n \
 	targetNumSteps        $stepsPerWindow  \n \
-	writeTIPMF	      on
-	writeTISamples        on
+	outputEnergy	      on
         }"
 
     return $TIbias
