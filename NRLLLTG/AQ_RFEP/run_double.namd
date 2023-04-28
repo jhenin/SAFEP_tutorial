@@ -1,0 +1,99 @@
+#############################################################
+## JOB DESCRIPTION                                        
+
+# Run a DBC TI calculation
+
+#############################################################
+## ADJUSTABLE PARAMETERS                                   
+
+set useSampleFiles 1
+
+if {$useSampleFiles} {
+	set struct NRLLLTG_aq.psf
+	set coords NRLLLTG_aq.pdb
+	set CVconf RFEP.colvars
+} else {
+	set struct ../outputs/
+	set coords ../outputs/
+	set CVconf ../outputs/
+}
+
+structure          $struct
+coordinates        $coords
+outputName         ./outputs/RFEP
+
+set continuing		1
+
+# Continuing a job from the restart files
+if {$continuing} {
+	set inputname      ./relax
+} 
+
+#############################################################
+## SIMULATION PARAMETERS                                   
+
+# Periodic boundaries should not be used in this case
+# PME is off by default and should not be used in this case
+# We're in vacuum so there is no pressure coupling
+
+set NPT	1
+
+# Integrator Parameters
+
+# fs per step 
+timestep            1.0 
+
+# RESPA settings for multistepping
+fullElectFrequency  1
+nonbondedFreq       1
+
+# output frequencies in steps
+restartfreq        100000     
+dcdfreq            10000 	 
+xstFreq            10000
+outputEnergies     10000
+outputPressure     10000
+
+#############################################################
+## GENERAL SETTINGS                                        
+
+source ../../common/common_config.namd
+
+#############################################################
+## COLVARS                                                
+
+colvars                 on 
+
+colvarsConfig           $CVconf
+
+
+# This block defines the inputs for a TI bias
+
+source ../../common/TI.tcl
+
+set cvName 					DBC
+set biasType 				harmonicWalls
+set targetForceConstant 	200 
+set forceConstant 			0 
+set forceExponent 			6 
+set upperWalls 				3 
+set nWindows 				50 
+set targetEquilSteps 		500 
+set targetNumSteps 			1000000 
+set releaseFlag 			True
+
+set TIbias [makeTI $cvName $biasType $forceConstant $targetForceConstant $forceExponent $upperWalls $nWindows $targetEquilSteps $targetNumSteps $releaseFlag]
+cv config $TIbias
+
+#############################################################
+## EXECUTION SCRIPT                                        
+
+# Minimization
+
+if {!$continuing} {
+	minimize            100
+	reinitvels          $temperature
+}
+
+# 51 ns total (51 lambdas, 1ns each)
+run 51000000
