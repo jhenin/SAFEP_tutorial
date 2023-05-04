@@ -1,0 +1,45 @@
+#units real
+
+colvar {
+       name COM
+       outputAppliedForce on
+       distance {
+       		group1 {
+              	            # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            # auto-updating selection: "protein and backbone"
+            atomNumbers 1 5 15 16 17 19 39 40 41 43 58 59 60 62 77 78 79 81 96 97 98 100 110 111 112 114 117 118 119
+      		}
+       		group2 {
+       	      	dummyAtom (-17.51,-21.42,-30.09)
+        	}
+    	}
+}
+
+colvar {
+
+    name DBC
+    outputAppliedForce on
+    rmsd {
+        refpositionsfile NRLLLTG.pdb # PDB or XYZ file
+
+        atoms {
+	    rotateReference off
+	    centerReference off
+
+                      # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            # auto-updating selection: "protein and backbone"
+            atomNumbers 1 5 15 16 17 19 39 40 41 43 58 59 60 62 77 78 79 81 96 97 98 100 110 111 112 114 117 118 119
+}
+}
+}
+
+harmonicwalls {
+    name harmonicwalls1
+
+    colvars        COM
+    lowerWalls     0
+    upperWalls     4.0
+    forceConstant  200
+}
+
+
