@@ -3,7 +3,7 @@ import pandas as pd
 import safep
 import matplotlib.pyplot as plt
 import re
-import pymbar
+from pymbar.timeseries import detect_equilibration
 import argparse
 
 import warnings #Suppress future warnings from pandas.
@@ -26,8 +26,6 @@ def subsample_traj(dataTI, percent_min, percent_max):
     return newData
 
 
-
-
 def read_colvar_traj(colvarsPath, DBC):
     with open(colvarsPath) as f:
         first_line = f.readline()
@@ -38,19 +36,19 @@ def read_colvar_traj(colvarsPath, DBC):
     return dataTI
 
 
-def do_convergence(dataTI):
+def do_convergence(dataTI, DBC):
     forward = []
     ferr = []
     backward = []
     berr = []
     for x in np.linspace(0.9,0,10):
         subsampled = subsample_traj(dataTI, x, 1)
-        TIperWindow, TIcumulative = safep.process_TI_DBC(subsampled, DBC)
+        TIperWindow, TIcumulative = safep.process_TI(subsampled, DBC, DBC['schedule'])
         backward.append(TIcumulative.dG.iloc[-1])
         berr.append(TIcumulative.error.iloc[-1])
         
         subsampled = subsample_traj(dataTI, 0, 1-x)
-        TIperWindow, TIcumulative = safep.process_TI_DBC(subsampled, DBC)
+        TIperWindow, TIcumulative = safep.process_TI(subsampled, DBC, DBC['schedule'])
         forward.append(TIcumulative.dG.iloc[-1])
         ferr.append(TIcumulative.error.iloc[-1])
 
@@ -66,17 +64,22 @@ def plot_convergence(forward, ferr, backward, berr):
     ax.set_xlabel("Fraction of non-zero samples")
     ax.set_ylabel("dG (kcal/mol)")
     fig.legend()
+    fwd50 = forward[len(forward)//2-1]
+    bwd50 = backward[len(backward)//2-1]
+    delta50 = fwd50-bwd50
+    avg50 = (fwd50+bwd50)/2
+    txt = r"$\Delta G_{50} =$"+f"{np.round(delta50,2)}"
+    ax.annotate(txt, (0.5, avg50))
+    ax.plot([0.5, 0.5], [fwd50, bwd50], color="black")
 
     return fig, ax
-
-
 
 def detect_equilibration_TI(dataTI, DBC):
     groups = dataTI.groupby('L')
 
     trimmed = []
     for key, grp in groups:
-        start, _, eqsamples = pymbar.timeseries.detect_equilibration(grp.DBC, nskip=10)
+        start, _, eqsamples = detect_equilibration(grp.DBC, nskip=10)
         stride = int(len(grp)/eqsamples)
         toappend = grp.iloc[start::stride, :]
         diff = len(toappend)-eqsamples
@@ -103,26 +106,26 @@ def plot_samples(lengths):
 
     return fig, ax
 
-def get_num_regex(regex, fname, grp=2, dotall=False):
-    with open(fname) as fin:
-        fstring = fin.read()
-        if dotall:
-            result = re.search(regex, fstring, re.DOTALL).group(grp)
-        else:
-            result = re.search(regex, fstring).group(grp)
-    
-    return result
-
 def setup_TI_analysis(logpath):
-    restraint = get_num_regex('(harmonicwalls.*\n.*name\ =\ \")(.+)(\"\ .*\n.*DBC)', logpath, grp=2)
-    print(f"Restraint name is {restraint}")
-    steps_per_lambda = int(get_num_regex('(.*targetNumSteps\ *=\ *)(\d+)', logpath))
-    Lsched = np.float64(get_num_regex('(.*lambdaSchedule\ =\ \{)(.*)(\})', logpath).split(", "))
-    FC = float(get_num_regex(f'({restraint}.*forceConstant\ *=\ *)(\d+)', logpath, dotall=True))
-    targetFC = float(get_num_regex(f'({restraint}.*targetForceConstant\ *=\ *)(\d+)', logpath, dotall=True))
-    exponent = float(get_num_regex(f'({restraint}.*targetForceExponent\ *=\ *)(\d+)', logpath, dotall=True))
-    DBCwidth = int(get_num_regex(f'({restraint}'+'.*upperWalls\ *=\ *\{)(\d+)(\})', logpath, dotall=True))
-    eqsteps = int(get_num_regex(f'({restraint}.*targetEquilSteps\ *=\ *)(\d+)', logpath, dotall=True))
+    with open(logpath) as logfile:
+        wholelog = logfile.read()
+        loglines = wholelog.split('\n')
+        restraintREGEX = 'harmonicwalls.*initialize'
+        restraint = re.search(restraintREGEX, wholelog, re.DOTALL)
+        restraintStr = restraint.group(0)
+        
+        restraint_name = re.search('(.*\")(.*)(\".*\n.*\{\ DBC\ \})', restraintStr).group(2)
+        steps_per_lambda = int(re.search('(targetNumSteps\ *=\ *)(\d+)', restraintStr).group(2))
+        Lsched = np.float64(re.search('(.*lambdaSchedule\ =\ \{)(.*)(\})', restraintStr).group(2).split(", "))
+        FC = float(re.search(f'({restraint_name}.*forceConstant\ *=\ *)(\d+)', restraintStr, re.DOTALL).group(2))
+        targetFC = float(re.search('(targetForceConstant\ *=\ *)(\d+)', restraintStr).group(2))
+        exponent = float(re.search('(targetForceExponent\ *=\ *)(\d+)', restraintStr).group(2))
+
+        widthRegex = f'({restraint_name}'+'.*upperWalls\ *=\ *{\ )(\d+)(\ })'
+        DBCwidth = float(re.search(widthRegex, restraintStr, re.DOTALL).group(2))
+        
+        eqstepsRegex = f'({restraint_name}'+'.*targetEquilSteps\ *=\ *)(\d+)'
+        eqsteps = int(re.search(eqstepsRegex, restraintStr, re.DOTALL).group(2))
 
     DBC = safep.make_harmonicWall(FC=FC, 
         targetFC=targetFC, 
@@ -136,7 +139,6 @@ def setup_TI_analysis(logpath):
     return DBC, Lsched
 
 def l_from_energy(dataTI):
-    
     guessedLs = [
         safep.guessL(
             U,
@@ -167,7 +169,6 @@ if __name__=='__main__':
         description = "Process the outputs from a NAMD TI calculation."
         )
     parser.add_argument('namdlog')
-    parser.add_argument('cvconfig')
     parser.add_argument('traj_path')
     parser.add_argument('-o', '--outputDirectory', type=str, default='.')
     parser.add_argument('-d', '--detectEquilibrium', action='store_true')
@@ -183,7 +184,7 @@ if __name__=='__main__':
         dataTI = l_from_sched(dataTI, Lsched)
     
     print("Processing...")
-    forward, ferr, backward, berr = do_convergence(dataTI)
+    forward, ferr, backward, berr = do_convergence(dataTI, DBC)
     TIperWindow, TIcumulative = safep.process_TI(dataTI, DBC, Lsched)
 
     print("Plotting...")
