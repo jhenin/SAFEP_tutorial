@@ -1,0 +1,129 @@
+#############################################################
+# GENERAL SETTINGS    
+                                    
+# NPT ensemble (flag for later scripting, not part of vanilla NAMD)
+
+set NPT	1
+
+# Use sample data? 1=yes; 0=no, use my files
+
+set useSampleFiles	0
+set continuing	0 
+
+if {$useSampleFiles} {
+	set 	coorinput  	../sample_outputs/alchemy_bulk.pdb
+	set 	CVconfig 	../../stepA_create_DBC/sample_outputs/DBC_restraint.colvars
+	set 	alchconfig 	../sample_outputs/alchemy_bulk.pdb
+} else {
+	set     coorinput  	../outputs/alchemy_bulk.pdb
+	set 	CVconfig 	../../stepA_create_DBC/outputs/DBC_restraint.colvars
+	set 	alchconfig 	../outputs/alchemy_bulk.pdb
+}
+
+#############################################################
+# ADJUSTABLE PARAMETERS                                   
+
+structure          		../../common/structures/phenol_water.psf
+coordinates			$coorinput
+outputName         		../outputs/alchemy_bulk
+
+# Continuing a job from the restart files
+if {$continuing} {
+	set inputname      [your inputname here]
+}
+
+#############################################################
+# SIMULATION PARAMETERS                                   
+# Periodic Boundary Conditions
+# NOTE: Do not set the periodic cell basis if you have also 
+# specified an .xsc restart file!
+
+if {!$continuing} { 
+	cellBasisVector1   22.    0.   0.
+	cellBasisVector2    0.   22.   0.
+	cellBasisVector3    0.    0.  22.
+	cellOrigin          0     0    0
+}
+
+# Integrator Parameters and RESPA 
+timestep            1.0  ;# 1fs/step
+fullElectFrequency  2
+nonbondedFreq       1
+
+# output frequencies in steps
+restartfreq        100000     
+dcdfreq            10000 	 
+xstFreq            10000
+outputEnergies     10000
+outputPressure     10000
+
+# PMEon is a flag used by the common_config file
+
+set PMEon	1
+
+#############################################################
+# GENERAL SETTINGS                                        
+
+source ../../common/common_config.namd
+
+#############################################################
+# FEP PARAMETERS                          
+# See NAMD UG for more details                  
+#	alch: 		initialize the alchemy module
+#	alchType: 	FEP, as opposed to TI
+#	alchFile: 	Indicates which atoms are being perturbed
+#	alchCol: 	B=Perturbation flags are in the beta field
+#	alchOutFreq:Number of steps between writing FEP data. 
+#				Data will be decorrelated by subsampling during analysis.             
+#	alchOutFile:Where to write the data
+#	alchElecLambdaStart: Start (de)coupling electrostatics. Rarely changed.        
+#	alchVdwLambdaEnd: Start (de)coupling VdW interactions. Rarely changed.              
+#	alchVdwShiftCoeff: The softcore potential coefficient. Typically between 5 and 10.   
+#	alchdecouple: We're decoupling, not annihilating.   
+#	alchLambda/alchLambda2: for running individual windows	
+#	alchEquilSteps: the number of steps to skip before collecting FEP data. 
+#		We set this to 1 and detect equilibrium post-hoc using Alchemlyb and PyMBAR.
+
+# Arguments to runFEP:              
+#	lambdaStart
+#	lambdaEnd
+#	dLambda: The width of each lambda window (0.05 will result in 20 lambda 
+#			 windows and (20+1)*nSteps total simulation time)      
+#	IDWS: Use interleaved double-wide sampling
+
+source                  ../../common/fep.tcl
+                        
+alch                    on
+alchType                FEP
+alchFile		$alchconfig
+alchCol                 B
+alchOutFreq             50 				
+alchOutFile             ../outputs/alchemy_bulk.fepout
+alchElecLambdaStart     0.5
+alchVdwLambdaEnd        1.0
+alchVdwShiftCoeff       6.8
+alchdecouple            on
+set lambdaStart 	0.0
+set lambdaEnd 		1.0
+set dLambda             0.05            
+set IDWS 		true 			
+alchLambda 		0
+alchLambda2		$dLambda
+alchEquilSteps          1
+
+#############################################################
+# COLVARS                                                 
+
+colvars 	off
+
+#############################################################
+# EXECUTION SCRIPT                                        
+
+if {!$continuing} {
+	minimize			1000
+	reinitvels 			$temperature
+}
+
+alchEquilSteps          1
+set numSteps            100000           ;# Number of steps for each lambda window including equilibration
+runFEP  $lambdaStart $lambdaEnd $dLambda $numSteps $IDWS     ;# Invokes the runFEP script. See [NAMD]/lib/alch/fep.tcl for more details.
