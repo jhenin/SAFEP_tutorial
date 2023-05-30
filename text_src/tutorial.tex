@@ -46,6 +46,7 @@
     filecolor=magenta,
     urlcolor=cyan,
     pdftitle={SAFEP Tutorial},
+    hypertexnames=false,
     }
 
 \newcommand{\sourcefile}{\path}
@@ -175,7 +176,7 @@ The desired quantity $\Delta G^\circ_\mathrm{bind}$ (red, left column) is equal 
     \includegraphics[width=0.5\textwidth]{SAFEP_cycle.pdf}
     \caption{\textbf{The SAFEP thermodynamic cycle.} 
     Computing the ABFE of a ligand bound to a protein ($\Delta G^\circ_\mathrm{bind}$) is the ultimate goal. 
-    This is found by computing the free energies of several, smaller perturbations: 1) decoupling the unbound ligand from the condensed phase to the gas phase under no restraints ($\Delta G^*_{\mathrm{bulk}}$); 2) enforcing a restraint scheme (-$\Delta G^\circ_\mathrm{V}$ and $\Delta G_\mathrm{DBC}$); and 3) coupling the ligand from the gas phase to its bound pose in the condensed phase (-$\Delta G^*_{\mathrm{site}}$) under the Distance-to-Bound Configuration (DBC) restraint.
+    This is found by computing the free energies of several, smaller perturbations: 1) decoupling the unbound ligand from the condensed phase to the gas phase under no restraints ($\Delta G^*_{\mathrm{bulk}}$); 2) enforcing a restraint scheme ($-\Delta G^\circ_\mathrm{V}$ and $\Delta G_\mathrm{DBC}$); and 3) coupling the ligand from the gas phase to its bound pose in the condensed phase (-$\Delta G^*_{\mathrm{site}}$) under the Distance-to-Bound Configuration (DBC) restraint.
     The free energy contribution of the volumetric restraint ($\Delta G^\circ_\mathrm{V}$) is calculated analytically, while the other three contributions are calculated via simulation.The free energy of the top horizontal leg vanishes in SAFEP due to design of the DBC restraint. See \ref{app:restraints} for more details.}
     \label{fig:cycle}
 \end{figure}
@@ -219,7 +220,7 @@ Within the scope of free energy perturbations, absolute free energies of binding
 In this method, pair interactions (non-bonded terms) between the ligand and the rest of the simulation box are gradually scaled to zero (decoupled) from both a bound state and an unbound, solvated state.
 
 In order to maintain the ligand in its bound state, most current approaches introduce a series of rotational and translational restraints on the ligand, each of which requires parameterization and an additional $\Delta G$ correction.
-In contrast, SAFEP uses just one restraint: a flat well on the ``Distance-to-Bound Configuration'' (DBC). This minimizes both the number of parameters to be optimized and reduces the number of simulations to be performed compared to layered restraints (See Figure \ref{fig:DBC} or appendix \ref{app:restraints} for details).
+In contrast, SAFEP uses just one restraint: a flat well on the ``Distance-to-Bound Configuration'' (DBC). This minimizes both the number of parameters to be optimized and reduces the number of simulations to be performed compared to layered restraints (See Figure \ref{fig:DBC} or \ref{app:restraints} for details).
 
 The thermodynamic cycle used for absolute binding free energies in SAFEP is seen in Figure \ref{fig:cycle} while the unknown values (black arrows) can be calculated by the simulations outlined in Figure \ref{fig:workflow}.
 More precisely, the thermodynamic cycle (Fig \ref{fig:cycle}) and the corresponding simulations (Fig \ref{fig:workflow}) are broken into three main steps involving three simulation systems: 1) the ligand bound to the protein, 2) the ligand in the gas phase, and 3) the ligand in the bulk. 
