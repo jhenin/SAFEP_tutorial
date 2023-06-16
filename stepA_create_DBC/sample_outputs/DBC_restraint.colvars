@@ -19,8 +19,8 @@ colvar {
         atomPermutation 1 5 3 9 7 11 12
         atoms {
             # Define ligand atoms used for RMSD calculation
-            # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
-            # auto-updating selection: "resname PHEN and noh"
+            ## "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+            ## auto-updating selection: "resname PHEN and noh"
             atomNumbers 1 3 5 7 9 11 12
 
             # Moving frame of reference is defined below
@@ -30,8 +30,8 @@ colvar {
             # if you get an error, rename this param to "rotateToReference"
             fittingGroup {
                 # Define binding site atoms used for fitting
-                # "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
-                # auto-updating selection: "alpha and within 6 of resname PHEN and noh"
+                ## "auto-updating" keyword updates atom IDs when applying cfg or changing molecule
+                ## auto-updating selection: "alpha and within 6 of resname PHEN and noh"
                 atomNumbers 1207 1315 1370 1386 1556 1566 1599 1616 1730 1827
             }
             # Reference coordinates for binding site atoms
