@@ -17,36 +17,36 @@ proc genLambdas { num } {
 #    biasType: the type of the bias
 #    forceConst0: the force constant at lambda=0. (forceConstant)
 #    forceConst1: the force constant at lambda=1. (targetForceConstant)
-#    upperWalls: the upperWall of the restraint. 
+#    upperWalls: the upperWall of the restraint.
 #    nWindows: the number of lambda windows
 #    equilSteps: the number of steps before computing TI gradients
 #    stepsPerWindow: the number of steps for each lambda value
-#    releaseFlag: a flag that indicates whether the restraint is being imposed 
-#        or released. 0=imposed (force increased over time) 
+#    releaseFlag: a flag that indicates whether the restraint is being imposed
+#        or released. 0=imposed (force increased over time)
 #        1=released (force decreases over time)
 # Results:
 #    Creates a new bias based on the inputs and passes it to the Colvars module
 
 proc makeTI { cvName biasType forceConst0 forceConst1 forceExp upperWalls nWindows equilSteps stepsPerWindow releaseFlag} {
-	
+
     set lambdaSched [genLambdas $nWindows]
-    
+
     if { $releaseFlag == "True" } {
-    	puts "Scaling $cvName from $forceConst1 to $forceConst0 over $nWindows windows."
-    	set lambdaSched [lreverse $lambdaSched]
+        puts "Scaling $cvName from $forceConst1 to $forceConst0 over $nWindows windows."
+        set lambdaSched [lreverse $lambdaSched]
     }
-    
-    set TIbias "$biasType {\n \
-    	colvars               $cvName \n \  
-	targetForceConstant   $forceConst1   \n \
-	targetForceExponent   $forceExp     \n \
-    	upperWalls            $upperWalls     \n \
-    	forceConstant         $forceConst0     \n \
-	targetEquilSteps      $equilSteps     \n \
-    	lambdaSchedule        $lambdaSched      \n \
-	targetNumSteps        $stepsPerWindow  \n \
-	outputEnergies	      on
-        }"
+
+    set TIbias "$biasType {
+        colvars               $cvName
+        targetForceConstant   $forceConst1
+        targetForceExponent   $forceExp
+        upperWalls            $upperWalls
+        forceConstant         $forceConst0
+        targetEquilSteps      $equilSteps
+        lambdaSchedule        $lambdaSched
+        targetNumSteps        $stepsPerWindow
+        outputEnergy          on
+    }"
 
     return $TIbias
 }
