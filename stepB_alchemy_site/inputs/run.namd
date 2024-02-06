@@ -122,6 +122,7 @@ colvars                on
 
 colvarsConfig          $CVconfig
 
+# For general use (i.e. if you don't have restraints on the protein) remove this line:
 cv configfile ../../common/protein_tilt.colvars
 
 #############################################################
