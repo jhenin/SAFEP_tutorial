@@ -5,6 +5,7 @@ Some of these will eventually end up in the SAFEP package.
 import numpy as np
 import pandas as pd
 import scipy as sp
+import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from pathlib import Path
 import safep
@@ -47,6 +48,32 @@ class FEPData:
         mkd_string = '<font size=5>{}</font><br/><font size=5>{}</font><br/>'.format(change_mkd_site, error_mkd_site)
         return mkd_string
 
+    def general_plot(self, width, height, cumulative_ylim, perwindow_ylim):
+        fig, axes = safep.plot_general(
+                    self.cumulative,
+                    cumulative_ylim, 
+                    self.perWindow, 
+                    perwindow_ylim, 
+                    self.RT, 
+                    width=width, 
+                    height=height, 
+                    PDFtype='KDE', 
+                    fontsize=20)
+        return fig, axes
+
+    def convergence_plot(self, width, height, fontsize=20):
+        fig, convAx = plt.subplots(1,1)
+        convAx = safep.convergence_plot(convAx,
+                                        self.forward*self.RT, 
+                                        self.forward_error*self.RT,
+                                        self.backward*self.RT,
+                                        self.backward_error*self.RT, 
+                                        fontsize=fontsize)
+
+        fig.set_figwidth(width*3/4)
+        fig.set_figheight(height)
+
+        return fig, convAx
 
 def get_num_regex(regex, fname, grp=2):
     with open(fname) as fin:
