@@ -57,7 +57,7 @@ class FEPData:
                     self.RT, 
                     width=width, 
                     height=height, 
-                    PDFtype='KDE', 
+                    pdf_type='KDE', 
                     fontsize=20)
         return fig, axes
 
@@ -70,7 +70,7 @@ class FEPData:
                                         self.backward_error*self.RT, 
                                         fontsize=fontsize)
 
-        fig.set_figwidth(width*3/4)
+        fig.set_figwidth(width)
         fig.set_figheight(height)
 
         return fig, convAx
