@@ -376,11 +376,12 @@ class FEPData(dGData):
             self.perWindow,
             perwindow_ylim,
             self.RT,
-            width=width,
-            height=height,
-            pdf_type="KDE",
+            width,
+            height,
+            "KDE",
             fontsize=20,
         )
+
         return fig, axes
 
     def convergence_plot(self, width, height, fontsize=20):
