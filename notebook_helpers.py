@@ -1,6 +1,11 @@
 """
 Helper functions to support the SAFEP tutorial notebook.
 Some of these will eventually end up in the SAFEP package.
+
+Linting comments:
+These are standard abbreviations:
+dG = delta Gibb's free energy
+RT = gas constant * temperature
 """
 
 import re
@@ -24,12 +29,8 @@ def get_num_regex(regex, fname, grp=2):
 
     Returns:
         str: The matched number as a string.
-
-    Example:
-        >>> get_num_regex(r'\d+', 'data.txt')
-        '123'
     """
-    with open(fname) as fin:
+    with open(fname, "r", encoding="UTF8") as fin:
         fstring = fin.read()
         found = re.search(regex, fstring)
         if found is not None:
@@ -40,11 +41,17 @@ def get_num_regex(regex, fname, grp=2):
 
 
 # Used in restraint perturbation calculations
-uw_regex = r"(upperWalls[\ \t]+)(\d+.\d+)"
-get_upper_walls = lambda fname: get_num_regex(uw_regex, fname)
+UW_REGEX = r"(upperWalls[\ \t]+)(\d+.\d+)"
 
 
-def P_bind(dissociation_constant, concentrations):
+def get_upper_walls(fname):
+    """
+    get the upper walls from a colvars config file
+    """
+    return get_num_regex(UW_REGEX, fname)
+
+
+def binding_probability(dissociation_constant, concentrations):
     """
     Calculate the fraction of binding sites occupied given the dissociation constant
     and ligand concentration.
@@ -60,30 +67,30 @@ def P_bind(dissociation_constant, concentrations):
     return concentrations / (dissociation_constant + concentrations)
 
 
-def Kd(dG, RT):
+def get_dissociation_constant(delta_g, RT):
     """
-    Calculate the dissociation constant (Kd) from the Gibbs free energy change (dG)
+    Calculate the dissociation constant (Kd) from the Gibbs free energy change (delta_g)
     and the product of the gas constant and temperature (RT).
 
     Args:
-        dG (float): The Gibbs free energy change in kcal/mol.
+        delta_g (float): The Gibbs free energy change in kcal/mol.
         RT (float): The product of the gas constant (R) and temperature (T) in kcal/mol.
 
     Returns:
         float: The dissociation constant (Kd) in microMolar (µM).
     """
-    return np.exp(dG / RT) * 1000000
+    return np.exp(delta_g / RT) * 1000000
 
 
-def plot_titration(ax, concentrations, dG_binding, error_binding, RT):
+def plot_titration(axis, concentrations, binding_free_energy, error_binding, RT):
     """
     Plot the titration curve for a given set of concentrations and binding energies,
     including a 95% confidence interval.
 
     Args:
-        ax (matplotlib.axes.Axes): The matplotlib axis object where the plot will be drawn.
+        axis (matplotlib.axes.Axes): The matplotlib axis object where the plot will be drawn.
         concentrations (array-like): Array of ligand concentrations in microMolar.
-        dG_binding (float): The Gibbs free energy change in kcal/mol for binding.
+        delta_g_binding (float): The Gibbs free energy change in kcal/mol for binding.
         error_binding (float): The standard error of the Gibbs free energy change.
         RT (float): The product of the gas constant (R) and temperature (T) in kcal/mol.
 
@@ -91,30 +98,49 @@ def plot_titration(ax, concentrations, dG_binding, error_binding, RT):
         matplotlib.axes.Axes: The axis object with the titration plot.
 
     """
-    K = Kd(dG_binding, RT)
+    k_dissociation = get_dissociation_constant(binding_free_energy, RT)
 
-    ax.plot(concentrations, P_bind(K, concentrations), label="Binding Curve")
+    axis.plot(
+        concentrations,
+        binding_probability(k_dissociation, concentrations),
+        label="Binding Curve",
+    )
 
-    P_lower = P_bind(Kd(dG_binding - error_binding * 1.96, RT), concentrations)
-    P_upper = P_bind(Kd(dG_binding + error_binding * 1.96, RT), concentrations)
-    ax.fill_between(
-        concentrations, P_lower, P_upper, alpha=0.25, label="95% Confidence Interval"
+    probability_lower_bound = binding_probability(
+        get_dissociation_constant(binding_free_energy - error_binding * 1.96, RT),
+        concentrations,
+    )
+    probability_upper_bound = binding_probability(
+        get_dissociation_constant(binding_free_energy + error_binding * 1.96, RT),
+        concentrations,
+    )
+    axis.fill_between(
+        concentrations,
+        probability_lower_bound,
+        probability_upper_bound,
+        alpha=0.25,
+        label="95% Confidence Interval",
     )
     plt.xscale("log")
-    ax.set_xlabel("Concentration of Phenol " + r"($\mathrm{\mu}$M)", fontsize=20)
-    ax.set_ylabel("Fraction of Sites Occupied", fontsize=20)
-    ax.set_xticklabels(ax.get_xticklabels(), fontsize=16)
-    ax.set_yticklabels(ax.get_yticklabels(), fontsize=16)
-    ax.vlines(
-        K, 0, 1, linestyles="dashed", color="black", label="Dissociation Constant"
+    axis.set_xlabel("Concentration of Phenol " + r"($\mathrm{\mu}$M)", fontsize=20)
+    axis.set_ylabel("Fraction of Sites Occupied", fontsize=20)
+    axis.set_xticklabels(axis.get_xticklabels(), fontsize=16)
+    axis.set_yticklabels(axis.get_yticklabels(), fontsize=16)
+    axis.vlines(
+        k_dissociation,
+        0,
+        1,
+        linestyles="dashed",
+        color="black",
+        label="Dissociation Constant",
     )
-    ax.legend(loc="lower right", fontsize=20 * 0.75)
+    axis.legend(loc="lower right", fontsize=20 * 0.75)
 
-    return ax
+    return axis
 
 
 @dataclass
-class dGData:
+class DeltaGData:
     """
     A data class representing dG data for free energy calculations.
 
@@ -123,15 +149,20 @@ class dGData:
         filepattern (str): The pattern to match the data file names.
         temperature (float): The temperature in Kelvin.
         name (str): The name of the dG data.
-        detectEQ (bool, optional): Whether to detect equilibrium in the data. Defaults to True.
-        perWindow (pd.DataFrame, optional): The per-window data. Defaults to an empty DataFrame.
-        cumulative (pd.DataFrame, optional): The cumulative data. Defaults to an empty DataFrame.
+        detect_equilibrium (bool, optional): Whether to detect equilibrium in the data.
+            Defaults to True.
+        per_window (pd.DataFrame, optional): The per-window data.
+            Defaults to an empty DataFrame.
+        cumulative (pd.DataFrame, optional): The cumulative data.
+            Defaults to an empty DataFrame.
         dG (float, optional): The calculated dG value. Defaults to 0.
         error (float, optional): The estimated error in the dG value. Defaults to 0.
-        RT (float, optional): The product of the gas constant and temperature. Defaults to 0.
+        RT (float, optional): The product of the gas constant and temperature.
+            Defaults to 0.
 
     Methods:
-        pretty_print_dG(): Returns a formatted string representation of the dG and error values.
+        pretty_print_delta_g(): Returns a formatted string representation of the dG
+            and error values.
 
     """
 
@@ -142,14 +173,14 @@ class dGData:
     filepattern: str
     temperature: float
     name: str
-    detectEQ: bool = True
-    perWindow: pd.DataFrame = pd.DataFrame(None)
+    detect_equilibrium: bool = True
+    per_window: pd.DataFrame = pd.DataFrame(None)
     cumulative: pd.DataFrame = pd.DataFrame(None)
-    dG: float = 0
+    delta_g: float = 0
     error: float = 0
     RT: float = 0
 
-    def pretty_print_dG(self):
+    def pretty_print_delta_g(self):
         """
         Generates a formatted string representing the Gibbs free energy change
         (ΔG) and its error, using HTML markup for styling.
@@ -161,14 +192,15 @@ class dGData:
             formatted to display in size 5 font.
         """
         # \u0394 == Delta
-        change_mkd_site = f"\u0394G<sub>{self.name}</sub> = {self.dG} kcal/mol"
+        change_mkd_site = f"\u0394G<sub>{self.name}</sub> = {self.delta_g} kcal/mol"
         error_mkd_site = f"PyMBAR estimated error: {self.error} kcal/mol"
-        mkd_string = f"<font size=5>{change_mkd_site}</font><br/><font size=5>{error_mkd_site}</font><br/>"
+        mkd_string = f"<font size=5>{change_mkd_site}</font><br/>"
+        mkd_string += f"<font size=5>{error_mkd_site}</font><br/>"
         return mkd_string
 
 
 @dataclass
-class TIData(dGData):
+class TIData(DeltaGData):
     """
     A data class representing TIData for free energy calculations.
 
@@ -177,7 +209,7 @@ class TIData(dGData):
         filepattern (str): The pattern to match the data file names.
         temperature (float): The temperature in Kelvin.
         name (str): The name of the TIData.
-        detectEQ (bool, optional): Whether to detect equilibrium in the data.
+        detect_equilibrium (bool, optional): Whether to detect equilibrium in the data.
             Defaults to True.
         perWindow (pd.DataFrame, optional): The per-window data.
             Defaults to an empty DataFrame.
@@ -222,7 +254,7 @@ class TIData(dGData):
     upper_walls: float = 0.0
     n_lambdas: int = 41
     lambda_sched: np.ndarray = np.asarray([])
-    harmonic_wall: dict = {}
+    harmonic_wall: dict = None
     force_constant: int = 0
     target_force_constant: int = 200
     force_exponent: int = 6
@@ -231,23 +263,26 @@ class TIData(dGData):
 
     def read(self):
         """
-        Reads and processes the colvars data from a specified file pattern within a given path.
+        Reads and processes the colvars data from a specified file pattern within
+        a given path.
 
-        This method initializes the data processing by reading the first line of the file to determine
-        the column names, and then reads the entire file into a pandas DataFrame. It filters the data
-        based on the equilibrium time (`eqtime`) and adjusts the DataFrame index accordingly.
+        This method initializes the data processing by reading the first line of
+        the file to determine the column names, and then reads the entire file
+        into a pandas DataFrame. It filters the data based on the equilibrium time
+        (`eqtime`) and adjusts the DataFrame index accordingly.
 
         Raises:
             FileNotFoundError: If no files match the specified pattern.
             ValueError: If the file is empty or the data format is incorrect.
 
         Returns:
-            None: This method modifies the `data` attribute of the instance in-place and does not return anything.
+            None: This method modifies the `data` attribute of the instance in-place
+            and does not return anything.
         """
         # Setup and processing of colvars data
         infile = list(self.inpath.glob(self.filepattern))[0]
-        with open(infile) as f:
-            first_line = f.readline()
+        with open(infile, "r", encoding="UTF8") as fin:
+            first_line = fin.readline()
         columns = re.split(" +", first_line)[1:-1]
         self.data = pd.read_csv(
             infile, delim_whitespace=True, names=columns, comment="#", index_col=0
@@ -302,15 +337,15 @@ class TIData(dGData):
         self.data.loc[:, "L"] = data_lambdas
         self.data = self.data.iloc[1:]
 
-        self.perWindow, self.cumulative = safep.process_TI(
+        self.per_window, self.cumulative = safep.process_TI(
             self.data, self.harmonic_wall, self.lambda_sched
         )
-        self.dG = np.round(self.cumulative["dG"][1], 1)
+        self.delta_g = np.round(self.cumulative["dG"][1], 1)
         self.error = np.round(self.cumulative["error"][1], 1)
 
 
 @dataclass
-class FEPData(dGData):
+class FEPData(DeltaGData):
     """
     A data class representing FEP (Free Energy Perturbation) data for free energy calculations.
 
@@ -319,21 +354,31 @@ class FEPData(dGData):
         filepattern (str): The pattern to match the data file names.
         temperature (float): The temperature in Kelvin.
         name (str): The name of the FEP data.
-        detectEQ (bool, optional): Whether to detect equilibrium in the data. Defaults to True.
-        perWindow (pd.DataFrame, optional): The per-window data. Defaults to an empty DataFrame.
-        cumulative (pd.DataFrame, optional): The cumulative data. Defaults to an empty DataFrame.
+        detect_equilibrium (bool, optional): Whether to detect equilibrium in the data.
+            Defaults to True.
+        perWindow (pd.DataFrame, optional): The per-window data.
+            Defaults to an empty DataFrame.
+        cumulative (pd.DataFrame, optional): The cumulative data.
+            Defaults to an empty DataFrame.
         dG (float, optional): The calculated dG value. Defaults to 0.
-        error (float, optional): The estimated error in the dG value. Defaults to 0.
-        RT (float, optional): The product of the gas constant and temperature. Defaults to 0.
+        error (float, optional): The estimated error in the dG value.
+            Defaults to 0.
+        RT (float, optional): The product of the gas constant and temperature.
+            Defaults to 0.
         forward (pd.Series, optional): The forward FEP data. Defaults to an empty Series.
-        forward_error (pd.Series, optional): The error in the forward FEP data. Defaults to an empty Series.
-        backward (pd.Series, optional): The backward FEP data. Defaults to an empty Series.
-        backward_error (pd.Series, optional): The error in the backward FEP data. Defaults to an empty Series.
+        forward_error (pd.Series, optional): The error in the forward FEP data.
+            Defaults to an empty Series.
+        backward (pd.Series, optional): The backward FEP data.
+            Defaults to an empty Series.
+        backward_error (pd.Series, optional): The error in the backward FEP data.
+            Defaults to an empty Series.
 
     Methods:
         process(): Process the FEP data and calculate the dG value and error.
-        general_plot(width, height, cumulative_ylim, perwindow_ylim): Generate a general plot of the FEP data.
-        convergence_plot(width, height, fontsize): Generate a convergence plot of the FEP data.
+        general_plot(width, height, cumulative_ylim, perwindow_ylim):
+            Generate a general plot of the FEP data.
+        convergence_plot(width, height, fontsize):
+            Generate a convergence plot of the FEP data.
 
     """
 
@@ -373,31 +418,36 @@ class FEPData(dGData):
             self.filepattern
         )  # Resolve any naming regular expressions
         u_nk_site = safep.read_and_process(
-            fepout_files, self.temperature, decorrelate=False, detectEQ=self.detectEQ
+            fepout_files,
+            self.temperature,
+            decorrelate=False,
+            detectEQ=self.detect_equilibrium,
         )  # u_nk stores the fep data
-        self.perWindow, self.cumulative = safep.do_estimation(
+        self.per_window, self.cumulative = safep.do_estimation(
             u_nk_site
         )  # Run the BAR estimator on the fep data
         self.forward, self.forward_error, self.backward, self.backward_error = (
             safep.do_convergence(u_nk_site)
         )  # Used later in the convergence plot
 
-        self.dG = np.round(self.cumulative.BAR.f.iloc[-1] * self.RT, 1)
+        self.delta_g = np.round(self.cumulative.BAR.f.iloc[-1] * self.RT, 1)
         self.error = np.round(self.cumulative.BAR.errors.iloc[-1] * self.RT, 1)
 
     def general_plot(self, width, height, cumulative_ylim, perwindow_ylim):
         """
         Generates a general plot of the FEP data, including both cumulative and per-window data.
 
-        This method utilizes the `safep.plot_general` function to create a plot that visualizes
-        the cumulative and per-window free energy perturbation data. The plot is customized with
-        specified dimensions and y-axis limits.
+        This method utilizes the `safep.plot_general` function to create a plot
+        that visualizes the cumulative and per-window free energy perturbation data.
+        The plot is customized with specified dimensions and y-axis limits.
 
         Args:
             width (int): The width of the plot.
             height (int): The height of the plot.
-            cumulative_ylim (tuple): A tuple specifying the y-axis limits for the cumulative data plot.
-            perwindow_ylim (tuple): A tuple specifying the y-axis limits for the per-window data plot.
+            cumulative_ylim (tuple): A tuple specifying the y-axis limits for the
+                cumulative data plot.
+            perwindow_ylim (tuple): A tuple specifying the y-axis limits for the
+                per-window data plot.
 
         Returns:
             tuple: A tuple containing the figure and axes objects from the matplotlib plot.
@@ -405,7 +455,7 @@ class FEPData(dGData):
         fig, axes = safep.plot_general(
             self.cumulative,
             cumulative_ylim,
-            self.perWindow,
+            self.per_window,
             perwindow_ylim,
             self.RT,
             width,
