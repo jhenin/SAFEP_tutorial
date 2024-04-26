@@ -3,14 +3,14 @@ Helper functions to support the SAFEP tutorial notebook.
 Some of these will eventually end up in the SAFEP package.
 """
 
+import re
+from pathlib import Path
+from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import scipy as sp
 import matplotlib.pyplot as plt
-from dataclasses import dataclass
-from pathlib import Path
 import safep
-import re
 
 
 def get_num_regex(regex, fname, grp=2):
@@ -26,33 +26,38 @@ def get_num_regex(regex, fname, grp=2):
         str: The matched number as a string.
 
     Example:
-        >>> get_num_regex('\d+', 'data.txt')
+        >>> get_num_regex(r'\d+', 'data.txt')
         '123'
     """
     with open(fname) as fin:
         fstring = fin.read()
-        return re.search(regex, fstring).group(grp)
+        found = re.search(regex, fstring)
+        if found is not None:
+            toreturn = found.group(grp)
+        else:
+            toreturn = None
+        return toreturn
 
 
 # Used in restraint perturbation calculations
-uw_regex = "(upperWalls[\ \t]+)(\d+.\d+)"
+uw_regex = r"(upperWalls[\ \t]+)(\d+.\d+)"
 get_upper_walls = lambda fname: get_num_regex(uw_regex, fname)
 
 
-def P_bind(K, L):
+def P_bind(dissociation_constant, concentrations):
     """
     Calculate the fraction of binding sites occupied given the dissociation constant
     and ligand concentration.
 
     Args:
-        K (float): The dissociation constant of the ligand.
-        L (float or array-like): The concentration of the ligand.
+        dissociation_constant (float): The dissociation constant of the ligand.
+        concentrations (float or array-like): The concentration of the ligand.
 
     Returns:
         float or array-like: The fraction of binding sites occupied, calculated
         using the formula L / (K + L).
     """
-    return L / (K + L)
+    return concentrations / (dissociation_constant + concentrations)
 
 
 def Kd(dG, RT):
@@ -130,6 +135,9 @@ class dGData:
 
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # we might deepen the class heirarchy later, but it works for now.
+
     inpath: Path
     filepattern: str
     temperature: float
@@ -143,17 +151,19 @@ class dGData:
 
     def pretty_print_dG(self):
         """
-        Generates a formatted string representing the Gibbs free energy change (ΔG) and its error, using HTML markup for styling.
+        Generates a formatted string representing the Gibbs free energy change
+        (ΔG) and its error, using HTML markup for styling.
 
         Returns:
-            str: A string formatted with HTML to display the Gibbs free energy change and its error. The ΔG value is subscripted with the name of the data, and both ΔG and error values are presented in kcal/mol. The string is formatted to display in size 5 font.
+            str: A string formatted with HTML to display the Gibbs free energy
+            change and its error. The ΔG value is subscripted with the name of the data,
+            and both ΔG and error values are presented in kcal/mol. The string is
+            formatted to display in size 5 font.
         """
         # \u0394 == Delta
         change_mkd_site = f"\u0394G<sub>{self.name}</sub> = {self.dG} kcal/mol"
         error_mkd_site = f"PyMBAR estimated error: {self.error} kcal/mol"
-        mkd_string = "<font size=5>{}</font><br/><font size=5>{}</font><br/>".format(
-            change_mkd_site, error_mkd_site
-        )
+        mkd_string = f"<font size=5>{change_mkd_site}</font><br/><font size=5>{error_mkd_site}</font><br/>"
         return mkd_string
 
 
@@ -167,36 +177,55 @@ class TIData(dGData):
         filepattern (str): The pattern to match the data file names.
         temperature (float): The temperature in Kelvin.
         name (str): The name of the TIData.
-        detectEQ (bool, optional): Whether to detect equilibrium in the data. Defaults to True.
-        perWindow (pd.DataFrame, optional): The per-window data. Defaults to an empty DataFrame.
-        cumulative (pd.DataFrame, optional): The cumulative data. Defaults to an empty DataFrame.
-        dG (float, optional): The calculated dG value. Defaults to 0.
-        error (float, optional): The estimated error in the dG value. Defaults to 0.
-        RT (float, optional): The product of the gas constant and temperature. Defaults to 0.
-        eqtime (int, optional): The equilibrium time. Defaults to 1000.
-        upper_walls (float, optional): The upper walls. Defaults to None.
-        nLambdas (int, optional): The number of lambdas. Defaults to 41.
-        Lsched (list, optional): The L schedule. Defaults to None.
-        harmonic_wall (dict, optional): The harmonic wall. Defaults to None.
-        force_constant (float, optional): The force constant. Defaults to 0.
-        target_force_constant (float, optional): The target force constant. Defaults to 200.
-        force_exponent (float, optional): The force exponent. Defaults to 6.
-        num_steps (int, optional): The number of steps. Defaults to 300000.
-        data (pd.DataFrame, optional): The data. Defaults to an empty DataFrame.
+        detectEQ (bool, optional): Whether to detect equilibrium in the data.
+            Defaults to True.
+        perWindow (pd.DataFrame, optional): The per-window data.
+            Defaults to an empty DataFrame.
+        cumulative (pd.DataFrame, optional): The cumulative data.
+            Defaults to an empty DataFrame.
+        dG (float, optional): The calculated dG value.
+            Defaults to 0.
+        error (float, optional): The estimated error in the dG value.
+            Defaults to 0.
+        RT (float, optional): The product of the gas constant and temperature.
+            Defaults to 0.
+        eqtime (int, optional): The equilibrium time.
+            Defaults to 1000.
+        upper_walls (float, optional): The upper walls.
+            Defaults to None.
+        n_lambdas (int, optional): The number of lambdas.
+            Defaults to 41.
+        lambda_sched (list, optional): The L schedule.
+            Defaults to None.
+        harmonic_wall (dict, optional): The harmonic wall.
+            Defaults to None.
+        force_constant (float, optional): The force constant.
+            Defaults to 0.
+        target_force_constant (float, optional): The target force constant.
+            Defaults to 200.
+        force_exponent (float, optional): The force exponent.
+            Defaults to 6.
+        num_steps (int, optional): The number of steps.
+            Defaults to 300000.
+        data (pd.DataFrame, optional): The data.
+            Defaults to an empty DataFrame.
 
     Methods:
         read(): Reads and processes the colvars data.
         process(): Processes the TIData and calculates dG and error values.
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # we might deepen the class heirarchy later, but it works for now.
+
     eqtime: int = 1000
-    upper_walls: float = None
-    nLambdas: int = 41
-    Lsched: list = None
-    harmonic_wall: dict = None
-    force_constant: float = 0
-    target_force_constant: float = 200
-    force_exponent: float = 6
+    upper_walls: float = 0.0
+    n_lambdas: int = 41
+    lambda_sched: np.ndarray = np.asarray([])
+    harmonic_wall: dict = {}
+    force_constant: int = 0
+    target_force_constant: int = 200
+    force_exponent: int = 6
     num_steps: int = 300000
     data: pd.DataFrame = pd.DataFrame(None)
 
@@ -226,30 +255,31 @@ class TIData(dGData):
         self.data = self.data[self.data.index >= self.eqtime][1:]
         self.data.index = self.data.index - self.eqtime
 
-        return
-
     def process(self):
         """
-        Processes the TIData by setting up the lambda schedule if not already set, creating a harmonic wall,
-        adjusting the data indices based on the number of steps, and finally calculating the thermodynamic integration
-        to determine the free energy change (dG) and its error.
+        Processes the TIData by setting up the lambda schedule if not already set,
+        creating a harmonic wall, adjusting the data indices based on the number
+        of steps, and finally calculating the thermodynamic integration to determine
+        the free energy change (dG) and its error.
 
-        This method first checks if the lambda schedule (`Lsched`) is set, and if not, it initializes it with a linear
-        distribution from 1 to 0 over the number of lambdas (`nLambdas`). It then constructs a harmonic wall using the
-        specified parameters and adjusts the data indices to correspond to the correct lambda values. The method handles
-        edge cases for data indexing and rounds the lambda values for better precision. Finally, it processes the
-        thermodynamic integration using the adjusted data and updates the per-window and cumulative data attributes,
-        along with the calculated dG and error.
+        This method first checks if the lambda schedule (`Lsched`) is set, and if
+        not, it initializes it with a linear distribution from 1 to 0 over the number
+        of lambdas (`n_lambdas`). It then constructs a harmonic wall using the
+        specified parameters and adjusts the data indices to correspond to the correct
+        lambda values. The method handles edge cases for data indexing and rounds
+        the lambda values for better precision. Finally, it processes the thermodynamic
+        integration using the adjusted data and updates the per-window and cumulative
+        data attributes, along with the calculated dG and error.
 
         Side effects:
-            Modifies several attributes of the instance in-place, including `Lsched`, `harmonic_wall`, `data`,
-            `perWindow`, `cumulative`, `dG`, and `error`.
+            Modifies several attributes of the instance in-place, including `Lsched`,
+            `harmonic_wall`, `data`, `perWindow`, `cumulative`, `dG`, and `error`.
 
         Returns:
             None
         """
-        if not self.Lsched:
-            self.Lsched = np.linspace(1, 0, self.nLambdas)
+        if not self.lambda_sched:
+            self.lambda_sched = np.linspace(1, 0, self.n_lambdas)
 
         self.harmonic_wall = safep.make_harmonicWall(
             FC=self.force_constant,
@@ -259,26 +289,24 @@ class TIData(dGData):
             targetEQ=self.eqtime,
             numSteps=self.num_steps,
             name=self.name,
-            schedule=self.Lsched,
+            schedule=self.lambda_sched,
         )
 
-        Ls = (self.data.index.values - 1) // self.harmonic_wall["numSteps"]
-        Ls[0] = 0
+        lambdas = (self.data.index.values - 1) // self.harmonic_wall["numSteps"]
+        lambdas[0] = 0
 
         # This is a small hack in case there are extra samples for the last window
-        Ls[Ls == self.nLambdas] = self.nLambdas - 1
+        lambdas[lambdas == self.n_lambdas] = self.n_lambdas - 1
 
-        dataLs = np.round([self.harmonic_wall["schedule"][i] for i in Ls], 3)
-        self.data.loc[:, "L"] = dataLs
+        data_lambdas = np.round([self.harmonic_wall["schedule"][i] for i in lambdas], 3)
+        self.data.loc[:, "L"] = data_lambdas
         self.data = self.data.iloc[1:]
 
         self.perWindow, self.cumulative = safep.process_TI(
-            self.data, self.harmonic_wall, self.Lsched
+            self.data, self.harmonic_wall, self.lambda_sched
         )
         self.dG = np.round(self.cumulative["dG"][1], 1)
         self.error = np.round(self.cumulative["error"][1], 1)
-
-        return
 
 
 @dataclass
@@ -309,6 +337,9 @@ class FEPData(dGData):
 
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # we might deepen the class heirarchy later, but it works for now.
+
     forward: pd.Series = pd.Series(None)
     forward_error: pd.Series = pd.Series(None)
     backward: pd.Series = pd.Series(None)
@@ -318,28 +349,31 @@ class FEPData(dGData):
         """
         Processes the FEP data to calculate the free energy change (dG) and its error.
 
-        This method computes the gas constant in kcal/(mol K), calculates RT (product of the gas constant and temperature),
-        reads and processes FEP output files, estimates the free energy using the BAR estimator, and calculates convergence
-        data for forward and backward FEP. It updates the instance attributes with per-window data, cumulative data,
-        forward and backward FEP data, and their respective errors.
+        This method computes the gas constant in kcal/(mol K), calculates RT
+        (product of the gas constant and temperature), reads and processes FEP
+        output files, estimates the free energy using the BAR estimator, and
+        calculates convergence data for forward and backward FEP. It updates the
+        instance attributes with per-window data, cumulative data, forward and
+        backward FEP data, and their respective errors.
 
         Side effects:
-            - Updates several attributes of the instance including `RT`, `perWindow`, `cumulative`, `forward`, `forward_error`,
-            `backward`, `backward_error`, `dG`, and `error`.
+            - Updates several attributes of the instance including `RT`, `perWindow`,
+            `cumulative`, `forward`, `forward_error`, `backward`, `backward_error`,
+            `dG`, and `error`.
 
         Returns:
             None
         """
-        R = sp.constants.R / (
+        gas_constant = sp.constants.R / (
             1000 * sp.constants.calorie
         )  # gas constant in kcal/(mol K)
-        self.RT = R * self.temperature  # RT in kcal/mol
+        self.RT = gas_constant * self.temperature  # RT in kcal/mol
 
-        fepoutFiles = self.inpath.glob(
+        fepout_files = self.inpath.glob(
             self.filepattern
         )  # Resolve any naming regular expressions
         u_nk_site = safep.read_and_process(
-            fepoutFiles, self.temperature, decorrelate=False, detectEQ=self.detectEQ
+            fepout_files, self.temperature, decorrelate=False, detectEQ=self.detectEQ
         )  # u_nk stores the fep data
         self.perWindow, self.cumulative = safep.do_estimation(
             u_nk_site
@@ -350,8 +384,6 @@ class FEPData(dGData):
 
         self.dG = np.round(self.cumulative.BAR.f.iloc[-1] * self.RT, 1)
         self.error = np.round(self.cumulative.BAR.errors.iloc[-1] * self.RT, 1)
-
-        return
 
     def general_plot(self, width, height, cumulative_ylim, perwindow_ylim):
         """
@@ -386,10 +418,12 @@ class FEPData(dGData):
 
     def convergence_plot(self, width, height, fontsize=20):
         """
-        Generates a convergence plot for the FEP data, showing forward and backward free energy perturbations.
+        Generates a convergence plot for the FEP data, showing forward and backward
+        free energy perturbations.
 
-        This method multiplies the forward and backward FEP data and their respective errors by the RT value before plotting.
-        It adjusts the plot dimensions according to the specified width and height.
+        This method multiplies the forward and backward FEP data and their respective
+        errors by the RT value before plotting. It adjusts the plot dimensions
+        according to the specified width and height.
 
         Args:
             width (int): The width of the plot in inches.
@@ -399,9 +433,9 @@ class FEPData(dGData):
         Returns:
             tuple: A tuple containing the matplotlib figure and axes objects.
         """
-        fig, convAx = plt.subplots(1, 1)
-        convAx = safep.convergence_plot(
-            convAx,
+        fig, conv_ax = plt.subplots(1, 1)
+        conv_ax = safep.convergence_plot(
+            conv_ax,
             self.forward * self.RT,
             self.forward_error * self.RT,
             self.backward * self.RT,
@@ -412,4 +446,4 @@ class FEPData(dGData):
         fig.set_figwidth(width)
         fig.set_figheight(height)
 
-        return fig, convAx
+        return fig, conv_ax
