@@ -253,7 +253,7 @@ class TIData(DeltaGData):
     eqtime: int = 1000
     upper_walls: float = 0.0
     n_lambdas: int = 41
-    lambda_sched: np.ndarray = field(default_factory=np.asarray)
+    lambda_sched: np.ndarray = None
     harmonic_wall: dict = None
     force_constant: int = 0
     target_force_constant: int = 200
@@ -313,7 +313,7 @@ class TIData(DeltaGData):
         Returns:
             None
         """
-        if not self.lambda_sched:
+        if self.lambda_sched is None:
             self.lambda_sched = np.linspace(1, 0, self.n_lambdas)
 
         self.harmonic_wall = safep.make_harmonicWall(
