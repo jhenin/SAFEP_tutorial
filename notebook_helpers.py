@@ -10,7 +10,7 @@ RT = gas constant * temperature
 
 import re
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -174,8 +174,8 @@ class DeltaGData:
     temperature: float
     name: str
     detect_equilibrium: bool = True
-    per_window: pd.DataFrame = pd.DataFrame(None)
-    cumulative: pd.DataFrame = pd.DataFrame(None)
+    per_window: pd.DataFrame = field(default_factory=pd.DataFrame)
+    cumulative: pd.DataFrame = field(default_factory=pd.DataFrame)
     delta_g: float = 0
     error: float = 0
     RT: float = 0
@@ -253,13 +253,13 @@ class TIData(DeltaGData):
     eqtime: int = 1000
     upper_walls: float = 0.0
     n_lambdas: int = 41
-    lambda_sched: np.ndarray = np.asarray([])
+    lambda_sched: np.ndarray = field(default_factory=np.asarray)
     harmonic_wall: dict = None
     force_constant: int = 0
     target_force_constant: int = 200
     force_exponent: int = 6
     num_steps: int = 300000
-    data: pd.DataFrame = pd.DataFrame(None)
+    data: pd.DataFrame = field(default_factory=pd.DataFrame)
 
     def read(self):
         """
@@ -385,10 +385,10 @@ class FEPData(DeltaGData):
     # pylint: disable=too-many-instance-attributes
     # we might deepen the class heirarchy later, but it works for now.
 
-    forward: pd.Series = pd.Series(None)
-    forward_error: pd.Series = pd.Series(None)
-    backward: pd.Series = pd.Series(None)
-    backward_error: pd.Series = pd.Series(None)
+    forward: pd.Series = field(default_factory=pd.Series)
+    forward_error: pd.Series = field(default_factory=pd.Series)
+    backward: pd.Series = field(default_factory=pd.Series)
+    backward_error: pd.Series = field(default_factory=pd.Series)
 
     def process(self):
         """
