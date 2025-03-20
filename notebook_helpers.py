@@ -327,7 +327,7 @@ class TIData(DeltaGData):
             schedule=self.lambda_sched,
         )
 
-        lambdas = (self.data.index.values - 1) // self.harmonic_wall["numSteps"]
+        lambdas = (self.data.index.values - 1) // self.harmonic_wall["targetNumSteps"]
         lambdas[0] = 0
 
         # This is a small hack in case there are extra samples for the last window
