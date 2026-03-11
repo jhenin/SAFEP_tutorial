@@ -1,13 +1,10 @@
 from testbook import testbook
-import numpy as np
 
-tb1 = @testbook('SAFEP_Tutorial_Notebook_Old.ipynb', execute=range(0, 11))
+OLD_NOTEBOOK_PATH =  'SAFEP_Tutorial_Notebook.ipynb'
+NEW_NOTEBOOK_PATH = 'SAFEP_Tutorial_Notebook_New.ipynb'
 
-    
-tb2 = @testbook('SAFEP_Tutorial_Notebook.ipynb', execute=True)
-
-
-def test_stdout(tb1, tb2):
-    site = tb1.ref("site") 
-    site2 = tb1.ref("site")
-    assert site.delta_g.item() == site2
+def test_delta_g_values():
+    with testbook(OLD_NOTEBOOK_PATH, execute=range(0, 11)) as tb, testbook(NEW_NOTEBOOK_PATH, execute=True) as tc:
+        tp1 = tb.ref("site")
+        tp2 = tc.ref("site")
+        assert tp1.delta_g.item() == tp2
