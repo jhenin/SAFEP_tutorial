@@ -117,7 +117,6 @@ def plot_titration(axis, concentrations, binding_free_energy, error_binding, RT)
     axis.fill_between(
         concentrations,
         probability_lower_bound,
-        probability_upper_bound,
         alpha=0.25,
         label="95% Confidence Interval",
     )
