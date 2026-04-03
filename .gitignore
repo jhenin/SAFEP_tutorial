@@ -5,3 +5,5 @@ __pycache__
 .DS_Store
 .vscode/*
 .virtual_documents/*
+.spyproject/*
+managed_context/*
